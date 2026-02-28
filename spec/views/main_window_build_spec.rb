@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe QTimetrap::Views::MainWindow do
+  include_context :main_window_qt_boot
   include_context :main_window_setup
   include_context :main_window_cleanup
 

@@ -70,53 +70,13 @@ module QTimetrap
         Services::Formatters.seconds_to_hms(now.to_i - current_started_at.to_i)
       end
 
-      def grouped_lines
-        rows = filtered_entries.group_by(&:day)
-                               .keys
-                               .sort
-                               .reverse
-                               .flat_map { |day| day_rows(day) }
-        rows.empty? ? ["No entries for filter: #{selected_project}"] : rows
+      def entry_nodes
+        EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
       private
 
       attr_reader :gateway
-
-      def day_rows(day)
-        day_entries = filtered_entries.select { |entry| entry.day == day }
-        [day_header(day, day_entries), *project_rows(day_entries)]
-      end
-
-      def day_header(day, day_entries)
-        total = Services::Formatters.seconds_to_hms(day_entries.sum(&:duration_seconds))
-        "#{day.strftime('%a, %b %-d')}  Total: #{total}"
-      end
-
-      def project_rows(day_entries)
-        day_entries.group_by { |entry| [entry.project, entry.task] }.flat_map do |(project, task), items|
-          [project_header(project, task, items), *detail_rows(items)]
-        end
-      end
-
-      def project_header(project, task, items)
-        total = Services::Formatters.seconds_to_hms(items.sum(&:duration_seconds))
-        "  #{project} | #{task} (#{items.size}) #{total}"
-      end
-
-      def detail_rows(entries)
-        entries.sort_by { |entry| entry.start_time || Time.at(0) }
-               .reverse
-               .map { |entry| detail_row(entry) }
-      end
-
-      def detail_row(entry)
-        note = entry.note.strip
-        note = '(no note)' if note.empty?
-        range = Services::Formatters.time_range(entry)
-        duration = Services::Formatters.seconds_to_hms(entry.duration_seconds)
-        "    #{range}  #{duration}  #{note}"
-      end
     end
   end
 end

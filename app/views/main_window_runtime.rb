@@ -28,7 +28,7 @@ module QTimetrap
         selected_project = view_model.selected_project
         render_sidebar(selected_project)
         render_controls(selected_project)
-        entries.render(view_model.grouped_lines)
+        entries.render(view_model.entry_nodes)
       end
 
       def handle_start(note)

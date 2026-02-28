@@ -22,28 +22,62 @@ QWidget#entries_host {
   border: 0px;
 }
 
-QLabel#entry_row_day {
+QWidget#entries_toolbar {
+  background-color: #f3f6fa;
+  border: 0px;
+}
+
+QPushButton#entries_expand_all,
+QPushButton#entries_collapse_all {
+  background-color: #ffffff;
+  border: 1px solid #cfd8e3;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+QPushButton#entry_node_week {
+  background-color: #2563eb;
+  border: 1px solid #1d4ed8;
+  color: #eff6ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+  padding-left: 8px;
+}
+
+QPushButton#entry_node_day {
   background-color: #ecf1f6;
   border: 1px solid #d5dee8;
   color: #5b6776;
   font-size: 13px;
   font-weight: 700;
-  padding-left: 12px;
+  text-align: left;
+  padding-left: 8px;
 }
 
-QLabel#entry_row_project {
+QPushButton#entry_node_project {
   background-color: #ffffff;
   border: 1px solid #d8e0ea;
   color: #0f172a;
   font-size: 14px;
   font-weight: 700;
-  padding-left: 12px;
+  text-align: left;
+  padding-left: 8px;
 }
 
-QLabel#entry_row_detail {
+QLabel#entry_node_entry {
   background-color: #f9fbfd;
   border: 1px solid #e3e8ef;
   color: #334155;
   font-size: 12px;
-  padding-left: 24px;
+  padding-left: 8px;
+}
+
+QLabel#entry_node_empty {
+  background-color: #f9fbfd;
+  border: 1px solid #e3e8ef;
+  color: #334155;
+  font-size: 12px;
+  padding-left: 8px;
 }
