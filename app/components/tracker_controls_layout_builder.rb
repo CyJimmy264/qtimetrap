@@ -31,7 +31,7 @@ module QTimetrap
 
       def build_topbar
         topbar = QWidget.new(widget)
-        set_name(topbar, 'topbar')
+        topbar.set_object_name('topbar')
         layout = QHBoxLayout.new(topbar)
         configure_topbar_layout(layout, topbar)
         topbar
@@ -39,7 +39,7 @@ module QTimetrap
 
       def build_tracker_row(root_layout)
         row = QWidget.new(widget)
-        set_name(row, 'tracker_row')
+        row.set_object_name('tracker_row')
         layout = QHBoxLayout.new(row)
         layout.set_contents_margins(14, 12, 14, 12)
         layout.set_spacing(8)
@@ -60,7 +60,7 @@ module QTimetrap
 
       def build_task_input(parent_widget)
         QLineEdit.new(parent_widget).tap do |input|
-          set_name(input, 'task_input')
+          input.set_object_name('task_input')
           input.set_placeholder_text('What are you working on?')
           input.text = 'gui-clockify'
         end

@@ -30,7 +30,7 @@ module QTimetrap
       def build_base_window
         QWidget.new do |widget|
           widget.set_window_title('QTimetrap')
-          assign_name(widget, 'main_window')
+          widget.set_object_name('main_window')
           widget.set_geometry(40, 40, self.class::WINDOW_W, self.class::WINDOW_H)
         end
       end
@@ -39,14 +39,6 @@ module QTimetrap
         Application.configuration.theme_name = theme.name
         window.set_style_sheet(theme.application_stylesheet)
         settings_store.write_theme_name(theme.name)
-      end
-
-      def assign_name(widget, value)
-        if widget.respond_to?(:set_object_name)
-          widget.set_object_name(value)
-        elsif widget.respond_to?(:setObjectName)
-          widget.setObjectName(value)
-        end
       end
     end
   end

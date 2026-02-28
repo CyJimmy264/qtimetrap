@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/CyJimmy264/qt
-  revision: cca8aa5292606b6c089946d771e9e4201882ebc3
+  revision: c45bef1ebb0739b117579117e89de6694e64a070
   specs:
     qt (0.1.0)
       ffi (~> 1.17)

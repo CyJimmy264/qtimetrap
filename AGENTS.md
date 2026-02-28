@@ -49,3 +49,9 @@ This repository currently has no commit history; use this convention going forwa
 - Do not introduce application-level workarounds for missing Qt Bridge capabilities if the feature is required by design.
 - If a required Qt API is missing in the bridge (for example `QObject#setObjectName`, `setProperty`, typed `QVariant` transport), first request/add bridge support, then implement the app feature using that API.
 - Temporary fallback code is acceptable only for short-lived local debugging and should not be merged as the final solution.
+
+## Qt API Contract
+- Application code must use Ruby-style Qt bridge methods (`snake_case`) as a hard contract.
+- Do not add defensive `respond_to?` guards around required Qt API calls in `app/**`.
+- Fail fast on missing methods; bridge/API regressions should surface immediately.
+- Test doubles/mocks must explicitly stub required Qt methods (instead of relying on runtime capability checks).

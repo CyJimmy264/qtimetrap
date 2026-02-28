@@ -27,8 +27,8 @@ module QTimetrap
       end
 
       def update_action_button(running:)
-        set_visibility(start_button, !running)
-        set_visibility(stop_button, running)
+        start_button.set_visible(!running)
+        stop_button.set_visible(running)
       end
 
       private
@@ -55,16 +55,6 @@ module QTimetrap
         @theme_button = ui_map.fetch(:theme_button)
         @start_button = ui_map.fetch(:start_button)
         @stop_button = ui_map.fetch(:stop_button)
-      end
-
-      def set_visibility(button, visible)
-        if visible
-          button.show if button.respond_to?(:show)
-          button.set_visible(1) if button.respond_to?(:set_visible)
-        else
-          button.hide if button.respond_to?(:hide)
-          button.set_visible(0) if button.respond_to?(:set_visible)
-        end
       end
     end
   end

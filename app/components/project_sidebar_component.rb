@@ -27,7 +27,7 @@ module QTimetrap
 
       def build
         @widget = QWidget.new(parent)
-        set_name(widget, 'sidebar_panel')
+        widget.set_object_name('sidebar_panel')
 
         layout = QVBoxLayout.new(widget)
         layout.set_contents_margins(12, 12, 12, 12)
@@ -46,19 +46,19 @@ module QTimetrap
         return render_empty_slot(view) unless project
 
         view.set_text(project[0, 24])
-        view.set_disabled(0)
-        view.set_checked(project == selected_project ? 1 : 0)
+        view.set_disabled(false)
+        view.set_checked(project == selected_project)
       end
 
       def render_empty_slot(view)
         view.set_text('')
-        view.set_disabled(1)
-        view.set_checked(0)
+        view.set_disabled(true)
+        view.set_checked(false)
       end
 
       def build_logo
         QLabel.new(widget).tap do |label|
-          set_name(label, 'sidebar_logo')
+          label.set_object_name('sidebar_logo')
           label.set_alignment(Qt::AlignCenter)
           label.set_text('QTimetrap')
         end
@@ -70,7 +70,7 @@ module QTimetrap
 
       def build_heading
         QLabel.new(widget).tap do |label|
-          set_name(label, 'sidebar_heading')
+          label.set_object_name('sidebar_heading')
           label.set_alignment(Qt::AlignCenter)
           label.set_text('PROJECTS')
         end
@@ -86,8 +86,8 @@ module QTimetrap
 
       def build_project_button
         QPushButton.new(widget).tap do |button|
-          set_name(button, 'project_button')
-          button.set_checkable(1)
+          button.set_object_name('project_button')
+          button.set_checkable(true)
           button.set_fixed_height(30)
           button.connect('clicked') { |_| on_button_clicked(button) }
         end
@@ -98,14 +98,6 @@ module QTimetrap
         return unless item && item[:project]
 
         on_project_selected.call(item[:project])
-      end
-
-      def set_name(widget, value)
-        if widget.respond_to?(:set_object_name)
-          widget.set_object_name(value)
-        elsif widget.respond_to?(:setObjectName)
-          widget.setObjectName(value)
-        end
       end
     end
   end

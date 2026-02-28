@@ -10,23 +10,17 @@ module QTimetrap
       end
 
       def apply
-        return unless supports_window_icon?
-
         candidates = icon_candidates
         return if candidates.empty?
 
         icon = QIcon.new(candidates.first)
         add_fallbacks(icon, candidates.drop(1))
-        assign(icon)
+        window.set_window_icon(icon)
       end
 
       private
 
       attr_reader :window, :root
-
-      def supports_window_icon?
-        window.respond_to?(:set_window_icon) || window.respond_to?(:setWindowIcon)
-      end
 
       def icon_candidates
         icons_dir = File.join(root, 'app', 'assets', 'icons')
@@ -36,17 +30,7 @@ module QTimetrap
       end
 
       def add_fallbacks(icon, paths)
-        return unless icon.respond_to?(:add_file)
-
         paths.each { |path| icon.add_file(path) }
-      end
-
-      def assign(icon)
-        if window.respond_to?(:set_window_icon)
-          window.set_window_icon(icon)
-        else
-          window.setWindowIcon(icon)
-        end
       end
     end
   end

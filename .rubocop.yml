@@ -51,3 +51,6 @@ Naming/PredicateMethod:
     - on_signal
     - off_event
     - off_signal
+
+RSpec/SharedExamples:
+  EnforcedStyle: symbol

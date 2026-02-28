@@ -75,7 +75,7 @@ module QTimetrap
           on_project_selected: method(:handle_project_selected),
           on_start: method(:handle_start),
           on_stop: method(:handle_stop),
-          on_refresh: method(:request_refresh),
+          on_refresh: -> { @pending_refresh = true },
           on_switch_theme: method(:switch_theme!)
         }
       end

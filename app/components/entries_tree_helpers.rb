@@ -4,11 +4,13 @@ module QTimetrap
   module Components
     # Helper methods for entries tree rendering and expand/collapse controls.
     module EntriesTreeHelpers
+      include EntriesBranchHierarchyHelpers
+
       private
 
       def add_toolbar
         toolbar = QWidget.new(host)
-        set_name(toolbar, 'entries_toolbar')
+        toolbar.set_object_name('entries_toolbar')
         layout = QHBoxLayout.new(toolbar)
         layout.set_contents_margins(0, 0, 0, 0)
         layout.set_spacing(8)
@@ -19,19 +21,17 @@ module QTimetrap
       end
 
       def build_toolbar_button(parent_widget, name, text, &block)
-        build_button(parent_widget, name, text, 136, 28).tap do |button|
-          button.connect('clicked') { |_| block.call }
-        end
+        build_button(parent_widget, name, text, 136, 28).tap { |button| button.connect('clicked') { |_| yield } }
       end
 
       def expand_all!
         set_all_branch_nodes(current_nodes, true)
-        schedule_rerender
+        apply_all_branch_states
       end
 
       def collapse_all!
         set_all_branch_nodes(current_nodes, false)
-        schedule_rerender
+        apply_all_branch_states
       end
 
       def set_all_branch_nodes(nodes, value)
@@ -43,36 +43,48 @@ module QTimetrap
         end
       end
 
-      def render_nodes(nodes, level)
-        nodes.each { |node| render_node(node, level) }
+      def render_nodes(nodes, level, layout: host_layout, parent_widget: host)
+        nodes.each { |node| render_node(node, level, layout: layout, parent_widget: parent_widget) }
       end
 
-      def render_node(node, level)
+      def render_node(node, level, layout:, parent_widget:)
         if branch_node?(node)
-          render_branch_node(node, level)
+          render_branch_node(node, level, layout: layout, parent_widget: parent_widget)
         else
-          render_leaf_node(node, level)
+          render_leaf_node(node, level, layout: layout, parent_widget: parent_widget)
         end
       end
 
-      def render_branch_node(node, level)
+      def render_branch_node(node, level, layout:, parent_widget:)
+        node_id = node.fetch(:id)
+        label = node.fetch(:label)
         expanded_state = expanded.fetch(node.fetch(:id), true)
-        button = build_branch_button(node, level, expanded_state)
-        host_layout.add_widget(button)
-        render_nodes(node.fetch(:children), level + 1) if expanded_state
+        button = build_branch_button(node, level, expanded_state, parent_widget: parent_widget)
+        layout.add_widget(button)
+        children_container, children_layout = build_children_container(parent_widget)
+        layout.add_widget(children_container)
+        register_branch_binding(
+          node_id: node_id,
+          button: button,
+          children_container: children_container,
+          label: label,
+          level: level
+        )
+        render_nodes(node.fetch(:children), level + 1, layout: children_layout, parent_widget: children_container)
+        apply_branch_state(node_id, expanded_state)
       end
 
-      def render_leaf_node(node, level)
-        label = QLabel.new(host)
-        set_name(label, object_name_for(node))
+      def render_leaf_node(node, level, layout:, parent_widget:)
+        label = QLabel.new(parent_widget)
+        label.set_object_name(object_name_for(node))
         label.set_text("#{indent(level)}#{node.fetch(:label)}")
         label.set_fixed_height(32)
-        host_layout.add_widget(label)
+        layout.add_widget(label)
       end
 
       def toggle_node(node_id)
         expanded[node_id] = !expanded.fetch(node_id, true)
-        schedule_rerender
+        apply_branch_state(node_id, expanded[node_id])
       end
 
       def branch_node?(node)
@@ -93,27 +105,18 @@ module QTimetrap
         '  ' * level
       end
 
-      def build_branch_button(node, level, expanded_state)
+      def build_branch_button(node, level, expanded_state, parent_widget:)
         text = branch_button_text(level, node.fetch(:label), expanded_state)
-        button = build_button(host, object_name_for(node), text, 0, 32)
-        button.connect('clicked') { |_| toggle_node(node.fetch(:id)) }
+        button = build_button(parent_widget, object_name_for(node), text, 0, 32)
+        button.set_minimum_width(branch_button_minimum_width)
+        node_id = node.fetch(:id)
+        button.connect('clicked') { |_| toggle_node(node_id) }
         button
       end
 
       def branch_button_text(level, label, expanded_state)
         prefix = expanded_state ? '▾' : '▸'
         "#{indent(level)}#{prefix}  #{label}"
-      end
-
-      def schedule_rerender
-        timer = QTimer.new(widget)
-        timer.set_interval(0)
-        timer.connect('timeout') do |_|
-          timer.stop if timer.respond_to?(:stop)
-          render(current_nodes)
-          timer.dispose if timer.respond_to?(:dispose)
-        end
-        timer.start
       end
     end
   end

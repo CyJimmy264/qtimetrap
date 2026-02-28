@@ -6,37 +6,47 @@ module QTimetrap
     class EntriesListComponent
       include QtUiHelpers
       include EntriesTreeHelpers
+      include EntriesRenderHelpers
 
       attr_reader :widget
 
       def initialize(parent:)
         @parent = parent
-        @expanded = {}
-        @current_nodes = []
+        initialize_state!
         build
       end
 
       def render(nodes)
+        return if rendering
+
+        @rendering = true
         @current_nodes = Array(nodes)
-        rebuild_host!
-        add_toolbar
-        render_nodes(current_nodes, 0)
-        host_layout.add_stretch(1)
+        @branch_bindings = {}
+        with_widget_updates_suspended { render_contents }
+      ensure
+        @rendering = false
       end
 
       private
 
-      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes
+      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :rendering
 
       def build
         @widget = QScrollArea.new(parent)
-        set_name(widget, 'entries_scroll')
-        widget.set_widget_resizable(1)
+        widget.set_object_name('entries_scroll')
+        widget.set_widget_resizable(true)
         rebuild_host!
       end
 
+      def initialize_state!
+        @expanded = {}
+        @current_nodes = []
+        @branch_bindings = {}
+        @rendering = false
+      end
+
       def build_host
-        QWidget.new(parent).tap { |container| set_name(container, 'entries_host') }
+        QWidget.new(parent).tap { |container| container.set_object_name('entries_host') }
       end
 
       def build_host_layout
@@ -47,11 +57,14 @@ module QTimetrap
       end
 
       def rebuild_host!
-        old_host = @host
         @host = build_host
         @host_layout = build_host_layout
         widget.set_widget(host)
-        old_host.dispose if old_host.respond_to?(:dispose)
+      end
+
+      def branch_button_minimum_width
+        base = [host.width, widget.width].max
+        [base - 10, 120].max
       end
     end
   end
