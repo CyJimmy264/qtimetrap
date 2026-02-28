@@ -46,7 +46,8 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
         json = <<~JSON
           [{"id":1,"note":"n1","sheet":"acme|core","start":"2026-02-28 10:00:00 +0000","end":"2026-02-28 11:00:00 +0000"}]
         JSON
-        allow(Open3).to receive(:capture2e).with('t', 'display', '--format', 'json').and_return(cmd_result(output: json, success: true))
+        allow(Open3).to receive(:capture2e).with('t', 'display', '--format',
+                                                 'json').and_return(cmd_result(output: json, success: true))
 
         entries = gateway.entries
 
@@ -55,7 +56,8 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
       end
 
       it 'returns empty array for invalid JSON' do
-        allow(Open3).to receive(:capture2e).with('t', 'display', '--format', 'json').and_return(cmd_result(output: 'not-json', success: true))
+        allow(Open3).to receive(:capture2e).with('t', 'display', '--format',
+                                                 'json').and_return(cmd_result(output: 'not-json', success: true))
 
         expect(gateway.entries).to eq([])
       end
@@ -91,7 +93,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
       end
 
       it 'parses started_at from timetrap now output' do
-        out = "2026-02-28 09:30:00 +0000 some text"
+        out = '2026-02-28 09:30:00 +0000 some text'
         allow(Open3).to receive(:capture2e).with('t', 'now').and_return(cmd_result(output: out, success: true))
 
         result = gateway.active_started_at

@@ -41,7 +41,7 @@ module QTimetrap
 
       private
 
-      attr_reader :view_model, :window, :theme, :settings_store
+      attr_reader :view_model, :window, :theme, :settings_store, :sidebar, :controls, :entries, :heartbeat
 
       def build_window
         @window = QWidget.new do |widget|
@@ -159,7 +159,7 @@ module QTimetrap
       def on_key_press(event)
         key = extract_event_value(event, :a) || 0
         modifiers = extract_event_value(event, :b) || 0
-        ctrl_pressed = (modifiers & CTRL_MODIFIER) != 0
+        ctrl_pressed = modifiers.anybits?(CTRL_MODIFIER)
         request_shutdown if ctrl_pressed && key == KEY_Q
       end
 
@@ -169,22 +169,6 @@ module QTimetrap
 
       def shutdown_requested?
         @shutdown_requested
-      end
-
-      def sidebar
-        @sidebar
-      end
-
-      def controls
-        @controls
-      end
-
-      def entries
-        @entries
-      end
-
-      def heartbeat
-        @heartbeat
       end
 
       def next_theme_name

@@ -58,7 +58,7 @@ module QTimetrap
     end
 
     def load_initializers!
-      Dir[File.join(root, 'config', 'initializers', '*.rb')].sort.each do |file|
+      Dir[File.join(root, 'config', 'initializers', '*.rb')].each do |file|
         require file
       end
     end

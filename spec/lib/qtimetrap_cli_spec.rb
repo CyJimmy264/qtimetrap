@@ -13,13 +13,9 @@ RSpec.describe QTimetrap::CLI do
     allow(container).to receive(:fetch).with(:main_window).and_return(window)
 
     handler = nil
-    allow(Signal).to receive(:trap) do |signal, previous = nil, &block|
-      if signal == 'INT' && block
-        handler = block
-        'old_handler'
-      else
-        'old_handler'
-      end
+    allow(Signal).to receive(:trap) do |signal, _previous = nil, &block|
+      handler = block if signal == 'INT' && block
+      'old_handler'
     end
 
     described_class.start([])

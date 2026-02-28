@@ -29,8 +29,8 @@ module QTimetrap
 
       private
 
-      attr_reader :parent, :on_start, :on_stop, :on_refresh, :on_switch_theme
-      attr_reader :summary_label, :project_label, :theme_button
+      attr_reader :parent, :on_start, :on_stop, :on_refresh, :on_switch_theme, :summary_label, :project_label,
+                  :theme_button
 
       def build
         @widget = QWidget.new(parent)

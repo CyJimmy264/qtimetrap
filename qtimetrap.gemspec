@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.files = Dir.glob('{app,bin,config,lib}/**/*', File::FNM_DOTMATCH).reject do |path|
     File.directory?(path)
@@ -29,5 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '>= 2.4'
   spec.add_development_dependency 'rake', '>= 13.0'
   spec.add_development_dependency 'rspec', '~> 3.13'
+  spec.add_development_dependency 'rubocop', '~> 1.72'
   spec.add_development_dependency 'simplecov', '~> 0.22'
 end

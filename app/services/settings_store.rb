@@ -30,7 +30,7 @@ module QTimetrap
       def data
         return {} unless File.exist?(path)
 
-        loaded = YAML.safe_load(File.read(path), permitted_classes: [], aliases: false)
+        loaded = YAML.safe_load_file(path, permitted_classes: [], aliases: false)
         loaded.is_a?(Hash) ? stringify_keys(loaded) : {}
       rescue Psych::SyntaxError
         {}

@@ -67,7 +67,6 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(view_model).to have_received(:stop_tracking)
   end
 
-
   it 'switches theme at runtime from toolbar button' do
     main_window.send(:render!)
     expect(theme_button.text.to_s).to eq('THEME: LIGHT')
@@ -88,7 +87,6 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(view_model).to have_received(:select_project).with('acme')
   end
 
-
   it 'adapts control widths when window is resized' do
     controls_widget = main_window.send(:controls).widget
     entries_widget = main_window.send(:entries).widget
@@ -108,13 +106,12 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(main_window.send(:shutdown_requested?)).to eq(true)
   end
 
-
   def theme_button
     widgets_of_type(qt_window, QPushButton).find { |button| button.text.to_s.start_with?('THEME:') }
   end
 
   def widgets_of_type(root, klass)
-    ([root] + widget_descendants(root)).select { |widget| widget.is_a?(klass) }
+    ([root] + widget_descendants(root)).grep(klass)
   end
 
   def button_with_text(text)

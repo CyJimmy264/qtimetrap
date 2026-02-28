@@ -11,9 +11,7 @@ RSpec.shared_context :qt do
     QTimetrap::Application.instance_variable_set(:@qt_app, nil)
   end
 
-  def qt_app
-    @qt_app
-  end
+  attr_reader :qt_app
 
   def widget_descendants(widget)
     children = Array(widget.children).compact
