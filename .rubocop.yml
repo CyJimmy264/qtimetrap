@@ -1,3 +1,11 @@
+plugins:
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-rspec
+
+inherit_from:
+  - .rubocop_todo.yml
+
 AllCops:
   NewCops: enable
   SuggestExtensions: false
@@ -10,3 +18,36 @@ AllCops:
 
 Layout/LineLength:
   Max: 120
+
+Metrics/BlockLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+    - method_call
+
+Metrics/MethodLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+    - method_call
+
+Metrics/ModuleLength:
+  CountAsOne:
+    - array
+    - hash
+    - heredoc
+    - method_call
+
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Naming/PredicateMethod:
+  AllowedMethods:
+    - on_event
+    - on_signal
+    - off_event
+    - off_signal
