@@ -5,6 +5,12 @@ RSpec.shared_context :qt do
     @qt_app = QTimetrap::Application.boot!
   end
 
+  after(:all) do
+    QApplication.process_events
+    @qt_app&.dispose if @qt_app.respond_to?(:dispose)
+    QTimetrap::Application.instance_variable_set(:@qt_app, nil)
+  end
+
   def qt_app
     @qt_app
   end

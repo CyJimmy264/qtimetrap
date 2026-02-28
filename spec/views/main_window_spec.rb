@@ -30,6 +30,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
   after do
     main_window.send(:heartbeat).stop
+    qt_window.close if qt_window.respond_to?(:close)
+    QApplication.process_events
     qt_window.dispose if qt_window.respond_to?(:dispose)
   end
 
@@ -84,6 +86,20 @@ RSpec.describe QTimetrap::Views::MainWindow do
     project_button.click
 
     expect(view_model).to have_received(:select_project).with('acme')
+  end
+
+
+  it 'adapts control widths when window is resized' do
+    controls_widget = main_window.send(:controls).widget
+    entries_widget = main_window.send(:entries).widget
+    before_controls_width = controls_widget.width
+    before_entries_width = entries_widget.width
+
+    qt_window.resize(1700, 980)
+    QApplication.process_events
+
+    expect(controls_widget.width).to be >= before_controls_width
+    expect(entries_widget.width).to be >= before_entries_width
   end
 
   it 'requests shutdown on Ctrl+Q key event' do
