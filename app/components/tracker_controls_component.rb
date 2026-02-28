@@ -15,7 +15,11 @@ module QTimetrap
       end
 
       def update_project_label(selected_project)
-        project_label.set_text("Project: #{selected_project[0, 20]}")
+        project_label.set_text("Sheet: #{selected_project[0, 20]}")
+      end
+
+      def update_task_input(text)
+        task_input.text = text.to_s
       end
 
       def update_theme_label(theme_name)

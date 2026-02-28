@@ -6,18 +6,22 @@ module QTimetrap
   module ViewModels
     # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
-      attr_reader :selected_project, :entries, :current_started_at
+      EPOCH_TIME = Time.at(0)
+
+      attr_reader :selected_project, :entries, :current_started_at, :current_sheet
 
       def initialize(gateway: Services::TimetrapGateway.new)
         @gateway = gateway
         @selected_project = '* ALL'
         @entries = []
         @current_started_at = nil
+        @current_sheet = nil
       end
 
       def refresh!
         @current_started_at = gateway.active_started_at
         @entries = gateway.entries
+        @current_sheet = detect_current_sheet
         @selected_project = '* ALL' unless project_names.include?(@selected_project)
         self
       end
@@ -74,9 +78,35 @@ module QTimetrap
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
+      def current_sheet_label
+        value = current_sheet.to_s.strip
+        value.empty? ? '* ALL' : value
+      end
+
+      def current_sheet_input
+        value = current_sheet.to_s.strip
+        value.empty? ? 'gui-clockify' : value
+      end
+
       private
 
       attr_reader :gateway
+
+      def detect_current_sheet
+        running_sheet || latest_sheet
+      end
+
+      def running_sheet
+        newest_entry(entries.select(&:running?))&.sheet
+      end
+
+      def latest_sheet
+        newest_entry(entries)&.sheet
+      end
+
+      def newest_entry(collection)
+        collection.max_by { |entry| entry.start_time || EPOCH_TIME }
+      end
     end
   end
 end

@@ -20,14 +20,14 @@ module QTimetrap
         return unless pending_refresh?
 
         view_model.refresh!
-        render!
+        render!(sync_sheet: true)
         @pending_refresh = false
       end
 
-      def render!
+      def render!(sync_sheet: false)
         selected_project = view_model.selected_project
         render_sidebar(selected_project)
-        render_controls(selected_project)
+        render_controls(sync_sheet: sync_sheet)
         entries.render(view_model.entry_nodes)
       end
 
@@ -58,9 +58,10 @@ module QTimetrap
         sidebar.render(projects: view_model.project_names, selected_project: selected_project)
       end
 
-      def render_controls(selected_project)
+      def render_controls(sync_sheet:)
         controls.update_summary(view_model.summary_line)
-        controls.update_project_label(selected_project)
+        controls.update_project_label(view_model.current_sheet_label)
+        controls.update_task_input(view_model.current_sheet_input) if sync_sheet
         controls.update_theme_label(theme.name)
       end
 
