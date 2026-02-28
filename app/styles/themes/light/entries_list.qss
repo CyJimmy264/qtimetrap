@@ -1,0 +1,49 @@
+QScrollArea#entries_scroll {
+  background-color: #f3f6fa;
+  border: 1px solid #d9e0e7;
+}
+
+QScrollArea#entries_scroll QScrollBar:vertical {
+  background: #eef2f6;
+  width: 12px;
+  margin: 2px;
+  border: 1px solid #d5dde7;
+  border-radius: 6px;
+}
+
+QScrollArea#entries_scroll QScrollBar::handle:vertical {
+  background: #9aa8b8;
+  min-height: 28px;
+  border-radius: 5px;
+}
+
+QWidget#entries_host {
+  background-color: #f3f6fa;
+  border: 0px;
+}
+
+QLabel#entry_row_day {
+  background-color: #ecf1f6;
+  border: 1px solid #d5dee8;
+  color: #5b6776;
+  font-size: 13px;
+  font-weight: 700;
+  padding-left: 12px;
+}
+
+QLabel#entry_row_project {
+  background-color: #ffffff;
+  border: 1px solid #d8e0ea;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  padding-left: 12px;
+}
+
+QLabel#entry_row_detail {
+  background-color: #f9fbfd;
+  border: 1px solid #e3e8ef;
+  color: #334155;
+  font-size: 12px;
+  padding-left: 24px;
+}

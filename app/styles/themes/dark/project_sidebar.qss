@@ -1,0 +1,34 @@
+QLabel#sidebar_panel {
+  background-color: #111827;
+  border-right: 1px solid #2b3b4f;
+}
+
+QLabel#sidebar_logo {
+  color: #e5e7eb;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+QLabel#sidebar_heading {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+QPushButton#project_button {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+QPushButton#project_button:checked {
+  background-color: #1e293b;
+  border: 2px solid #38bdf8;
+  color: #f8fafc;
+  font-weight: 800;
+}
+
+QPushButton#project_button:disabled {
+  color: #64748b;
+}

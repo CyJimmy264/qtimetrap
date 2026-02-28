@@ -1,0 +1,74 @@
+QLabel#topbar {
+  background-color: #111827;
+  border: 1px solid #2b3b4f;
+}
+
+QLabel#title_label {
+  color: #e2e8f0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+QLabel#clock_label {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+QLabel#tracker_row {
+  background-color: #0f172a;
+  border: 1px solid #2b3b4f;
+  color: #e2e8f0;
+}
+
+QLineEdit#task_input {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  font-size: 14px;
+  padding-left: 8px;
+}
+
+QLabel#project_label {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+QLabel#timer_label {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+QPushButton#start_button {
+  background-color: #0ea5e9;
+  border: 1px solid #0284c7;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+QPushButton#stop_button {
+  background-color: #ef4444;
+  border: 1px solid #dc2626;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+QPushButton#theme_button,
+QPushButton#refresh_button {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+QLabel#summary_label {
+  background-color: #0f172a;
+  border: 1px solid #2b3b4f;
+  color: #e2e8f0;
+}

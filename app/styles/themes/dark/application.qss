@@ -1,0 +1,8 @@
+QWidget#main_window {
+  background-color: #0f172a;
+}
+
+QLabel#app_background {
+  background-color: #0b1220;
+  border: 1px solid #243244;
+}

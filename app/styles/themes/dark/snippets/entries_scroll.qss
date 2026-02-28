@@ -1,0 +1,16 @@
+QScrollArea {
+  background-color: #111827;
+  border: 1px solid #2b3b4f;
+}
+QScrollBar:vertical {
+  background: #0f172a;
+  width: 12px;
+  margin: 2px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+}
+QScrollBar::handle:vertical {
+  background: #475569;
+  min-height: 28px;
+  border-radius: 5px;
+}

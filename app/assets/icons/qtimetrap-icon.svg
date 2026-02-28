@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 512 512"
+   fill="none"
+   version="1.1"
+   id="svg8"
+   sodipodi:docname="qtimetrap-icon.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.21728516"
+     inkscape:cx="-775.47865"
+     inkscape:cy="1320.8449"
+     inkscape:window-width="1920"
+     inkscape:window-height="1136"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8" />
+  <defs
+     id="defs4">
+    <linearGradient
+       id="bg"
+       x1="64"
+       y1="48"
+       x2="448"
+       y2="464"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#0EA5E9"
+         id="stop1" />
+      <stop
+         offset="1"
+         stop-color="#2563EB"
+         id="stop2" />
+    </linearGradient>
+    <linearGradient
+       id="ring"
+       x1="132"
+       y1="118"
+       x2="386"
+       y2="394"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#E0F2FE"
+         id="stop3" />
+      <stop
+         offset="1"
+         stop-color="#BAE6FD"
+         id="stop4" />
+    </linearGradient>
+  </defs>
+  <rect
+     x="40"
+     y="40"
+     width="432"
+     height="432"
+     rx="108"
+     fill="url(#bg)"
+     id="rect4" />
+  <!-- Q ring -->
+  <circle
+     cx="252"
+     cy="248"
+     r="128"
+     stroke="url(#ring)"
+     stroke-width="36"
+     id="circle4" />
+  <!-- Q tail -->
+  <path
+     d="m 333.45169,346.65618 60,58"
+     stroke="#e0f2fe"
+     stroke-width="34"
+     stroke-linecap="round"
+     id="path4" />
+  <!-- clock hands -->
+  <path
+     d="m 256.08439,253.93795 59.98108,-59.12082"
+     stroke="#e0f2fe"
+     stroke-width="22"
+     stroke-linecap="round"
+     id="path5" />
+  <path
+     d="m 245.67191,250.30113 -47,-30"
+     stroke="#e0f2fe"
+     stroke-width="22"
+     stroke-linecap="round"
+     id="path6" />
+  <circle
+     cx="253.72585"
+     cy="252.60225"
+     r="14"
+     fill="#e0f2fe"
+     id="circle6" />
+  <!-- extra-thick check with dark-green outline -->
+  <path
+     d="m 53.12809,385.47416 74,68 106,-114"
+     stroke="#14532d"
+     stroke-width="88"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="path7" />
+  <path
+     d="m 53.12809,385.47416 74,68 106,-114"
+     stroke="#22c55e"
+     stroke-width="60"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="path8" />
+</svg>
