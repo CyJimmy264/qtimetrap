@@ -71,7 +71,7 @@ module QTimetrap
         @host = build_host
         @host_layout = build_host_layout
         widget.set_widget(host)
-        return unless old_host && old_host.respond_to?(:dispose)
+        return unless old_host.respond_to?(:dispose)
 
         old_host.dispose
       end

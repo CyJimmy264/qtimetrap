@@ -1,0 +1,92 @@
+# frozen_string_literal: true
+
+module QTimetrap
+  module Views
+    # Event/runtime behavior extracted from MainWindow.
+    module MainWindowRuntime
+      private
+
+      def on_tick
+        return if window.is_visible.zero?
+        return close if shutdown_requested?
+
+        now = Time.now
+        controls.clock_label.set_text(now.strftime('%a %d %b %Y  %H:%M:%S'))
+        controls.timer_label.set_text(view_model.running_timer_line(now: now))
+        refresh_if_needed
+      end
+
+      def refresh_if_needed
+        return unless pending_refresh?
+
+        view_model.refresh!
+        render!
+        @pending_refresh = false
+      end
+
+      def render!
+        selected_project = view_model.selected_project
+        render_sidebar(selected_project)
+        render_controls(selected_project)
+        entries.render(view_model.grouped_lines)
+      end
+
+      def handle_start(note)
+        view_model.start_tracking(note)
+        request_refresh
+      rescue StandardError => e
+        warn("[qtimetrap] start failed: #{e.class}: #{e.message}")
+      end
+
+      def handle_stop
+        view_model.stop_tracking
+        request_refresh
+      rescue StandardError => e
+        warn("[qtimetrap] stop failed: #{e.class}: #{e.message}")
+      end
+
+      def handle_project_selected(project)
+        view_model.select_project(project)
+        render!
+      end
+
+      def request_refresh
+        @pending_refresh = true
+      end
+
+      def render_sidebar(selected_project)
+        sidebar.render(projects: view_model.project_names, selected_project: selected_project)
+      end
+
+      def render_controls(selected_project)
+        controls.update_summary(view_model.summary_line)
+        controls.update_project_label(selected_project)
+        controls.update_theme_label(theme.name)
+      end
+
+      def switch_theme!
+        @theme = theme.with_name(next_theme_name)
+        apply_theme
+        render!
+      rescue StandardError => e
+        warn("[qtimetrap] save theme failed: #{e.class}: #{e.message}")
+      end
+
+      def on_key_press(event)
+        key = extract_event_value(event, :a) || 0
+        modifiers = extract_event_value(event, :b) || 0
+        ctrl_mask = self.class::CTRL_MODIFIER
+        quit_key = self.class::KEY_Q
+        request_shutdown if modifiers.anybits?(ctrl_mask) && key == quit_key
+      end
+
+      def pending_refresh?
+        @pending_refresh
+      end
+
+      def shutdown_requested?
+        @shutdown_requested
+      end
+    end
+  end
+end
