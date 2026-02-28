@@ -2,10 +2,10 @@
 
 module QTimetrap
   module Views
+    # Main Qt window wiring together components and user interactions.
     class MainWindow
       WINDOW_W = 1380
       WINDOW_H = 860
-      SIDEBAR_W = 220
       THEMES = %w[light dark].freeze
       HEARTBEAT_MS = 33
       CTRL_MODIFIER = 0x04000000
@@ -44,45 +44,20 @@ module QTimetrap
       attr_reader :view_model, :window, :theme, :settings_store, :sidebar, :controls, :entries, :heartbeat
 
       def build_window
-        @window = QWidget.new do |widget|
-          widget.set_window_title('QTimetrap')
-          set_name(widget, 'main_window')
-          widget.set_geometry(40, 40, WINDOW_W, WINDOW_H)
-        end
+        @window = build_base_window
         set_window_icon
         window.set_style_sheet(theme.application_stylesheet)
-
-        root_layout = QHBoxLayout.new(window)
-        root_layout.set_contents_margins(0, 0, 0, 0)
-        root_layout.set_spacing(0)
-
-        @sidebar = Components::ProjectSidebarComponent.new(
-          parent: window,
-          on_project_selected: method(:handle_project_selected)
-        )
-        sidebar.widget.set_fixed_width(SIDEBAR_W)
-        root_layout.add_widget(sidebar.widget)
-
-        content = QWidget.new(window)
-        content_layout = QVBoxLayout.new(content)
-        content_layout.set_contents_margins(14, 8, 14, 8)
-        content_layout.set_spacing(10)
-
-        @controls = Components::TrackerControlsComponent.new(
-          parent: content,
+        ui = MainWindowLayoutBuilder.new(
+          window: window,
+          on_project_selected: method(:handle_project_selected),
           on_start: method(:handle_start),
           on_stop: method(:handle_stop),
           on_refresh: method(:request_refresh),
           on_switch_theme: method(:switch_theme!)
-        )
-        content_layout.add_widget(controls.widget)
-
-        @entries = Components::EntriesListComponent.new(parent: content)
-        content_layout.add_widget(entries.widget)
-        content_layout.set_stretch(1, 1)
-
-        root_layout.add_widget(content)
-        root_layout.set_stretch(1, 1)
+        ).build
+        @sidebar = ui.fetch(:sidebar)
+        @controls = ui.fetch(:controls)
+        @entries = ui.fetch(:entries)
       end
 
       def connect_heartbeat
@@ -116,9 +91,10 @@ module QTimetrap
       end
 
       def render!
-        sidebar.render(projects: view_model.project_names, selected_project: view_model.selected_project)
+        selected_project = view_model.selected_project
+        sidebar.render(projects: view_model.project_names, selected_project: selected_project)
         controls.update_summary(view_model.summary_line)
-        controls.update_project_label(view_model.selected_project)
+        controls.update_project_label(selected_project)
         controls.update_theme_label(theme.name)
         entries.render(view_model.grouped_lines)
       end
@@ -148,9 +124,7 @@ module QTimetrap
 
       def switch_theme!
         @theme = theme.with_name(next_theme_name)
-        Application.configuration.theme_name = theme.name
-        window.set_style_sheet(theme.application_stylesheet)
-        settings_store.write_theme_name(theme.name)
+        apply_theme
         render!
       rescue StandardError => e
         warn("[qtimetrap] save theme failed: #{e.class}: #{e.message}")
@@ -176,30 +150,8 @@ module QTimetrap
         THEMES[(current + 1) % THEMES.length]
       end
 
-      def set_name(widget, value)
-        if widget.respond_to?(:set_object_name)
-          widget.set_object_name(value)
-        elsif widget.respond_to?(:setObjectName)
-          widget.setObjectName(value)
-        end
-      end
-
       def set_window_icon
-        return unless window.respond_to?(:set_window_icon) || window.respond_to?(:setWindowIcon)
-
-        icons_dir = File.join(Application.root, 'app', 'assets', 'icons')
-        svg_path = File.join(icons_dir, 'qtimetrap-icon.svg')
-        png_fallback = File.join(icons_dir, 'qtimetrap-icon-256.png')
-        candidates = [svg_path, png_fallback].select { |path| File.exist?(path) }
-        return if candidates.empty?
-
-        icon = QIcon.new(candidates.first)
-        candidates.drop(1).each { |path| icon.add_file(path) } if icon.respond_to?(:add_file)
-        if window.respond_to?(:set_window_icon)
-          window.set_window_icon(icon)
-        else
-          window.setWindowIcon(icon)
-        end
+        WindowIconLoader.new(window: window, root: Application.root).apply
       rescue StandardError => e
         warn("[qtimetrap] icon load failed: #{e.class}: #{e.message}")
       end
@@ -211,6 +163,28 @@ module QTimetrap
         return value.to_i if value
 
         nil
+      end
+
+      def build_base_window
+        QWidget.new do |widget|
+          widget.set_window_title('QTimetrap')
+          assign_name(widget, 'main_window')
+          widget.set_geometry(40, 40, WINDOW_W, WINDOW_H)
+        end
+      end
+
+      def apply_theme
+        Application.configuration.theme_name = theme.name
+        window.set_style_sheet(theme.application_stylesheet)
+        settings_store.write_theme_name(theme.name)
+      end
+
+      def assign_name(widget, value)
+        if widget.respond_to?(:set_object_name)
+          widget.set_object_name(value)
+        elsif widget.respond_to?(:setObjectName)
+          widget.setObjectName(value)
+        end
       end
     end
   end

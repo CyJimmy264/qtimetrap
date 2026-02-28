@@ -2,6 +2,7 @@
 
 module QTimetrap
   module Components
+    # Renders grouped time entry lines in a scrollable list.
     class EntriesListComponent
       attr_reader :widget
 
@@ -13,19 +14,9 @@ module QTimetrap
       end
 
       def render(lines)
-        clear_rows
-
-        lines.each do |line|
-          label = QLabel.new(host)
-          set_name(label, row_name(line))
-          label.set_text(line)
-          label.set_fixed_height(32)
-          host_layout.add_widget(label)
-          label.show
-          rows << label
-        end
-
-        host_layout.add_stretch(1)
+        rebuild_host
+        lines.each { |line| add_row(line) }
+        add_bottom_stretch
       end
 
       private
@@ -33,27 +24,56 @@ module QTimetrap
       attr_reader :parent, :rows, :host, :host_layout
 
       def build
-        @widget = QScrollArea.new(parent)
-        set_name(widget, 'entries_scroll')
-        widget.set_widget_resizable(1)
-
-        @host = QWidget.new(parent)
-        set_name(host, 'entries_host')
-        @host_layout = QVBoxLayout.new(host)
-        host_layout.set_contents_margins(14, 10, 14, 10)
-        host_layout.set_spacing(2)
-
+        @widget = build_scroll_area
+        @host = build_host
+        @host_layout = build_host_layout
         widget.set_widget(host)
       end
 
-      def clear_rows
+      def add_row(line)
+        label = QLabel.new(host)
+        set_name(label, row_name(line))
+        label.set_text(line)
+        label.set_fixed_height(32)
+        host_layout.add_widget(label)
+        label.show
+        rows << label
+      end
+
+      def add_bottom_stretch
+        host_layout.add_stretch(1)
+      end
+
+      def build_scroll_area
+        QScrollArea.new(parent).tap do |area|
+          set_name(area, 'entries_scroll')
+          area.set_widget_resizable(1)
+        end
+      end
+
+      def build_host
+        QWidget.new(parent).tap do |container|
+          set_name(container, 'entries_host')
+        end
+      end
+
+      def build_host_layout
+        QVBoxLayout.new(host).tap do |layout|
+          layout.set_contents_margins(14, 10, 14, 10)
+          layout.set_spacing(2)
+        end
+      end
+
+      def rebuild_host
+        old_host = host
         rows.each(&:hide)
         rows.clear
+        @host = build_host
+        @host_layout = build_host_layout
+        widget.set_widget(host)
+        return unless old_host && old_host.respond_to?(:dispose)
 
-        while host_layout.count.positive?
-          item = host_layout.item_at(0)
-          host_layout.remove_item(item)
-        end
+        old_host.dispose
       end
 
       def row_name(line)

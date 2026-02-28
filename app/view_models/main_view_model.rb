@@ -4,6 +4,7 @@ require 'date'
 
 module QTimetrap
   module ViewModels
+    # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
       attr_reader :selected_project, :entries, :current_started_at
 
@@ -29,7 +30,7 @@ module QTimetrap
         value = note.to_s.strip
         value = 'gui-clockify' if value.empty?
         gateway.start(value)
-        @current_started_at ||= Time.now
+        @current_started_at = Time.now unless current_started_at
       end
 
       def stop_tracking
@@ -70,35 +71,52 @@ module QTimetrap
       end
 
       def grouped_lines
-        rows = []
-        grouped_by_day = filtered_entries.group_by(&:day)
-
-        grouped_by_day.keys.sort.reverse.each do |day|
-          day_entries = grouped_by_day.fetch(day)
-          day_total = day_entries.sum(&:duration_seconds)
-          rows << "#{day.strftime('%a, %b %-d')}  Total: #{Services::Formatters.seconds_to_hms(day_total)}"
-
-          grouped_by_project_task = day_entries.group_by { |entry| [entry.project, entry.task] }
-          grouped_by_project_task.each do |(project, task), items|
-            section_total = items.sum(&:duration_seconds)
-            rows << "  #{project} | #{task} (#{items.size}) #{Services::Formatters.seconds_to_hms(section_total)}"
-
-            items.sort_by { |entry| entry.start_time || Time.at(0) }.reverse.each do |entry|
-              note = entry.note.strip
-              note = '(no note)' if note.empty?
-              range = Services::Formatters.time_range(entry)
-              rows << "    #{range}  #{Services::Formatters.seconds_to_hms(entry.duration_seconds)}  #{note}"
-            end
-          end
-        end
-
-        rows = ["No entries for filter: #{selected_project}"] if rows.empty?
-        rows
+        rows = filtered_entries.group_by(&:day)
+                               .keys
+                               .sort
+                               .reverse
+                               .flat_map { |day| day_rows(day) }
+        rows.empty? ? ["No entries for filter: #{selected_project}"] : rows
       end
 
       private
 
       attr_reader :gateway
+
+      def day_rows(day)
+        day_entries = filtered_entries.select { |entry| entry.day == day }
+        [day_header(day, day_entries), *project_rows(day_entries)]
+      end
+
+      def day_header(day, day_entries)
+        total = Services::Formatters.seconds_to_hms(day_entries.sum(&:duration_seconds))
+        "#{day.strftime('%a, %b %-d')}  Total: #{total}"
+      end
+
+      def project_rows(day_entries)
+        day_entries.group_by { |entry| [entry.project, entry.task] }.flat_map do |(project, task), items|
+          [project_header(project, task, items), *detail_rows(items)]
+        end
+      end
+
+      def project_header(project, task, items)
+        total = Services::Formatters.seconds_to_hms(items.sum(&:duration_seconds))
+        "  #{project} | #{task} (#{items.size}) #{total}"
+      end
+
+      def detail_rows(entries)
+        entries.sort_by { |entry| entry.start_time || Time.at(0) }
+               .reverse
+               .map { |entry| detail_row(entry) }
+      end
+
+      def detail_row(entry)
+        note = entry.note.strip
+        note = '(no note)' if note.empty?
+        range = Services::Formatters.time_range(entry)
+        duration = Services::Formatters.seconds_to_hms(entry.duration_seconds)
+        "    #{range}  #{duration}  #{note}"
+      end
     end
   end
 end

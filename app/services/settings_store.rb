@@ -5,6 +5,7 @@ require 'yaml'
 
 module QTimetrap
   module Services
+    # Persists lightweight UI settings in a YAML file under user config.
     class SettingsStore
       def initialize(path: default_path)
         @path = path

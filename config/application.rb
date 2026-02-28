@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module QTimetrap
+  # Bootstraps app runtime, configuration, loader, and Qt application object.
   module Application
     module_function
 

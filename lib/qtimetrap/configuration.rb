@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module QTimetrap
+  # Mutable runtime configuration used during application boot.
   class Configuration
     attr_accessor :environment, :theme_name, :timetrap_bin, :enable_reloading
 

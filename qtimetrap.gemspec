@@ -27,9 +27,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'qt'
   spec.add_dependency 'zeitwerk', '~> 2.6'
-  spec.add_development_dependency 'bundler', '>= 2.4'
-  spec.add_development_dependency 'rake', '>= 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.13'
-  spec.add_development_dependency 'rubocop', '~> 1.72'
-  spec.add_development_dependency 'simplecov', '~> 0.22'
 end

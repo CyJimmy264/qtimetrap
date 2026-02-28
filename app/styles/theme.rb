@@ -2,6 +2,7 @@
 
 module QTimetrap
   module Styles
+    # Loads and composes QSS theme assets for the application.
     class Theme
       FILES = %w[application project_sidebar tracker_controls entries_list].freeze
       DEFAULT = 'light'

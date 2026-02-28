@@ -4,6 +4,7 @@ require 'time'
 
 module QTimetrap
   module Models
+    # Immutable time tracking entry model used across view and services.
     class TimeEntry
       attr_reader :id, :note, :sheet, :start_time, :end_time
 

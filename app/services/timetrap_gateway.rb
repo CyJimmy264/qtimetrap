@@ -11,6 +11,7 @@ end
 
 module QTimetrap
   module Services
+    # Integrates with Timetrap via Ruby API or CLI fallback.
     class TimetrapGateway
       def initialize(bin: ENV.fetch('TIMETRAP_BIN', 't'))
         @bin = bin
@@ -65,18 +66,10 @@ module QTimetrap
         ok, output = run('display', '--format', 'json')
         return [] unless ok
 
-        rows = JSON.parse(output)
-        return [] unless rows.is_a?(Array)
+        rows = parse_rows(output)
+        return [] unless rows
 
-        rows.map do |row|
-          Models::TimeEntry.new(
-            id: row['id'],
-            note: row['note'],
-            sheet: row['sheet'],
-            start_time: parse_time(row['start']),
-            end_time: parse_time(row['end'])
-          )
-        end
+        rows.map { |row| build_entry(row) }
       rescue JSON::ParserError
         []
       end
@@ -107,6 +100,21 @@ module QTimetrap
         Time.parse(value)
       rescue ArgumentError, TypeError
         nil
+      end
+
+      def parse_rows(output)
+        rows = JSON.parse(output)
+        rows.is_a?(Array) ? rows : nil
+      end
+
+      def build_entry(row)
+        Models::TimeEntry.new(
+          id: row['id'],
+          note: row['note'],
+          sheet: row['sheet'],
+          start_time: parse_time(row['start']),
+          end_time: parse_time(row['end'])
+        )
       end
 
       attr_reader :bin

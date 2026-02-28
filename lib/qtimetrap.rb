@@ -9,6 +9,7 @@ require_relative 'qtimetrap/container'
 require_relative '../config/application'
 
 module QTimetrap
+  # CLI entrypoint for launching the Qt desktop application.
   class CLI
     def self.start(_argv = [])
       app = QTimetrap::Application.boot!

@@ -2,6 +2,7 @@
 
 module QTimetrap
   module Services
+    # Stateless value formatters used by view models and UI rendering.
     module Formatters
       module_function
 

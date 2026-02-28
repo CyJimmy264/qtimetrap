@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module QTimetrap
+  # Tiny DI container that registers app services and memoized singletons.
   class Container
     def initialize(config:)
       @config = config
@@ -26,10 +27,18 @@ module QTimetrap
     attr_reader :config, :providers, :memoized
 
     def register_defaults
-      register(:theme) { Styles::Theme.new(name: config.theme_name, root: QTimetrap::Application.root) }
+      register_core
+      register_ui
+    end
+
+    def register_core
+      register(:theme) { Styles::Theme.new(name: config.theme_name, root: Application.root) }
       register(:settings_store) { Services::SettingsStore.new }
       register(:timetrap_gateway) { Services::TimetrapGateway.new(bin: config.timetrap_bin) }
       register(:main_view_model) { ViewModels::MainViewModel.new(gateway: fetch(:timetrap_gateway)) }
+    end
+
+    def register_ui
       register(:main_window) do
         Views::MainWindow.new(
           view_model: fetch(:main_view_model),

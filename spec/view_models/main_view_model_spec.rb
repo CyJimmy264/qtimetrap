@@ -3,13 +3,11 @@
 require 'spec_helper'
 
 RSpec.describe QTimetrap::ViewModels::MainViewModel do
-  Entry = QTimetrap::Models::TimeEntry
-
   let(:gateway) { instance_double(QTimetrap::Services::TimetrapGateway) }
   let(:view_model) { described_class.new(gateway: gateway) }
 
   let(:entry_today) do
-    Entry.new(
+    QTimetrap::Models::TimeEntry.new(
       id: 1,
       note: 'build widget',
       sheet: 'acme|core',
@@ -19,7 +17,7 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
   end
 
   let(:entry_other_project) do
-    Entry.new(
+    QTimetrap::Models::TimeEntry.new(
       id: 2,
       note: 'bugfix',
       sheet: 'internal|ops',

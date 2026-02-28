@@ -2,6 +2,7 @@
 
 module QTimetrap
   module Components
+    # Displays project shortcuts and notifies on project selection.
     class ProjectSidebarComponent
       SLOT_COUNT = 14
 
@@ -17,22 +18,7 @@ module QTimetrap
 
       def render(projects:, selected_project:)
         values = projects.first(SLOT_COUNT)
-
-        buttons.each_with_index do |slot, index|
-          project = values[index]
-          slot[:project] = project
-          view = slot[:view]
-
-          if project
-            view.set_text(project[0, 24])
-            view.set_disabled(0)
-            view.set_checked(project == selected_project ? 1 : 0)
-          else
-            view.set_text('')
-            view.set_disabled(1)
-            view.set_checked(0)
-          end
-        end
+        buttons.each_with_index { |slot, index| render_slot(slot, values[index], selected_project) }
       end
 
       private
@@ -47,33 +33,64 @@ module QTimetrap
         layout.set_contents_margins(12, 12, 12, 12)
         layout.set_spacing(8)
 
-        logo = QLabel.new(widget)
-        set_name(logo, 'sidebar_logo')
-        logo.set_alignment(Qt::AlignCenter)
-        logo.set_text('QTimetrap')
-        layout.add_widget(logo)
+        layout.add_widget(build_logo)
+        layout.add_widget(build_logo_spacer)
+        layout.add_widget(build_heading)
+        add_project_buttons(layout)
+        layout.add_stretch(1)
+      end
 
-        spacer = QWidget.new(widget)
-        spacer.set_fixed_height(220)
-        layout.add_widget(spacer)
+      def render_slot(slot, project, selected_project)
+        slot[:project] = project
+        view = slot[:view]
+        return render_empty_slot(view) unless project
 
-        heading = QLabel.new(widget)
-        set_name(heading, 'sidebar_heading')
-        heading.set_alignment(Qt::AlignCenter)
-        heading.set_text('PROJECTS')
-        layout.add_widget(heading)
+        view.set_text(project[0, 24])
+        view.set_disabled(0)
+        view.set_checked(project == selected_project ? 1 : 0)
+      end
 
+      def render_empty_slot(view)
+        view.set_text('')
+        view.set_disabled(1)
+        view.set_checked(0)
+      end
+
+      def build_logo
+        QLabel.new(widget).tap do |label|
+          set_name(label, 'sidebar_logo')
+          label.set_alignment(Qt::AlignCenter)
+          label.set_text('QTimetrap')
+        end
+      end
+
+      def build_logo_spacer
+        QWidget.new(widget).tap { |spacer| spacer.set_fixed_height(220) }
+      end
+
+      def build_heading
+        QLabel.new(widget).tap do |label|
+          set_name(label, 'sidebar_heading')
+          label.set_alignment(Qt::AlignCenter)
+          label.set_text('PROJECTS')
+        end
+      end
+
+      def add_project_buttons(layout)
         SLOT_COUNT.times do
-          button = QPushButton.new(widget)
+          button = build_project_button
+          layout.add_widget(button)
+          buttons << { view: button, project: nil }
+        end
+      end
+
+      def build_project_button
+        QPushButton.new(widget).tap do |button|
           set_name(button, 'project_button')
           button.set_checkable(1)
           button.set_fixed_height(30)
           button.connect('clicked') { |_| on_button_clicked(button) }
-          layout.add_widget(button)
-          buttons << { view: button, project: nil }
         end
-
-        layout.add_stretch(1)
       end
 
       def on_button_clicked(button)
