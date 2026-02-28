@@ -5,7 +5,7 @@ module MainWindowHelpers
     {
       id: 'week:2026-02-23',
       type: :week,
-      label: 'Week of Mon, Feb 23  Total: 01:00:00',
+      label: 'Week Feb 23 - Mar 1  Total: 01:00:00',
       children: [
         {
           id: 'day:2026-02-28',

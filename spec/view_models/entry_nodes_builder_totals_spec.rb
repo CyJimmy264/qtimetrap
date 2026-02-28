@@ -20,7 +20,7 @@ RSpec.describe QTimetrap::ViewModels::EntryNodesBuilder do
     nodes = described_class.new(entries: entries, selected_project: '* ALL').build
 
     expect(nodes.size).to eq(1)
-    expect(nodes.first[:label]).to eq('Week of Mon, Feb 23  Total: 02:00:00')
+    expect(nodes.first[:label]).to eq('Week Feb 23 - Mar 1  Total: 02:00:00')
     expect(nodes.first[:children].first[:label]).to eq('Sat, Feb 28  Total: 01:00:00')
   end
 end

@@ -24,10 +24,11 @@ module QTimetrap
 
       def week_node(week_start, week_entries)
         total = Services::Formatters.seconds_to_hms(week_entries.sum(&:duration_seconds))
+        week_end = week_start + 6
         {
           id: "week:#{week_start}",
           type: :week,
-          label: "Week of #{week_start.strftime('%a, %b %-d')}  Total: #{total}",
+          label: "Week #{week_start.strftime('%b %-d')} - #{week_end.strftime('%b %-d')}  Total: #{total}",
           children: day_nodes(week_entries)
         }
       end
