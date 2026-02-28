@@ -26,9 +26,14 @@ module QTimetrap
         theme_button.set_text("THEME: #{theme_name.upcase}")
       end
 
+      def update_action_button(running:)
+        set_visibility(start_button, !running)
+        set_visibility(stop_button, running)
+      end
+
       private
 
-      attr_reader :summary_label, :project_label, :theme_button
+      attr_reader :summary_label, :project_label, :theme_button, :start_button, :stop_button
 
       def build_ui(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
         TrackerControlsLayoutBuilder.new(
@@ -48,6 +53,18 @@ module QTimetrap
         @summary_label = ui_map.fetch(:summary_label)
         @project_label = ui_map.fetch(:project_label)
         @theme_button = ui_map.fetch(:theme_button)
+        @start_button = ui_map.fetch(:start_button)
+        @stop_button = ui_map.fetch(:stop_button)
+      end
+
+      def set_visibility(button, visible)
+        if visible
+          button.show if button.respond_to?(:show)
+          button.set_visible(1) if button.respond_to?(:set_visible)
+        else
+          button.hide if button.respond_to?(:hide)
+          button.set_visible(0) if button.respond_to?(:set_visible)
+        end
       end
     end
   end

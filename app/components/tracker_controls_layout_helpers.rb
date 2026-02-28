@@ -29,10 +29,11 @@ module QTimetrap
         @project_label.set_alignment(Qt::AlignCenter)
         @timer_label = build_label(row, 'timer_label', '00:00:00', width: 120)
         @timer_label.set_alignment(Qt::AlignCenter)
-        start_button = build_button(row, 'start_button', 'START', 64, 48)
-        stop_button = build_button(row, 'stop_button', 'STOP', 64, 48)
-        [@task_input, @project_label, @timer_label, start_button, stop_button].each { |item| layout.add_widget(item) }
-        [start_button, stop_button]
+        @start_button = build_button(row, 'start_button', 'START', 64, 48)
+        @stop_button = build_button(row, 'stop_button', 'STOP', 64, 48)
+        @stop_button.hide if @stop_button.respond_to?(:hide)
+        [@task_input, @project_label, @timer_label, @start_button, @stop_button].each { |item| layout.add_widget(item) }
+        [@start_button, @stop_button]
       end
 
       def add_actions_row_widgets(layout, row)
@@ -48,14 +49,25 @@ module QTimetrap
       end
 
       def ui_payload
+        ui_core_payload.merge(ui_controls_payload)
+      end
+
+      def ui_core_payload
         {
           widget: @widget,
           task_input: @task_input,
           clock_label: @clock_label,
-          timer_label: @timer_label,
+          timer_label: @timer_label
+        }
+      end
+
+      def ui_controls_payload
+        {
           summary_label: @summary_label,
           project_label: @project_label,
-          theme_button: @theme_button
+          theme_button: @theme_button,
+          start_button: @start_button,
+          stop_button: @stop_button
         }
       end
     end

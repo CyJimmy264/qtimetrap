@@ -15,6 +15,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'sends stop action on stop click' do
+    allow(view_model).to receive(:running_current_sheet?).and_return(true)
+    main_window.send(:render!)
     button_with_text('STOP').click
     expect(view_model).to have_received(:stop_tracking)
   end

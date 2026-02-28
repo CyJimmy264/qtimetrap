@@ -74,13 +74,20 @@ module QTimetrap
         Services::Formatters.seconds_to_hms(now.to_i - current_started_at.to_i)
       end
 
+      def running_current_sheet?
+        !current_started_at.nil?
+      end
+
       def entry_nodes
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
-      def current_sheet_label
+      def current_sheet_label(now: Time.now)
         value = current_sheet.to_s.strip
-        value.empty? ? '* ALL' : value
+        value = '* ALL' if value.empty?
+        return value unless running_current_sheet?
+
+        "#{value} #{running_timer_line(now: now)}"
       end
 
       def current_sheet_input

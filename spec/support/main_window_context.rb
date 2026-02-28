@@ -57,14 +57,16 @@ RSpec.shared_context :main_window_setup do
       project_names: ['* ALL', 'acme'],
       selected_project: 'acme',
       summary_line: 'Week total: 00:10:00 | Total: 02:00:00',
-      current_sheet_label: 'acme|core',
       current_sheet_input: 'acme|core',
+      running_current_sheet?: false,
       entry_nodes: entry_nodes,
       running_timer_line: '00:00:05',
       start_tracking: nil,
       stop_tracking: nil,
       select_project: nil
-    )
+    ).tap do |vm|
+      allow(vm).to receive(:current_sheet_label).and_return('acme|core')
+    end
   end
 
   let(:main_window) { QTimetrap::Views::MainWindow.new(view_model: view_model, settings_store: settings_store) }
