@@ -3,9 +3,9 @@
 module QTimetrap
   module Components
     class TrackerControlsComponent
-      attr_reader :task_input, :clock_label, :timer_label
+      attr_reader :task_input, :clock_label, :timer_label, :widget
 
-      def initialize(parent:, x:, y:, width:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
+      def initialize(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
         @parent = parent
         @on_start = on_start
         @on_stop = on_stop
@@ -13,25 +13,6 @@ module QTimetrap
         @on_switch_theme = on_switch_theme
 
         build
-        relayout(x: x, y: y, width: width)
-      end
-
-      def relayout(x:, y:, width:)
-        topbar.set_geometry(x, y + 8, width, 56)
-        title.set_geometry(x + 16, y + 16, 400, 36)
-        clock_label.set_geometry(x + width - 240, y + 16, 220, 36)
-
-        tracker_row.set_geometry(x, y + 78, width, 74)
-        task_input.set_geometry(x + 14, y + 91, width - 470, 48)
-        project_label.set_geometry(x + width - 440, y + 91, 150, 48)
-        timer_label.set_geometry(x + width - 280, y + 91, 120, 48)
-
-        start_button.set_geometry(x + width - 152, y + 91, 64, 48)
-        stop_button.set_geometry(x + width - 80, y + 91, 64, 48)
-
-        summary_label.set_geometry(x, y + 164, width - 252, 42)
-        theme_button.set_geometry(x + width - 244, y + 168, 112, 34)
-        refresh_button.set_geometry(x + width - 124, y + 168, 110, 34)
       end
 
       def update_summary(text)
@@ -49,48 +30,82 @@ module QTimetrap
       private
 
       attr_reader :parent, :on_start, :on_stop, :on_refresh, :on_switch_theme
-      attr_reader :topbar, :title, :tracker_row, :project_label, :summary_label
-      attr_reader :theme_button, :refresh_button, :start_button, :stop_button
+      attr_reader :summary_label, :project_label, :theme_button
 
       def build
-        @topbar = QLabel.new(parent)
+        @widget = QWidget.new(parent)
+        root = QVBoxLayout.new(widget)
+        root.set_contents_margins(0, 8, 0, 0)
+        root.set_spacing(14)
+
+        topbar = QWidget.new(widget)
         set_name(topbar, 'topbar')
+        topbar_layout = QHBoxLayout.new(topbar)
+        topbar_layout.set_contents_margins(16, 8, 16, 8)
+        topbar_layout.set_spacing(8)
 
-        @title = QLabel.new(parent)
+        title = QLabel.new(topbar)
         set_name(title, 'title_label')
-        title.set_alignment(Qt::AlignCenter)
         title.set_text('TIME TRACKER')
+        topbar_layout.add_widget(title)
+        topbar_layout.add_stretch(1)
 
-        @clock_label = QLabel.new(parent)
+        @clock_label = QLabel.new(topbar)
         set_name(clock_label, 'clock_label')
         clock_label.set_alignment(Qt::AlignCenter)
+        clock_label.set_fixed_width(220)
+        topbar_layout.add_widget(clock_label)
+        root.add_widget(topbar)
 
-        @tracker_row = QLabel.new(parent)
+        tracker_row = QWidget.new(widget)
         set_name(tracker_row, 'tracker_row')
+        row_layout = QHBoxLayout.new(tracker_row)
+        row_layout.set_contents_margins(14, 12, 14, 12)
+        row_layout.set_spacing(8)
 
-        @task_input = QLineEdit.new(parent)
+        @task_input = QLineEdit.new(tracker_row)
         set_name(task_input, 'task_input')
         task_input.set_placeholder_text('What are you working on?')
         task_input.text = 'gui-clockify'
+        row_layout.add_widget(task_input)
 
-        @project_label = QLabel.new(parent)
+        @project_label = QLabel.new(tracker_row)
         set_name(project_label, 'project_label')
         project_label.set_alignment(Qt::AlignCenter)
+        project_label.set_fixed_width(150)
         project_label.set_text('Project: ALL')
+        row_layout.add_widget(project_label)
 
-        @timer_label = QLabel.new(parent)
+        @timer_label = QLabel.new(tracker_row)
         set_name(timer_label, 'timer_label')
         timer_label.set_alignment(Qt::AlignCenter)
+        timer_label.set_fixed_width(120)
         timer_label.set_text('00:00:00')
+        row_layout.add_widget(timer_label)
 
-        @start_button = build_button('start_button', 'START')
-        @stop_button = build_button('stop_button', 'STOP')
-        @theme_button = build_button('theme_button', 'THEME')
-        @refresh_button = build_button('refresh_button', 'REFRESH')
+        start_button = build_button(tracker_row, 'start_button', 'START', 64, 48)
+        stop_button = build_button(tracker_row, 'stop_button', 'STOP', 64, 48)
+        row_layout.add_widget(start_button)
+        row_layout.add_widget(stop_button)
+        root.add_widget(tracker_row)
 
-        @summary_label = QLabel.new(parent)
+        actions_row = QWidget.new(widget)
+        actions_layout = QHBoxLayout.new(actions_row)
+        actions_layout.set_contents_margins(0, 0, 0, 0)
+        actions_layout.set_spacing(8)
+
+        @summary_label = QLabel.new(actions_row)
         set_name(summary_label, 'summary_label')
         summary_label.set_alignment(Qt::AlignCenter)
+        summary_label.set_fixed_height(42)
+        actions_layout.add_widget(summary_label)
+        actions_layout.add_stretch(1)
+
+        @theme_button = build_button(actions_row, 'theme_button', 'THEME', 112, 34)
+        refresh_button = build_button(actions_row, 'refresh_button', 'REFRESH', 110, 34)
+        actions_layout.add_widget(theme_button)
+        actions_layout.add_widget(refresh_button)
+        root.add_widget(actions_row)
 
         start_button.connect('clicked') { |_| on_start.call(task_input.text.to_s) }
         stop_button.connect('clicked') { |_| on_stop.call }
@@ -98,10 +113,12 @@ module QTimetrap
         refresh_button.connect('clicked') { |_| on_refresh.call }
       end
 
-      def build_button(name, text)
+      def build_button(parent, name, text, width, height)
         button = QPushButton.new(parent)
         set_name(button, name)
         button.set_text(text)
+        button.set_fixed_width(width)
+        button.set_fixed_height(height)
         button
       end
 

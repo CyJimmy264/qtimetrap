@@ -1,4 +1,4 @@
-QLabel#topbar {
+QWidget#topbar {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
 }
@@ -14,7 +14,7 @@ QLabel#clock_label {
   font-size: 12px;
 }
 
-QLabel#tracker_row {
+QWidget#tracker_row {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
   color: #111827;

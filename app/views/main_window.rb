@@ -6,10 +6,8 @@ module QTimetrap
       WINDOW_W = 1380
       WINDOW_H = 860
       SIDEBAR_W = 220
-      TOPBAR_H = 56
       THEMES = %w[light dark].freeze
       HEARTBEAT_MS = 33
-      RESIZE_THROTTLE_MS = 90
       CTRL_MODIFIER = 0x04000000
       KEY_Q = 0x51
 
@@ -22,13 +20,10 @@ module QTimetrap
         @theme = theme
         @settings_store = settings_store
         @pending_refresh = true
-        @last_size = nil
-        @pending_size = nil
-        @last_relayout_ms = 0
         @shutdown_requested = false
 
         build_window
-        connect_resize_events
+        connect_key_events
         connect_heartbeat
       end
 
@@ -57,39 +52,37 @@ module QTimetrap
         set_window_icon
         window.set_style_sheet(theme.application_stylesheet)
 
-        background = QLabel.new(window)
-        set_name(background, 'app_background')
+        root_layout = QHBoxLayout.new(window)
+        root_layout.set_contents_margins(0, 0, 0, 0)
+        root_layout.set_spacing(0)
 
         @sidebar = Components::ProjectSidebarComponent.new(
           parent: window,
-          x: 0,
-          y: 0,
-          width: SIDEBAR_W,
-          height: WINDOW_H,
           on_project_selected: method(:handle_project_selected)
         )
+        sidebar.widget.set_fixed_width(SIDEBAR_W)
+        root_layout.add_widget(sidebar.widget)
+
+        content = QWidget.new(window)
+        content_layout = QVBoxLayout.new(content)
+        content_layout.set_contents_margins(14, 8, 14, 8)
+        content_layout.set_spacing(10)
 
         @controls = Components::TrackerControlsComponent.new(
-          parent: window,
-          x: SIDEBAR_W + 14,
-          y: TOPBAR_H,
-          width: WINDOW_W - (SIDEBAR_W + 14) - 14,
+          parent: content,
           on_start: method(:handle_start),
           on_stop: method(:handle_stop),
           on_refresh: method(:request_refresh),
           on_switch_theme: method(:switch_theme!)
         )
+        content_layout.add_widget(controls.widget)
 
-        @entries = Components::EntriesListComponent.new(
-          parent: window,
-          x: SIDEBAR_W + 14,
-          y: TOPBAR_H + 156,
-          width: WINDOW_W - (SIDEBAR_W + 14) - 14,
-          height: WINDOW_H - (TOPBAR_H + 170)
-        )
+        @entries = Components::EntriesListComponent.new(parent: content)
+        content_layout.add_widget(entries.widget)
+        content_layout.set_stretch(1, 1)
 
-        @background = background
-        relayout!
+        root_layout.add_widget(content)
+        root_layout.set_stretch(1, 1)
       end
 
       def connect_heartbeat
@@ -99,16 +92,13 @@ module QTimetrap
         heartbeat.start
       end
 
-      def connect_resize_events
-        window.on(:resize) { |event| on_resize(event) }
+      def connect_key_events
         window.on(:key_press) { |event| on_key_press(event) }
       end
 
       def on_tick
         return if window.is_visible.zero?
         return close if shutdown_requested?
-
-        apply_pending_relayout_if_due
 
         now = Time.now
         controls.clock_label.set_text(now.strftime('%a %d %b %Y  %H:%M:%S'))
@@ -166,8 +156,19 @@ module QTimetrap
         warn("[qtimetrap] save theme failed: #{e.class}: #{e.message}")
       end
 
+      def on_key_press(event)
+        key = extract_event_value(event, :a) || 0
+        modifiers = extract_event_value(event, :b) || 0
+        ctrl_pressed = (modifiers & CTRL_MODIFIER) != 0
+        request_shutdown if ctrl_pressed && key == KEY_Q
+      end
+
       def pending_refresh?
         @pending_refresh
+      end
+
+      def shutdown_requested?
+        @shutdown_requested
       end
 
       def sidebar
@@ -189,57 +190,6 @@ module QTimetrap
       def next_theme_name
         current = THEMES.index(theme.name) || 0
         THEMES[(current + 1) % THEMES.length]
-      end
-
-      def on_resize(event)
-        width = extract_event_size(event, :a) || window.width
-        height = extract_event_size(event, :b) || window.height
-        @pending_size = [width, height]
-        apply_pending_relayout_if_due
-      end
-
-      def on_key_press(event)
-        key = extract_event_size(event, :a) || 0
-        modifiers = extract_event_size(event, :b) || 0
-        ctrl_pressed = (modifiers & CTRL_MODIFIER) != 0
-        request_shutdown if ctrl_pressed && key == KEY_Q
-      end
-
-      def apply_pending_relayout_if_due
-        return unless @pending_size
-
-        now_ms = monotonic_ms
-        return if (now_ms - @last_relayout_ms) < RESIZE_THROTTLE_MS
-
-        relayout_with_size!(@pending_size)
-        @pending_size = nil
-        @last_relayout_ms = now_ms
-      end
-
-      def relayout!
-        relayout_with_size!([window.width, window.height])
-      end
-
-      def relayout_with_size!(size)
-        width = [size[0], 980].max
-        height = [size[1], 640].max
-        content_x = SIDEBAR_W + 14
-        content_width = [width - content_x - 14, 680].max
-
-        background.set_geometry(0, 0, width, height)
-        sidebar.relayout(x: 0, y: 0, width: SIDEBAR_W, height: height)
-        controls.relayout(x: content_x, y: TOPBAR_H, width: content_width)
-        entries.relayout(
-          x: content_x,
-          y: TOPBAR_H + 156,
-          width: content_width,
-          height: [height - (TOPBAR_H + 170), 260].max
-        )
-        @last_size = size
-      end
-
-      def background
-        @background
       end
 
       def set_name(widget, value)
@@ -270,21 +220,13 @@ module QTimetrap
         warn("[qtimetrap] icon load failed: #{e.class}: #{e.message}")
       end
 
-      def extract_event_size(event, key)
+      def extract_event_value(event, key)
         return unless event.respond_to?(:[])
 
         value = event[key]
         return value.to_i if value
 
         nil
-      end
-
-      def monotonic_ms
-        (Process.clock_gettime(Process::CLOCK_MONOTONIC) * 1000).to_i
-      end
-
-      def shutdown_requested?
-        @shutdown_requested
       end
     end
   end

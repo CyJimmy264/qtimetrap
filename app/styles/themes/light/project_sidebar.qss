@@ -1,4 +1,4 @@
-QLabel#sidebar_panel {
+QWidget#sidebar_panel {
   background-color: #f7f9fb;
   border-right: 1px solid #d9e0e7;
 }

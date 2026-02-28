@@ -3,55 +3,58 @@
 module QTimetrap
   module Components
     class EntriesListComponent
-      def initialize(parent:, x:, y:, width:, height:)
+      attr_reader :widget
+
+      def initialize(parent:)
         @parent = parent
         @rows = []
 
-        @scroll = QScrollArea.new(parent)
-        set_name(scroll, 'entries_scroll')
-        scroll.set_widget_resizable(0)
-
-        @host = QWidget.new(parent)
-        set_name(host, 'entries_host')
-        scroll.set_widget(host)
-
-        @width = width
-        relayout(x: x, y: y, width: width, height: height)
-      end
-
-      def relayout(x:, y:, width:, height:)
-        @width = width
-        scroll.set_geometry(x, y, width, height)
-        host.set_geometry(0, 0, width - 20, [host.height, 900].max)
-
-        y_pos = 10
-        rows.each do |label|
-          label.set_geometry(14, y_pos, width - 54, 32)
-          y_pos += 34
-        end
+        build
       end
 
       def render(lines)
-        rows.each(&:hide)
-        rows.clear
+        clear_rows
 
-        y = 10
         lines.each do |line|
           label = QLabel.new(host)
           set_name(label, row_name(line))
-          label.set_geometry(14, y, width - 54, 32)
           label.set_text(line)
+          label.set_fixed_height(32)
+          host_layout.add_widget(label)
           label.show
           rows << label
-          y += 34
         end
 
-        host.set_geometry(0, 0, width - 20, [y + 20, 900].max)
+        host_layout.add_stretch(1)
       end
 
       private
 
-      attr_reader :parent, :scroll, :host, :rows, :width
+      attr_reader :parent, :rows, :host, :host_layout
+
+      def build
+        @widget = QScrollArea.new(parent)
+        set_name(widget, 'entries_scroll')
+        widget.set_widget_resizable(1)
+
+        @host = QWidget.new(parent)
+        set_name(host, 'entries_host')
+        @host_layout = QVBoxLayout.new(host)
+        host_layout.set_contents_margins(14, 10, 14, 10)
+        host_layout.set_spacing(2)
+
+        widget.set_widget(host)
+      end
+
+      def clear_rows
+        rows.each(&:hide)
+        rows.clear
+
+        while host_layout.count.positive?
+          item = host_layout.item_at(0)
+          host_layout.remove_item(item)
+        end
+      end
 
       def row_name(line)
         if line.start_with?('    ')
