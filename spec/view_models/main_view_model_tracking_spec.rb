@@ -11,6 +11,16 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     expect(view_model.current_started_at).not_to be_nil
   end
 
+  it 'normalizes note encoding before start' do
+    note = "focus-\xFF".b
+
+    view_model.start_tracking(note)
+
+    expect(gateway).to have_received(:start).with(
+      satisfy { |value| value.encoding == Encoding::UTF_8 && value == 'focus-' }
+    )
+  end
+
   it 'stops timer and clears running mark' do
     view_model.start_tracking('test')
     view_model.stop_tracking

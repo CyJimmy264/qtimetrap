@@ -31,7 +31,7 @@ module QTimetrap
       end
 
       def start_tracking(note)
-        value = note.to_s.strip
+        value = normalize_text(note).strip
         value = 'gui-clockify' if value.empty?
         gateway.start(value)
         @current_started_at = Time.now unless current_started_at
@@ -113,6 +113,10 @@ module QTimetrap
 
       def newest_entry(collection)
         collection.max_by { |entry| entry.start_time || EPOCH_TIME }
+      end
+
+      def normalize_text(value)
+        value.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '').scrub('')
       end
     end
   end

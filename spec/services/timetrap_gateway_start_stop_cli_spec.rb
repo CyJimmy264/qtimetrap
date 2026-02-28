@@ -17,4 +17,15 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     expect(Open3).to have_received(:capture2e).with('t', 'in', 'focus')
     expect(Open3).to have_received(:capture2e).with('t', 'out')
   end
+
+  it 'normalizes note encoding for timetrap in command' do
+    note = "focus-\xFF".b
+    allow(Open3).to receive(:capture2e).and_return(cmd_result(output: '', success: true))
+
+    gateway.start(note)
+
+    expect(Open3).to have_received(:capture2e).with(
+      't', 'in', satisfy { |value| value.encoding == Encoding::UTF_8 && value == 'focus-' }
+    )
+  end
 end

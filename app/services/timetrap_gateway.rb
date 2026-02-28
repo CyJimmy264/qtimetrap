@@ -31,7 +31,7 @@ module QTimetrap
       def start(note)
         return Timetrap::Timer.start(note) if api_available?
 
-        run('in', note)
+        run('in', normalize_text(note))
       end
 
       def stop
@@ -66,6 +66,7 @@ module QTimetrap
         ok, output = run('display', '--format', 'json')
         return [] unless ok
 
+        output = normalize_text(output)
         rows = parse_rows(output)
         return [] unless rows
 
@@ -83,13 +84,15 @@ module QTimetrap
         ok, output = run('now')
         return [nil, nil] unless ok
 
+        output = normalize_text(output)
         match = output.match(/(\d{4}-\d{2}-\d{2} [0-9:]+ [+-]\d{4})/)
         [true, (match ? parse_time(match[1]) : nil)]
       end
 
       def run(*args)
-        output, status = Open3.capture2e(bin, *args)
-        [status.success?, output]
+        normalized_args = args.map { |arg| arg.is_a?(String) ? normalize_text(arg) : arg }
+        output, status = Open3.capture2e(bin, *normalized_args)
+        [status.success?, normalize_text(output)]
       rescue Errno::ENOENT
         [false, "Command not found: #{bin}"]
       rescue StandardError => e
@@ -115,6 +118,10 @@ module QTimetrap
           start_time: parse_time(row['start']),
           end_time: parse_time(row['end'])
         )
+      end
+
+      def normalize_text(value)
+        value.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '').scrub('')
       end
 
       attr_reader :bin
