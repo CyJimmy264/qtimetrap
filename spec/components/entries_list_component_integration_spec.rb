@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+RSpec.describe QTimetrap::Components::EntriesListComponent do
+  include_context :qt
+
+  let(:parent) { QWidget.new }
+  let(:component) { described_class.new(parent: parent) }
+  let(:widget) { component.widget }
+
+  after do
+    parent.close if parent.respond_to?(:close)
+    QApplication.process_events
+  end
+
+  it 'applies expand/collapse all recursively and renders unknown leaf type as empty node style' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    collapse_button.click
+    QApplication.process_events
+    expect(week_buttons).to all(satisfy { |button| normalized_text(button).lstrip.start_with?('▸') })
+
+    expand_button.click
+    QApplication.process_events
+    expect(week_buttons).to all(satisfy { |button| normalized_text(button).lstrip.start_with?('▾') })
+
+    unknown_leaf = descendants(parent).grep(QLabel).find { |label| label.object_name == 'entry_node_empty' }
+    expect(unknown_leaf).not_to be_nil
+  end
+
+  private
+
+  def expand_button
+    toolbar_button('entries_expand_all')
+  end
+
+  def collapse_button
+    toolbar_button('entries_collapse_all')
+  end
+
+  def toolbar_button(name)
+    descendants(parent).grep(QPushButton).find { |button| button.object_name == name }
+  end
+
+  def week_buttons
+    descendants(parent).grep(QPushButton).select { |button| button.object_name == 'entry_node_week' }
+  end
+
+  def normalized_text(button)
+    text = button.text.to_s.dup
+    return text unless text.encoding == Encoding::BINARY
+
+    text.force_encoding(Encoding::UTF_8)
+  end
+
+  def entry_nodes
+    [
+      {
+        id: 'week:1',
+        type: :week,
+        label: 'Week Feb 23 - Mar 1  Total: 01:00:00',
+        children: [
+          {
+            id: 'day:1',
+            type: :day,
+            label: 'Sun, Mar 1  Total: 01:00:00',
+            children: [
+              {
+                id: 'project:1',
+                type: :project,
+                label: 'acme | core (1) 01:00:00',
+                children: [
+                  { id: 'entry:1', type: :entry, label: '10:00 - 11:00  01:00:00  test', children: [] }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'misc:1',
+        type: :unknown_type,
+        label: 'mystery node',
+        children: []
+      }
+    ]
+  end
+
+  def descendants(widget)
+    children = safe_children(widget)
+    children + children.flat_map { |child| descendants(child) }
+  end
+
+  def safe_children(widget)
+    return [] unless widget.respond_to?(:children)
+
+    Array(widget.children).compact
+  rescue NoMethodError
+    []
+  end
+end

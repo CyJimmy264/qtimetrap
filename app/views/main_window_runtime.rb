@@ -7,7 +7,7 @@ module QTimetrap
       private
 
       def on_tick
-        return if window.is_visible.zero?
+        return unless window.is_visible
         return close if @shutdown_requested
 
         now = Time.now

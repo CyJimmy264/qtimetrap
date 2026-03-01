@@ -24,8 +24,8 @@ module QTimetrap
         self.class.new(name: next_name, root: root)
       end
 
-      def snippet(name)
-        File.read(path_for_snippet(name))
+      def snippet(snippet_name)
+        File.read(path_for_snippet(snippet_name))
       end
 
       def stylesheet(file_name)
@@ -45,11 +45,11 @@ module QTimetrap
         File.join(root, 'app', 'styles', 'themes', DEFAULT, "#{file_name}.qss")
       end
 
-      def path_for_snippet(name)
-        path = File.join(root, 'app', 'styles', 'themes', name, 'snippets', "#{name}.qss")
+      def path_for_snippet(snippet_name)
+        path = File.join(root, 'app', 'styles', 'themes', name, 'snippets', "#{snippet_name}.qss")
         return path if File.exist?(path)
 
-        File.join(root, 'app', 'styles', 'themes', DEFAULT, 'snippets', "#{name}.qss")
+        File.join(root, 'app', 'styles', 'themes', DEFAULT, 'snippets', "#{snippet_name}.qss")
       end
 
       def normalize_name(value)

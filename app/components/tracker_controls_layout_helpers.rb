@@ -31,7 +31,7 @@ module QTimetrap
         @timer_label.set_alignment(Qt::AlignCenter)
         @start_button = build_button(row, 'start_button', 'START', 64, 48)
         @stop_button = build_button(row, 'stop_button', 'STOP', 64, 48)
-        @stop_button.hide if @stop_button.respond_to?(:hide)
+        @stop_button.hide
         [@task_input, @project_label, @timer_label, @start_button, @stop_button].each { |item| layout.add_widget(item) }
         [@start_button, @stop_button]
       end

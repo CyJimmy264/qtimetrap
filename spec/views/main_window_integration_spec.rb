@@ -1,0 +1,70 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+RSpec.describe QTimetrap::Views::MainWindow do
+  include_context :main_window_qt_boot
+  include_context :main_window_setup
+  include_context :main_window_cleanup
+
+  it 'toggles visibility through public show/close API' do
+    main_window.show
+    QApplication.process_events
+    expect(visible?(qt_window)).to be(true)
+
+    main_window.close
+    QApplication.process_events
+    expect(visible?(qt_window)).to be(false)
+  end
+
+  it 'sets pending refresh when refresh button is clicked' do
+    main_window.instance_variable_set(:@pending_refresh, false)
+    button_with_text('REFRESH').click
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+  end
+
+  it 'logs and continues when start fails' do
+    allow(view_model).to receive(:start_tracking).and_raise(StandardError, 'boom')
+    allow(main_window).to receive(:warn)
+    button_with_text('START').click
+    expect(main_window).to have_received(:warn).with(include('[qtimetrap] start failed: StandardError: boom'))
+  end
+
+  it 'logs and continues when stop fails' do
+    allow(view_model).to receive(:running_current_sheet?).and_return(true)
+    allow(view_model).to receive(:stop_tracking).and_raise(StandardError, 'boom')
+    main_window.send(:render!)
+    allow(main_window).to receive(:warn)
+    button_with_text('STOP').click
+    expect(main_window).to have_received(:warn).with(include('[qtimetrap] stop failed: StandardError: boom'))
+  end
+
+  it 'logs and continues when theme persistence fails' do
+    allow(settings_store).to receive(:write_theme_name).and_raise(StandardError, 'boom')
+    main_window.send(:render!)
+    allow(main_window).to receive(:warn)
+    theme_button.click
+    expect(main_window).to have_received(:warn).with(include('[qtimetrap] save theme failed: StandardError: boom'))
+  end
+
+  it 'ignores key press when event payload has no key data' do
+    main_window.send(:on_key_press, {})
+    expect(main_window.instance_variable_get(:@shutdown_requested)).to be(false)
+  end
+
+  it 'logs and continues when icon loader fails' do
+    broken_loader = instance_double(QTimetrap::Views::WindowIconLoader)
+    allow(QTimetrap::Views::WindowIconLoader).to receive(:new).and_return(broken_loader)
+    allow(broken_loader).to receive(:apply).and_raise(StandardError, 'icon boom')
+    allow(main_window).to receive(:warn)
+    main_window.send(:set_window_icon)
+    expect(main_window).to have_received(:warn).with(include('[qtimetrap] icon load failed: StandardError: icon boom'))
+  end
+
+  private
+
+  def visible?(widget)
+    value = widget.is_visible
+    [true, 1].include?(value)
+  end
+end
