@@ -25,6 +25,6 @@ Gem::Specification.new do |spec|
   spec.executables = ['qtimetrap']
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'qt'
+  spec.add_dependency 'qt', '>= 0.1.0'
   spec.add_dependency 'zeitwerk', '~> 2.6'
 end

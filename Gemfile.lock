@@ -9,7 +9,7 @@ PATH
   remote: .
   specs:
     qtimetrap (0.1.0)
-      qt
+      qt (>= 0.1.0)
       zeitwerk (~> 2.6)
 
 GEM
