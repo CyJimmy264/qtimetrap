@@ -4,7 +4,7 @@ module QTimetrap
   module Components
     # Contains main tracking controls, summary labels, and theme actions.
     class TrackerControlsComponent
-      attr_reader :task_input, :clock_label, :timer_label, :widget
+      attr_reader :task_input, :project_input, :clock_label, :timer_label, :widget
 
       def initialize(parent:, callbacks:)
         assign_ui(build_ui(parent:, callbacks:))
@@ -34,7 +34,7 @@ module QTimetrap
 
       private
 
-      attr_reader :summary_label, :project_input, :theme_button, :start_button, :stop_button
+      attr_reader :summary_label, :theme_button, :start_button, :stop_button
 
       def build_ui(parent:, callbacks:)
         TrackerControlsLayoutBuilder.new(

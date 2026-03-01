@@ -73,6 +73,7 @@ RSpec.shared_context :main_window_setup do
       running_timer_line: '00:00:05',
       start_tracking: nil,
       stop_tracking: nil,
+      update_entry_note: nil,
       select_project: nil,
       select_tasks: nil,
       'current_project_name=': nil,

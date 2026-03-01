@@ -17,5 +17,6 @@ RSpec.shared_context :main_view_model_setup do
     allow(gateway).to receive(:entries).and_return([entry_today, entry_other_project])
     allow(gateway).to receive(:start)
     allow(gateway).to receive(:stop)
+    allow(gateway).to receive(:update_note)
   end
 end

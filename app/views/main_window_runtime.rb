@@ -40,9 +40,12 @@ module QTimetrap
         entries.render(view_model.entry_nodes)
       end
 
-      def handle_start(note, project_name)
-        view_model.current_project_name = project_name
-        view_model.start_tracking(view_model.sheet_for_task_input(note))
+      def handle_start(task_input, project_name)
+        task_name = resolved_start_task(task_input)
+        project = resolved_start_project(project_name)
+        view_model.current_project_name = project
+        view_model.current_task_input = task_name
+        view_model.start_tracking(view_model.sheet_for_task_input(task_name))
         @pending_refresh = true
       rescue StandardError => e
         warn("[qtimetrap] start failed: #{e.class}: #{e.message}")
@@ -75,6 +78,26 @@ module QTimetrap
         view_model.current_project_name = project_name
       end
 
+      def handle_entry_note_changed(entry_id, note)
+        view_model.update_entry_note(entry_id, note)
+      rescue StandardError => e
+        warn("[qtimetrap] update note failed: #{e.class}: #{e.message}")
+      end
+
+      def resolved_start_task(fallback_task)
+        value = controls.task_input.text.to_s.strip
+        return value unless value.empty?
+
+        fallback_task.to_s.strip
+      end
+
+      def resolved_start_project(fallback)
+        value = controls.project_input.text.to_s.strip
+        return value unless value.empty?
+
+        fallback.to_s.strip
+      end
+
       def render_controls(sync_sheet:)
         controls.update_summary(view_model.summary_line)
         update_tracking_controls(sync_sheet: sync_sheet)
@@ -84,7 +107,8 @@ module QTimetrap
       def update_tracking_controls(sync_sheet:)
         controls.update_task_input(view_model.current_sheet_input) if sync_sheet
         controls.update_action_button(running: view_model.running_current_sheet?)
-        controls.update_project_input(view_model.current_project_name)
+        project_name = view_model.current_project_name.to_s
+        controls.update_project_input(project_name) unless project_name.strip.empty?
       end
 
       def switch_theme!

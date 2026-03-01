@@ -61,4 +61,12 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
     expect(view_model.sheet_for_task_input('planning')).to eq('custom-client|planning')
   end
+
+  it 'builds sheet from utf-8 project and task without losing text' do
+    view_model.refresh!
+    view_model.current_project_name = 'проект'
+    task = 'задача'
+
+    expect(view_model.sheet_for_task_input(task)).to eq('проект|задача')
+  end
 end

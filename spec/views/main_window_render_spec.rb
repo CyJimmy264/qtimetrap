@@ -51,6 +51,22 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(project_input.text.to_s).to eq('acme')
   end
 
+  it 'does not clear project input on refresh when vm current project is blank' do
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      current_project_name: 'acme',
+      project_names: ['* ALL', 'acme']
+    )
+    main_window.send(:render!, sync_sheet: true)
+    project_input = find_widget(qt_window, 'project_input')
+    expect(project_input.text.to_s).to eq('acme')
+
+    allow(view_model).to receive(:current_project_name).and_return('')
+    main_window.send(:render!, sync_sheet: true)
+
+    expect(project_input.text.to_s).to eq('acme')
+  end
+
   it 'updates current task field to latest project task on project click' do
     allow(view_model).to receive_messages(
       selected_project: '* ALL',

@@ -6,6 +6,7 @@ module QTimetrap
   module ViewModels
     # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
+      include MainViewModelEntryNoteHelpers
       include MainViewModelSheetHelpers
       include MainViewModelTaskFilterHelpers
 
@@ -39,8 +40,8 @@ module QTimetrap
         self.current_task_input = latest_task_for_project(project)
       end
 
-      def start_tracking(note)
-        value = normalize_text(note).strip
+      def start_tracking(sheet)
+        value = normalize_text(sheet).strip
         raise ArgumentError, 'Task is required' if value.empty?
 
         gateway.start(value)
@@ -125,7 +126,7 @@ module QTimetrap
       end
 
       def normalize_text(value)
-        value.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '').scrub('')
+        value.to_s
       end
     end
   end

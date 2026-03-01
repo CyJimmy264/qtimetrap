@@ -63,7 +63,10 @@ module QTimetrap
       def build_content(parent:)
         content, layout = build_content_widget(parent: parent)
         controls = build_controls(content)
-        entries = Components::EntriesListComponent.new(parent: content)
+        entries = Components::EntriesListComponent.new(
+          parent: content,
+          on_entry_note_change: callbacks.fetch(:on_entry_note_change)
+        )
         layout.add_widget(controls.widget)
         layout.add_widget(entries.widget)
         layout.set_stretch(1, 1)

@@ -5,19 +5,17 @@ require 'spec_helper'
 RSpec.describe QTimetrap::ViewModels::MainViewModel do
   include_context :main_view_model_setup
 
-  it 'raises when start note is blank' do
+  it 'raises when start sheet is blank' do
     expect { view_model.start_tracking('  ') }.to raise_error(ArgumentError, 'Task is required')
     expect(gateway).not_to have_received(:start)
   end
 
-  it 'normalizes note encoding before start' do
-    note = "focus-\xFF".b
+  it 'keeps utf-8 sheet content when starting' do
+    sheet = 'Поднять задачу'
 
-    view_model.start_tracking(note)
+    view_model.start_tracking(sheet)
 
-    expect(gateway).to have_received(:start).with(
-      satisfy { |value| value.encoding == Encoding::UTF_8 && value == 'focus-' }
-    )
+    expect(gateway).to have_received(:start).with('Поднять задачу')
   end
 
   it 'stops timer and clears running mark' do

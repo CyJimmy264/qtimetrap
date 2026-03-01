@@ -6,7 +6,8 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
   include_context :qt
 
   let(:parent) { QWidget.new }
-  let(:component) { described_class.new(parent: parent) }
+  let(:on_entry_note_change) { instance_double(Proc, call: nil) }
+  let(:component) { described_class.new(parent: parent, on_entry_note_change: on_entry_note_change) }
   let(:widget) { component.widget }
 
   after do
@@ -47,6 +48,39 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
 
     expect(host.width).to be <= scroll_area.width
     expect(widest_branch).to be <= scroll_area.width
+  end
+
+  it 'activates note input on click and commits only on Enter' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    expect(note_input).not_to be_nil
+    expect(note_input.text.to_s).to eq('test')
+    expect(note_input.is_read_only).to be(true)
+
+    component.send(:activate_entry_note_input, note_input)
+    expect(note_input.is_read_only).to be(false)
+
+    note_input.text = 'updated note'
+    component.send(:handle_entry_note_key_press, note_input, 1, { a: Qt::Key_Return })
+
+    expect(note_input.is_read_only).to be(true)
+    expect(on_entry_note_change).to have_received(:call).with(1, 'updated note')
+  end
+
+  it 'deactivates note input on focus loss without committing' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    component.send(:activate_entry_note_input, note_input)
+    note_input.text = 'changed but not committed'
+
+    component.send(:handle_entry_note_focus_out, note_input)
+
+    expect(note_input.is_read_only).to be(true)
+    expect(on_entry_note_change).not_to have_received(:call)
   end
 
   private
@@ -91,7 +125,15 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
                 type: :project,
                 label: 'acme | core (1) 01:00:00',
                 children: [
-                  { id: 'entry:1', type: :entry, label: '10:00 - 11:00  01:00:00  test', children: [] }
+                  {
+                    id: 'entry:1',
+                    type: :entry,
+                    entry_id: 1,
+                    prefix: '10:00 - 11:00  01:00:00',
+                    note: 'test',
+                    label: '10:00 - 11:00  01:00:00  test',
+                    children: []
+                  }
                 ]
               }
             ]

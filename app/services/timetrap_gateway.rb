@@ -13,31 +13,62 @@ module QTimetrap
   module Services
     # Integrates with Timetrap via Ruby API or CLI fallback.
     class TimetrapGateway
-      def initialize(bin: ENV.fetch('TIMETRAP_BIN', 't'))
+      include TimetrapGatewayStartHelpers
+      include TimetrapGatewayUpdateNoteHelpers
+      include TimetrapGatewayQueryHelpers
+
+      def initialize(bin: ENV.fetch('TIMETRAP_BIN', 't'), logger: TimetrapGatewayLogger.new)
         @bin = bin
+        @logger = logger
       end
 
       def entries
-        api_available? ? entries_from_api : entries_from_cli
+        if api_available?
+          logger.log_api(operation: 'entries', input: {}, output: 'requested')
+          result = entries_from_api
+          logger.log_api(operation: 'entries', input: {}, output: { count: result.size })
+          return result
+        end
+
+        entries_from_cli
       end
 
       def active_started_at
-        return active_started_at_from_api if api_available?
+        if api_available?
+          logger.log_api(operation: 'active_started_at', input: {}, output: 'requested')
+          result = active_started_at_from_api
+          logger.log_api(operation: 'active_started_at', input: {}, output: result&.iso8601)
+          return result
+        end
 
         _active, started_at = active_from_cli
         started_at
       end
 
-      def start(note)
-        return Timetrap::Timer.start(note) if api_available?
+      def start(sheet, checkin_note = nil)
+        normalized_sheet, normalized_checkin_note = normalize_start_inputs(sheet, checkin_note)
+        return if normalized_sheet.empty?
 
-        run('in', normalize_text(note))
+        if api_available?
+          logger.log_api(
+            operation: 'start',
+            input: { sheet: normalized_sheet, checkin_note: normalized_checkin_note },
+            output: 'requested'
+          )
+          result = start_via_api(normalized_sheet, normalized_checkin_note)
+          logger.log_api(operation: 'start', input: {}, output: result.to_s)
+          return result
+        end
+
+        start_via_cli(normalized_sheet, normalized_checkin_note)
       end
 
       def stop
         if api_available?
+          logger.log_api(operation: 'stop', input: {}, output: 'requested')
           active = Timetrap::Timer.active_entry
           Timetrap::Timer.stop(active) if active
+          logger.log_api(operation: 'stop', input: {}, output: active ? 'stopped' : 'noop')
           return
         end
 
@@ -50,81 +81,7 @@ module QTimetrap
         defined?(Timetrap::Entry) && defined?(Timetrap::Timer)
       end
 
-      def entries_from_api
-        Timetrap::Entry.order(:start).all.map do |entry|
-          Models::TimeEntry.new(
-            id: entry.id,
-            note: entry.note,
-            sheet: entry.sheet,
-            start_time: entry[:start],
-            end_time: entry[:end]
-          )
-        end
-      end
-
-      def entries_from_cli
-        ok, output = run('display', '--format', 'json')
-        return [] unless ok
-
-        output = normalize_text(output)
-        rows = parse_rows(output)
-        return [] unless rows
-
-        rows.map { |row| build_entry(row) }
-      rescue JSON::ParserError
-        []
-      end
-
-      def active_started_at_from_api
-        active = Timetrap::Timer.active_entry
-        active ? active[:start] : nil
-      end
-
-      def active_from_cli
-        ok, output = run('now')
-        return [nil, nil] unless ok
-
-        output = normalize_text(output)
-        match = output.match(/(\d{4}-\d{2}-\d{2} [0-9:]+ [+-]\d{4})/)
-        [true, (match ? parse_time(match[1]) : nil)]
-      end
-
-      def run(*args)
-        normalized_args = args.map { |arg| arg.is_a?(String) ? normalize_text(arg) : arg }
-        output, status = Open3.capture2e(bin, *normalized_args)
-        [status.success?, normalize_text(output)]
-      rescue Errno::ENOENT
-        [false, "Command not found: #{bin}"]
-      rescue StandardError => e
-        [false, "#{e.class}: #{e.message}"]
-      end
-
-      def parse_time(value)
-        Time.parse(value)
-      rescue ArgumentError, TypeError
-        nil
-      end
-
-      def parse_rows(output)
-        rows = JSON.parse(output)
-        rows.is_a?(Array) ? rows : nil
-      end
-
-      def build_entry(row)
-        Models::TimeEntry.new(
-          id: row['id'],
-          note: row['note'],
-          sheet: row['sheet'],
-          start_time: parse_time(row['start']),
-          end_time: parse_time(row['end'])
-        )
-      end
-
-      def normalize_text(value)
-        value.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '').scrub('')
-      end
-
-      attr_reader :bin
+      attr_reader :bin, :logger
     end
   end
 end

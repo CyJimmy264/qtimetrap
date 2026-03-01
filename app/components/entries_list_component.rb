@@ -13,8 +13,9 @@ module QTimetrap
 
       attr_reader :widget
 
-      def initialize(parent:)
+      def initialize(parent:, on_entry_note_change: nil)
         @parent = parent
+        @on_entry_note_change = on_entry_note_change
         initialize_state!
         build
       end
@@ -26,6 +27,7 @@ module QTimetrap
         @current_nodes = Array(nodes)
         @branch_bindings = {}
         @leaf_labels = []
+        @entry_rows = []
         with_widget_updates_suspended { render_contents }
       ensure
         @rendering = false
@@ -33,8 +35,8 @@ module QTimetrap
 
       private
 
-      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :leaf_labels, :rendering,
-                  :scroll_area
+      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :leaf_labels, :entry_rows,
+                  :rendering, :scroll_area, :on_entry_note_change
 
       def build
         @widget = QWidget.new(parent)
@@ -53,6 +55,7 @@ module QTimetrap
         @current_nodes = []
         @branch_bindings = {}
         @leaf_labels = []
+        @entry_rows = []
         @rendering = false
       end
 
@@ -82,6 +85,7 @@ module QTimetrap
         width = branch_button_width
         branch_bindings.each_value { |binding| binding.fetch(:button).set_fixed_width(width) }
         leaf_labels.each { |label| label.set_fixed_width(width) }
+        entry_rows.each { |row| row.set_fixed_width(width) }
       end
 
       def build_panel_layout

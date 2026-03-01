@@ -102,12 +102,33 @@ QPushButton#entry_node_project:focus {
   border: 2px solid #60a5fa;
 }
 
-QLabel#entry_node_entry {
+QWidget#entry_node_entry_row {
   background-color: #f9fbfd;
   border: 1px solid #e3e8ef;
+}
+
+QLabel#entry_node_entry_prefix {
   color: #334155;
   font-size: 12px;
-  padding-left: 8px;
+}
+
+QLineEdit#entry_node_entry_note {
+  color: #334155;
+  font-size: 12px;
+  background: transparent;
+  border: 0px;
+  padding-left: 2px;
+}
+
+QLineEdit#entry_node_entry_note:read-only {
+  background: transparent;
+  border: 0px;
+}
+
+QLineEdit#entry_node_entry_note:focus {
+  background-color: #ffffff;
+  border: 1px solid #d8e0ea;
+  padding-left: 6px;
 }
 
 QLabel#entry_node_empty {

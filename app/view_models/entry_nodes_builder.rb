@@ -47,15 +47,19 @@ module QTimetrap
       end
 
       def project_nodes(day, day_entries)
-        day_entries.group_by { |entry| [entry.project, entry.task] }.map do |(project, task), items|
-          total = Services::Formatters.seconds_to_hms(items.sum(&:duration_seconds))
-          {
-            id: "project:#{day}:#{project}:#{task}",
-            type: :project,
-            label: "#{project} | #{task} (#{items.size}) #{total}",
-            children: entry_detail_nodes(items)
-          }
-        end
+        grouped = day_entries.group_by { |entry| [entry.project, entry.task] }
+        grouped
+          .sort_by { |_key, items| latest_start_time(items) }
+          .reverse
+          .map do |(project, task), items|
+            total = Services::Formatters.seconds_to_hms(items.sum(&:duration_seconds))
+            {
+              id: "project:#{day}:#{project}:#{task}",
+              type: :project,
+              label: "#{project} | #{task} (#{items.size}) #{total}",
+              children: entry_detail_nodes(items)
+            }
+          end
       end
 
       def entry_detail_nodes(items)
@@ -69,7 +73,19 @@ module QTimetrap
         note = '(no note)' if note.empty?
         range = Services::Formatters.time_range(entry)
         duration = Services::Formatters.seconds_to_hms(entry.duration_seconds)
-        { id: "entry:#{entry.id || index}", type: :entry, label: "#{range}  #{duration}  #{note}", children: [] }
+        {
+          id: "entry:#{entry.id || index}",
+          type: :entry,
+          entry_id: entry.id || index,
+          prefix: "#{range}  #{duration}",
+          note: note,
+          label: "#{range}  #{duration}  #{note}",
+          children: []
+        }
+      end
+
+      def latest_start_time(items)
+        items.map { |entry| entry.start_time || Time.at(0) }.max
       end
 
       def empty_node

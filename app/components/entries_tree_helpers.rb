@@ -5,6 +5,8 @@ module QTimetrap
     # Helper methods for entries tree rendering and expand/collapse controls.
     module EntriesTreeHelpers
       include EntriesBranchHierarchyHelpers
+      include EntriesLeafNoteHelpers
+      include EntriesNodePresentationHelpers
 
       private
 
@@ -75,6 +77,15 @@ module QTimetrap
       end
 
       def render_leaf_node(node, level, layout:, parent_widget:)
+        if node.fetch(:type) == :entry
+          render_entry_leaf_node(node, level, layout: layout, parent_widget: parent_widget)
+          return
+        end
+
+        render_default_leaf_node(node, level, parent_widget: parent_widget, layout: layout)
+      end
+
+      def render_default_leaf_node(node, level, parent_widget:, layout:)
         label = QLabel.new(parent_widget)
         label.set_object_name(object_name_for(node))
         label.set_text("#{indent(level)}#{node.fetch(:label)}")
@@ -93,20 +104,6 @@ module QTimetrap
         !node.fetch(:children).empty?
       end
 
-      def object_name_for(node)
-        case node.fetch(:type)
-        when :week then 'entry_node_week'
-        when :day then 'entry_node_day'
-        when :project then 'entry_node_project'
-        when :entry then 'entry_node_entry'
-        else 'entry_node_empty'
-        end
-      end
-
-      def indent(level)
-        '  ' * level
-      end
-
       def build_branch_button(node, level, expanded_state, parent_widget:)
         text = branch_button_text(level, node.fetch(:label), expanded_state)
         button = build_button(parent_widget, object_name_for(node), text, 0, 32)
@@ -114,11 +111,6 @@ module QTimetrap
         node_id = node.fetch(:id)
         button.connect('clicked') { |_| toggle_node(node_id) }
         button
-      end
-
-      def branch_button_text(level, label, expanded_state)
-        prefix = expanded_state ? '▾' : '▸'
-        "#{indent(level)}#{prefix}  #{label}"
       end
     end
   end

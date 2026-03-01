@@ -15,6 +15,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
     button_with_text('START').click
 
     expect(view_model).to have_received(:current_project_name=).with('my-custom-project')
+    expect(view_model).to have_received(:current_task_input=).with('focus task')
     expect(view_model).to have_received(:start_tracking).with('acme|focus task')
   end
 
