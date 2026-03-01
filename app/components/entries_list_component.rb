@@ -29,12 +29,17 @@ module QTimetrap
 
       private
 
-      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :rendering
+      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :rendering,
+                  :scroll_area
 
       def build
-        @widget = QScrollArea.new(parent)
-        widget.set_object_name('entries_scroll')
-        widget.set_widget_resizable(true)
+        @widget = QWidget.new(parent)
+        widget.set_object_name('entries_panel')
+        panel_layout = build_panel_layout
+        panel_layout.add_widget(build_toolbar(parent_widget: widget))
+        @scroll_area = build_scroll_area
+        panel_layout.add_widget(scroll_area)
+        panel_layout.set_stretch(1, 1)
         rebuild_host!
       end
 
@@ -46,7 +51,7 @@ module QTimetrap
       end
 
       def build_host
-        QWidget.new(parent).tap { |container| container.set_object_name('entries_host') }
+        QWidget.new(scroll_area).tap { |container| container.set_object_name('entries_host') }
       end
 
       def build_host_layout
@@ -59,12 +64,21 @@ module QTimetrap
       def rebuild_host!
         @host = build_host
         @host_layout = build_host_layout
-        widget.set_widget(host)
+        scroll_area.set_widget(host)
       end
 
-      def branch_button_minimum_width
-        base = [host.width, widget.width].max
-        [base - 10, 120].max
+      def build_panel_layout
+        QVBoxLayout.new(widget).tap do |layout|
+          layout.set_contents_margins(0, 0, 0, 0)
+          layout.set_spacing(6)
+        end
+      end
+
+      def build_scroll_area
+        QScrollArea.new(widget).tap do |area|
+          area.set_object_name('entries_scroll')
+          area.set_widget_resizable(true)
+        end
       end
     end
   end

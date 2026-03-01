@@ -8,8 +8,8 @@ module QTimetrap
 
       private
 
-      def add_toolbar
-        toolbar = QWidget.new(host)
+      def build_toolbar(parent_widget:)
+        toolbar = QWidget.new(parent_widget)
         toolbar.set_object_name('entries_toolbar')
         layout = QHBoxLayout.new(toolbar)
         layout.set_contents_margins(0, 0, 0, 0)
@@ -17,7 +17,7 @@ module QTimetrap
         layout.add_widget(build_toolbar_button(toolbar, 'entries_expand_all', 'EXPAND ALL') { expand_all! })
         layout.add_widget(build_toolbar_button(toolbar, 'entries_collapse_all', 'COLLAPSE ALL') { collapse_all! })
         layout.add_stretch(1)
-        host_layout.add_widget(toolbar)
+        toolbar
       end
 
       def build_toolbar_button(parent_widget, name, text, &block)
@@ -108,7 +108,6 @@ module QTimetrap
       def build_branch_button(node, level, expanded_state, parent_widget:)
         text = branch_button_text(level, node.fetch(:label), expanded_state)
         button = build_button(parent_widget, object_name_for(node), text, 0, 32)
-        button.set_minimum_width(branch_button_minimum_width)
         node_id = node.fetch(:id)
         button.connect('clicked') { |_| toggle_node(node_id) }
         button

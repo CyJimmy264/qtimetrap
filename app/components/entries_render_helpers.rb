@@ -16,7 +16,6 @@ module QTimetrap
 
       def render_contents
         rebuild_host!
-        add_toolbar
         render_nodes(current_nodes, 0)
         host_layout.add_stretch(1)
       end

@@ -3,7 +3,11 @@ QWidget#sidebar_panel {
   border-right: 1px solid #2b3b4f;
 }
 
-QLabel#sidebar_logo {
+QWidget#sidebar_logo {
+  background-color: transparent;
+}
+
+QLabel#sidebar_logo_text {
   color: #e5e7eb;
   font-size: 18px;
   font-weight: 800;

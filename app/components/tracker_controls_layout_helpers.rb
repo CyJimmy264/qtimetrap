@@ -4,6 +4,16 @@ module QTimetrap
   module Components
     # Extracted helper methods for tracker controls layout assembly.
     module TrackerControlsLayoutHelpers
+      TITLE_SLOGANS = [
+        'Track time, ship value',
+        'Small steps, big output',
+        'Focus. Build. Finish.',
+        'Consistency beats intensity',
+        'Today''s minutes, tomorrow''s results',
+        'Make progress visible',
+        'Do the next right task'
+      ].freeze
+
       private
 
       def build_root_layout
@@ -16,7 +26,7 @@ module QTimetrap
       def configure_topbar_layout(layout, topbar)
         layout.set_contents_margins(16, 8, 16, 8)
         layout.set_spacing(8)
-        layout.add_widget(build_label(topbar, 'title_label', 'TIME TRACKER'))
+        layout.add_widget(build_label(topbar, 'title_label', random_title_slogan))
         layout.add_stretch(1)
         @clock_label = build_label(topbar, 'clock_label', nil, width: 220)
         @clock_label.set_alignment(Qt::AlignCenter)
@@ -69,6 +79,10 @@ module QTimetrap
           start_button: @start_button,
           stop_button: @stop_button
         }
+      end
+
+      def random_title_slogan
+        TITLE_SLOGANS.sample
       end
     end
   end
