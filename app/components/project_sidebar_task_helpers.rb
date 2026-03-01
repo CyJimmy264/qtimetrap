@@ -4,6 +4,8 @@ module QTimetrap
   module Components
     # Sidebar tasks section rendering and interactions.
     module ProjectSidebarTaskHelpers
+      include ProjectSidebarTaskSelectionHelpers
+
       private
 
       def render_tasks(tasks:, selected_project:, selected_task:)
@@ -11,9 +13,10 @@ module QTimetrap
         visible = tasks_visible?(selected_project, values)
         tasks_heading.set_visible(visible)
         sync_task_buttons(visible ? values.size : 0)
-        return unless visible
+        return clear_task_state unless visible
 
-        fill_task_buttons(values, selected_task)
+        refresh_task_state(values, selected_task)
+        fill_task_buttons(values)
       end
 
       def sync_task_buttons(target_count)
@@ -47,8 +50,14 @@ module QTimetrap
       end
 
       def on_task_button_clicked(button)
-        item = task_buttons.find { |candidate| candidate[:view] == button }
+        index = task_buttons.index { |candidate| candidate[:view] == button }
+        return unless index
+
+        item = task_buttons.fetch(index)
         return unless item && item[:task]
+
+        apply_task_selection(index)
+        fill_task_buttons(task_values)
         return unless on_task_selected
 
         on_task_selected.call(item[:task])
@@ -58,19 +67,21 @@ module QTimetrap
         selected_project != '* ALL' && !values.empty?
       end
 
-      def fill_task_buttons(values, selected_task)
+      def fill_task_buttons(values)
         task_buttons.each_with_index do |slot, index|
-          update_task_button(slot: slot, task: values[index], selected_task: selected_task)
+          update_task_button(slot: slot, task: values[index], index: index)
         end
       end
 
-      def update_task_button(slot:, task:, selected_task:)
+      def update_task_button(slot:, task:, index:)
         view = slot.fetch(:view)
         slot[:task] = task
         view.set_text(task.to_s[0, 24])
-        view.set_checked(task == selected_task)
+        view.set_checked(selected_task_indices.include?(index))
         view.show
       end
+
+      attr_reader :selected_task_indices, :last_task_anchor_index, :task_values
     end
   end
 end

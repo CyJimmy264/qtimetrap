@@ -15,6 +15,9 @@ module QTimetrap
         @on_task_selected = on_task_selected
         @buttons = []
         @task_buttons = []
+        @selected_task_indices = []
+        @last_task_anchor_index = nil
+        @task_values = []
 
         build
       end

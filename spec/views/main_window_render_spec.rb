@@ -46,4 +46,64 @@ RSpec.describe QTimetrap::Views::MainWindow do
     task_buttons = widgets_of_type(qt_window, QPushButton).select { |button| button.object_name == 'task_button' }
     expect(task_buttons).to be_empty
   end
+
+  it 'uses single-select for task buttons by default' do
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      task_names_for_selected_project: %w[core ops qa]
+    )
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+
+    main_window.send(:render!)
+    core = button_with_text('core')
+    ops = button_with_text('ops')
+
+    core.click
+    ops.click
+
+    expect(core.is_checked).to be(false)
+    expect(ops.is_checked).to be(true)
+  end
+
+  it 'allows multi-select with Ctrl for task buttons' do
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      task_names_for_selected_project: %w[core ops qa]
+    )
+
+    main_window.send(:render!)
+    core = button_with_text('core')
+    ops = button_with_text('ops')
+
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+    core.click
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ControlModifier)
+    ops.click
+
+    expect(core.is_checked).to be(true)
+    expect(ops.is_checked).to be(true)
+  end
+
+  it 'selects task range with Shift from last anchor' do
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      task_names_for_selected_project: %w[core ops qa ux]
+    )
+
+    main_window.send(:render!)
+    core = button_with_text('core')
+    ops = button_with_text('ops')
+    qa = button_with_text('qa')
+    ux = button_with_text('ux')
+
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+    core.click
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ShiftModifier)
+    qa.click
+
+    expect(core.is_checked).to be(true)
+    expect(ops.is_checked).to be(true)
+    expect(qa.is_checked).to be(true)
+    expect(ux.is_checked).to be(false)
+  end
 end
