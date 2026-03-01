@@ -8,14 +8,16 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   let(:status) { instance_double(Process::Status, success?: true) }
 
   it 'runs cli commands in Bundler.with_unbundled_env' do
-    bundler = class_double(Bundler).as_stubbed_const
-    allow(bundler).to receive(:respond_to?).with(:with_unbundled_env).and_return(true)
-    allow(bundler).to receive(:with_unbundled_env).and_yield
+    stub_const('Bundler', Module.new)
+    allow(Bundler).to receive(:respond_to?).and_call_original
+    allow(Bundler).to receive(:respond_to?).with(:with_unbundled_env).and_return(true)
+    allow(Bundler).to receive(:with_unbundled_env).and_yield
     allow(Open3).to receive(:capture2e).with('t', 'display', '--format', 'json').and_return(['[]', status])
+    stub_const('Timetrap', Module.new)
 
     gateway.entries
 
-    expect(bundler).to have_received(:with_unbundled_env)
+    expect(Bundler).to have_received(:with_unbundled_env)
     expect(Open3).to have_received(:capture2e).with('t', 'display', '--format', 'json')
   end
 end

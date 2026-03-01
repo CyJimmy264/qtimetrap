@@ -17,6 +17,16 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 
+  config.after(:suite) do
+    next unless QApplication.instance_exists
+
+    QApplication.close_all_windows
+    QApplication.process_events
+    qt_app = QTimetrap::Application.instance_variable_get(:@qt_app)
+    qt_app.dispose if qt_app && !qt_app.class.name.to_s.start_with?('RSpec::')
+    QTimetrap::Application.instance_variable_set(:@qt_app, nil)
+  end
+
   config.around(:example, :silence_stderr) do |example|
     original_stderr = $stderr
     $stderr = StringIO.new

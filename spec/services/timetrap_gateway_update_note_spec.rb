@@ -42,6 +42,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   end
 
   it 'updates note via CLI when API is unavailable' do
+    stub_const('Timetrap', Module.new)
     allow(Open3).to receive(:capture2e)
       .with('t', 'edit', '--id', '42', 'updated note')
       .and_return(cmd_result(output: '', success: true))
@@ -52,6 +53,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   end
 
   it 'clears note via CLI with --clear when value is blank' do
+    stub_const('Timetrap', Module.new)
     allow(Open3).to receive(:capture2e)
       .with('t', 'edit', '--id', '42', '--clear')
       .and_return(cmd_result(output: '', success: true))

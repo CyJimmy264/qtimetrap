@@ -45,4 +45,18 @@ RSpec.describe QTimetrap::Services::SettingsStore do
 
     expect(store.read_window_geometry).to be_nil
   end
+
+  it 'returns nil for type errors in window geometry values' do
+    FileUtils.mkdir_p(File.dirname(path))
+    File.write(path, { 'window' => { 'left' => 10, 'top' => 20, 'width' => [], 'height' => 200 } }.to_yaml)
+
+    expect(store.read_window_geometry).to be_nil
+  end
+
+  it 'returns nil for missing required geometry keys' do
+    FileUtils.mkdir_p(File.dirname(path))
+    File.write(path, { 'window' => {} }.to_yaml)
+
+    expect(store.read_window_geometry).to be_nil
+  end
 end

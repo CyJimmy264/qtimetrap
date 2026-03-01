@@ -5,10 +5,12 @@ RSpec.shared_context :qt do
     @qt_app = QTimetrap::Application.boot!
   end
 
-  after(:all) do
+  before do
+    @qt_app = QTimetrap::Application.boot! unless QApplication.instance_exists
+  end
+
+  after do
     QApplication.process_events
-    @qt_app&.dispose if @qt_app.respond_to?(:dispose)
-    QTimetrap::Application.instance_variable_set(:@qt_app, nil)
   end
 
   attr_reader :qt_app

@@ -3,9 +3,17 @@
 require 'spec_helper'
 
 RSpec.describe QTimetrap::Application do
-  before do
+  around do |example|
+    original_container = described_class.instance_variable_get(:@container)
+    original_qt_app = described_class.instance_variable_get(:@qt_app)
+
     described_class.instance_variable_set(:@container, nil)
     described_class.instance_variable_set(:@qt_app, nil)
+
+    example.run
+  ensure
+    described_class.instance_variable_set(:@container, original_container)
+    described_class.instance_variable_set(:@qt_app, original_qt_app)
   end
 
   it 'memoizes container instance' do

@@ -112,6 +112,18 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
     expect(note_input.placeholder_text.to_s).to eq('(no note)')
   end
 
+  it 'extracts enter key code from hash payload with string key' do
+    expect(component.send(:event_key_code, { 'a' => Qt::Key_Return })).to eq(Qt::Key_Return)
+    expect(component.send(:enter_key?, { 'a' => Qt::Key_Return })).to be(true)
+  end
+
+  it 'extracts key code from event object responding to key' do
+    event = Struct.new(:key).new(Qt::Key_Enter)
+
+    expect(component.send(:event_key_code, event)).to eq(Qt::Key_Enter)
+    expect(component.send(:enter_key?, event)).to be(true)
+  end
+
   private
 
   def expand_button
