@@ -22,4 +22,14 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(controls_widget.width).to be >= before_controls_width
     expect(entries_widget.width).to be >= before_entries_width
   end
+
+  it 'builds layout with resizable sidebar splitter' do
+    splitter = widgets_of_type(qt_window, QSplitter).first
+    expect(splitter).not_to be_nil
+
+    sidebar_panel = find_widget(qt_window, 'sidebar_panel')
+    expect(sidebar_panel).not_to be_nil
+    expect(sidebar_panel.minimum_width).to eq(180)
+    expect(sidebar_panel.maximum_width).to eq(520)
+  end
 end

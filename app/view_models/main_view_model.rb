@@ -46,6 +46,17 @@ module QTimetrap
         ['* ALL', *entries.map(&:project).uniq.sort]
       end
 
+      def task_names_for_selected_project
+        return [] if selected_project == '* ALL'
+
+        entries
+          .select { |entry| entry.project == selected_project }
+          .map { |entry| entry.task.to_s }
+          .reject(&:empty?)
+          .uniq
+          .sort
+      end
+
       def filtered_entries
         return entries if selected_project == '* ALL'
 

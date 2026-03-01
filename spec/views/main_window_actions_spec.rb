@@ -22,7 +22,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'requests shutdown on Ctrl+Q key event' do
-    main_window.send(:on_key_press, { a: 0x51, b: 0x04000000 })
+    main_window.send(:on_key_press, { a: Qt::Key_Q, b: Qt::ControlModifier })
     expect(main_window.instance_variable_get(:@shutdown_requested)).to eq(true)
   end
 end

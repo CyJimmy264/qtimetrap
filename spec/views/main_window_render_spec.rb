@@ -21,4 +21,29 @@ RSpec.describe QTimetrap::Views::MainWindow do
     button_with_text('acme').click
     expect(view_model).to have_received(:select_project).with('acme')
   end
+
+  it 'renders task shortcuts for selected non-all project and fills input on click' do
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      task_names_for_selected_project: %w[core ops]
+    )
+
+    main_window.send(:render!)
+    button_with_text('core').click
+
+    input = widgets_of_type(qt_window, QLineEdit).first
+    expect(input.text.to_s).to eq('acme|core')
+  end
+
+  it 'does not render task shortcuts when selected project is * ALL' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      task_names_for_selected_project: []
+    )
+
+    main_window.send(:render!)
+
+    task_buttons = widgets_of_type(qt_window, QPushButton).select { |button| button.object_name == 'task_button' }
+    expect(task_buttons).to be_empty
+  end
 end

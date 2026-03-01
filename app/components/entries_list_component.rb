@@ -9,7 +9,7 @@ module QTimetrap
       include EntriesRenderHelpers
 
       HOST_HORIZONTAL_MARGINS = 28
-      WIDTH_PADDING = 16
+      WIDTH_PADDING = 24
 
       attr_reader :widget
 
@@ -25,6 +25,7 @@ module QTimetrap
         @rendering = true
         @current_nodes = Array(nodes)
         @branch_bindings = {}
+        @leaf_labels = []
         with_widget_updates_suspended { render_contents }
       ensure
         @rendering = false
@@ -32,7 +33,7 @@ module QTimetrap
 
       private
 
-      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :rendering,
+      attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :leaf_labels, :rendering,
                   :scroll_area
 
       def build
@@ -51,6 +52,7 @@ module QTimetrap
         @expanded = {}
         @current_nodes = []
         @branch_bindings = {}
+        @leaf_labels = []
         @rendering = false
       end
 
@@ -76,9 +78,10 @@ module QTimetrap
         [available, 120].max
       end
 
-      def adjust_branch_button_widths
+      def adjust_node_widths
         width = branch_button_width
         branch_bindings.each_value { |binding| binding.fetch(:button).set_fixed_width(width) }
+        leaf_labels.each { |label| label.set_fixed_width(width) }
       end
 
       def build_panel_layout
@@ -96,7 +99,7 @@ module QTimetrap
       end
 
       def bind_scroll_resize
-        scroll_area.on(:resize) { |_| adjust_branch_button_widths }
+        scroll_area.on(:resize) { |_| adjust_node_widths }
       end
     end
   end

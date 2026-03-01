@@ -18,12 +18,20 @@ QLabel#sidebar_heading {
   font-size: 12px;
 }
 
+QLabel#sidebar_tasks_heading {
+  color: #6b7280;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
 QPushButton#project_button {
   background-color: #f7f9fb;
   border: 1px solid #e2e8f0;
   color: #334155;
   font-size: 12px;
   font-weight: 700;
+  text-align: left;
+  padding-left: 10px;
 }
 
 QPushButton#project_button:checked {
@@ -35,4 +43,19 @@ QPushButton#project_button:checked {
 
 QPushButton#project_button:disabled {
   color: #94a3b8;
+}
+
+QPushButton#task_button {
+  background-color: #ffffff;
+  border: 1px solid #d7e0ea;
+  color: #334155;
+  font-size: 11px;
+  text-align: left;
+  padding-left: 10px;
+}
+
+QPushButton#task_button:checked {
+  background-color: #e2e8f0;
+  border: 2px solid #93c5fd;
+  color: #0f172a;
 }

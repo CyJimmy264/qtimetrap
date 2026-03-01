@@ -11,8 +11,6 @@ module QTimetrap
       WINDOW_H = 860
       THEMES = %w[light dark].freeze
       HEARTBEAT_MS = 33
-      CTRL_MODIFIER = 0x04000000
-      KEY_Q = 0x51
 
       def initialize(
         view_model: ViewModels::MainViewModel.new,
@@ -98,6 +96,7 @@ module QTimetrap
       def layout_callbacks
         {
           on_project_selected: method(:handle_project_selected),
+          on_task_selected: method(:handle_task_selected),
           on_start: method(:handle_start),
           on_stop: method(:handle_stop),
           on_refresh: -> { @pending_refresh = true },

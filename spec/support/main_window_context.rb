@@ -65,6 +65,7 @@ RSpec.shared_context :main_window_setup do
       selected_project: 'acme',
       summary_line: 'Week total: 00:10:00 | Total: 02:00:00',
       current_sheet_input: 'acme|core',
+      task_names_for_selected_project: ['core'],
       running_current_sheet?: false,
       entry_nodes: entry_nodes,
       running_timer_line: '00:00:05',

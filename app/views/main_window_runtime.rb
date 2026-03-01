@@ -31,7 +31,11 @@ module QTimetrap
 
       def render!(sync_sheet: false)
         selected_project = view_model.selected_project
-        sidebar.render(projects: view_model.project_names, selected_project: selected_project)
+        sidebar.render(
+          projects: view_model.project_names,
+          selected_project: selected_project,
+          tasks: view_model.task_names_for_selected_project
+        )
         render_controls(sync_sheet: sync_sheet)
         entries.render(view_model.entry_nodes)
       end
@@ -53,6 +57,12 @@ module QTimetrap
       def handle_project_selected(project)
         view_model.select_project(project)
         render!
+      end
+
+      def handle_task_selected(task)
+        base = view_model.selected_project
+        value = base == '* ALL' ? task : "#{base}|#{task}"
+        controls.update_task_input(value)
       end
 
       def render_controls(sync_sheet:)
@@ -78,8 +88,8 @@ module QTimetrap
       def on_key_press(event)
         key = extract_event_value(event, :a) || 0
         modifiers = extract_event_value(event, :b) || 0
-        ctrl_mask = self.class::CTRL_MODIFIER
-        quit_key = self.class::KEY_Q
+        ctrl_mask = Qt::ControlModifier
+        quit_key = Qt::Key_Q
         request_shutdown if modifiers.anybits?(ctrl_mask) && key == quit_key
       end
     end

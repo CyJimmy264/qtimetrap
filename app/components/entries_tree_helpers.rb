@@ -78,7 +78,9 @@ module QTimetrap
         label = QLabel.new(parent_widget)
         label.set_object_name(object_name_for(node))
         label.set_text("#{indent(level)}#{node.fetch(:label)}")
+        label.set_fixed_width(branch_button_width)
         label.set_fixed_height(32)
+        leaf_labels << label
         layout.add_widget(label)
       end
 
