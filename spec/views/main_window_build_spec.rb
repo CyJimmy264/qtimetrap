@@ -32,4 +32,23 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(sidebar_panel.minimum_width).to eq(180)
     expect(sidebar_panel.maximum_width).to eq(520)
   end
+
+  it 'collapses and expands sidebar from splitter toggle button' do
+    main_window.show
+    QApplication.process_events
+
+    sidebar_panel = find_widget(qt_window, 'sidebar_panel')
+    toggle_button = find_widget(qt_window, 'sidebar_toggle_button')
+    expect(toggle_button).not_to be_nil
+    expect(sidebar_panel.is_visible).to be(true)
+
+    toggle_button.show
+    toggle_button.click
+    QApplication.process_events
+    expect(sidebar_panel.is_visible).to be(false)
+
+    toggle_button.click
+    QApplication.process_events
+    expect(sidebar_panel.is_visible).to be(true)
+  end
 end

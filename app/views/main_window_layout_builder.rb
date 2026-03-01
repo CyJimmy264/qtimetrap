@@ -4,6 +4,8 @@ module QTimetrap
   module Views
     # Builds main window layout and returns initialized component instances.
     class MainWindowLayoutBuilder
+      include MainWindowSplitterToggleHelpers
+
       SIDEBAR_WIDTH = 220
       SIDEBAR_MIN_WIDTH = 180
       SIDEBAR_MAX_WIDTH = 520
@@ -29,11 +31,13 @@ module QTimetrap
       def build_splitter_and_content
         splitter = QSplitter.new(window)
         splitter.set_orientation(Qt::Horizontal)
+        splitter.set_mouse_tracking(true)
         sidebar = build_sidebar(parent: splitter)
         content, controls, entries = build_content(parent: splitter)
         splitter.add_widget(sidebar.widget)
         splitter.add_widget(content)
         configure_splitter(splitter)
+        add_sidebar_toggle_button(window: window, splitter: splitter, sidebar_widget: sidebar.widget)
         [splitter, sidebar, controls, entries]
       end
 

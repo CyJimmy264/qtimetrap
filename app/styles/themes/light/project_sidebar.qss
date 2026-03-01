@@ -59,3 +59,17 @@ QPushButton#task_button:checked {
   border: 2px solid #93c5fd;
   color: #0f172a;
 }
+
+QPushButton#sidebar_toggle_button {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #1e3a8a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+QPushButton#sidebar_toggle_button:hover {
+  background-color: #eff6ff;
+  border: 1px solid #93c5fd;
+}
