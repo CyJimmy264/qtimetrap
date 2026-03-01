@@ -83,6 +83,35 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
     expect(on_entry_note_change).not_to have_received(:call)
   end
 
+  it 'uses native placeholder for empty note and keeps text empty on activation' do
+    component.render(no_note_entry_nodes)
+    QApplication.process_events
+
+    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    expect(note_input.text.to_s).to eq('')
+    expect(note_input.placeholder_text.to_s).to eq('(no note)')
+
+    component.send(:activate_entry_note_input, note_input)
+
+    expect(note_input.is_read_only).to be(false)
+    expect(note_input.text.to_s).to eq('')
+  end
+
+  it 'keeps native placeholder on deactivation when input is blank' do
+    component.render(no_note_entry_nodes)
+    QApplication.process_events
+
+    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    component.send(:activate_entry_note_input, note_input)
+    expect(note_input.text.to_s).to eq('')
+
+    component.send(:handle_entry_note_focus_out, note_input)
+
+    expect(note_input.is_read_only).to be(true)
+    expect(note_input.text.to_s).to eq('')
+    expect(note_input.placeholder_text.to_s).to eq('(no note)')
+  end
+
   private
 
   def expand_button
@@ -167,6 +196,41 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
                 label: "Project #{'Z' * 300}",
                 children: [
                   { id: 'entry:long', type: :entry, label: 'entry', children: [] }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  end
+
+  def no_note_entry_nodes
+    [
+      {
+        id: 'week:no-note',
+        type: :week,
+        label: 'Week Feb 23 - Mar 1  Total: 00:05:00',
+        children: [
+          {
+            id: 'day:no-note',
+            type: :day,
+            label: 'Sun, Mar 1  Total: 00:05:00',
+            children: [
+              {
+                id: 'project:no-note',
+                type: :project,
+                label: 'acme | task (1) 00:05:00',
+                children: [
+                  {
+                    id: 'entry:no-note',
+                    type: :entry,
+                    entry_id: 11,
+                    prefix: '10:00 - 10:05  00:05:00',
+                    note: '',
+                    label: '10:00 - 10:05  00:05:00  (no note)',
+                    children: []
+                  }
                 ]
               }
             ]

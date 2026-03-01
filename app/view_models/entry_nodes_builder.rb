@@ -70,7 +70,7 @@ module QTimetrap
 
       def entry_node(entry, index)
         note = entry.note.strip
-        note = '(no note)' if note.empty?
+        display_note = note.empty? ? '(no note)' : note
         range = Services::Formatters.time_range(entry)
         duration = Services::Formatters.seconds_to_hms(entry.duration_seconds)
         {
@@ -79,7 +79,7 @@ module QTimetrap
           entry_id: entry.id || index,
           prefix: "#{range}  #{duration}",
           note: note,
-          label: "#{range}  #{duration}  #{note}",
+          label: "#{range}  #{duration}  #{display_note}",
           children: []
         }
       end

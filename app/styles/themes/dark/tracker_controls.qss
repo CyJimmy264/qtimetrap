@@ -71,4 +71,5 @@ QLabel#summary_label {
   background-color: #0f172a;
   border: 1px solid #2b3b4f;
   color: #e2e8f0;
+  padding: 0 10px;
 }

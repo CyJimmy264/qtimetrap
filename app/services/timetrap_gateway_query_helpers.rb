@@ -47,7 +47,7 @@ module QTimetrap
 
       def run(*args)
         normalized_args = normalize_command_args(args)
-        output, status = Open3.capture2e(bin, *normalized_args)
+        output, status = with_unbundled_env { Open3.capture2e(bin, *normalized_args) }
         log_cli_result(args: normalized_args, success: status.success?, output: output)
       rescue Errno::ENOENT
         log_cli_result(args: args, success: false, output: "Command not found: #{bin}")
@@ -88,6 +88,14 @@ module QTimetrap
 
       def normalize_text(value)
         value.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '').scrub('')
+      end
+
+      def with_unbundled_env
+        return yield unless defined?(Bundler) && Bundler.respond_to?(:with_unbundled_env)
+
+        Bundler.with_unbundled_env do
+          return yield
+        end
       end
     end
   end

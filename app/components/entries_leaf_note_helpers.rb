@@ -42,6 +42,7 @@ module QTimetrap
         QLineEdit.new(row).tap do |note_input|
           note_input.set_object_name('entry_node_entry_note')
           note_input.text = node.fetch(:note, '')
+          note_input.set_placeholder_text('(no note)')
           note_input.set_read_only(true)
           bind_entry_note_input_events(note_input, resolve_entry_id(node))
         end

@@ -45,6 +45,7 @@ module QTimetrap
       return if @qt_app
 
       @qt_app = QApplication.new(0, [])
+      apply_qt_identity!
     rescue StandardError
       @qt_app ||= nil
     end
@@ -73,6 +74,13 @@ module QTimetrap
 
     def env_theme_name?
       ENV.fetch('QTIMETRAP_THEME', '').strip != ''
+    end
+
+    def apply_qt_identity!
+      QApplication.set_application_name('qtimetrap')
+      QApplication.set_desktop_file_name('qtimetrap')
+      QApplication.set_application_display_name('QTimetrap')
+      QApplication.set_organization_name('mveynberg')
     end
   end
 end
