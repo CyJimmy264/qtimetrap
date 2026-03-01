@@ -17,6 +17,26 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(qt_window.is_visible).to be(false)
   end
 
+  it 'restores and persists window geometry through settings store' do
+    allow(settings_store).to receive(:read_window_geometry).and_return(left: 70, top: 80, width: 1200, height: 760)
+    allow(settings_store).to receive(:write_window_geometry)
+
+    window = described_class.new(view_model: view_model, settings_store: settings_store)
+    qt_window = window.send(:window)
+    expect([qt_window.x, qt_window.y, qt_window.width, qt_window.height]).to eq([70, 80, 1200, 760])
+
+    window.close
+    expect(settings_store).to have_received(:write_window_geometry).with(
+      left: 70,
+      top: 80,
+      width: 1200,
+      height: 760
+    )
+  ensure
+    window&.send(:heartbeat)&.stop
+    qt_window&.close
+  end
+
   it 'sets pending refresh when refresh button is clicked' do
     main_window.instance_variable_set(:@pending_refresh, false)
     button_with_text('REFRESH').click

@@ -17,6 +17,7 @@ module QTimetrap
       def render_contents
         rebuild_host!
         render_nodes(current_nodes, 0)
+        adjust_branch_button_widths
         host_layout.add_stretch(1)
       end
     end

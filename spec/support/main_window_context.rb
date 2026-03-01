@@ -49,7 +49,14 @@ end
 
 RSpec.shared_context :main_window_setup do
   let(:entry_nodes) { sample_entry_nodes }
-  let(:settings_store) { instance_double(QTimetrap::Services::SettingsStore, write_theme_name: nil) }
+  let(:settings_store) do
+    instance_double(
+      QTimetrap::Services::SettingsStore,
+      write_theme_name: nil,
+      read_window_geometry: nil,
+      write_window_geometry: nil
+    )
+  end
   let(:view_model) do
     instance_double(
       QTimetrap::ViewModels::MainViewModel,

@@ -35,6 +35,7 @@ module QTimetrap
       end
 
       def close
+        persist_window_geometry
         window.close
       end
 
@@ -48,6 +49,7 @@ module QTimetrap
 
       def build_window
         @window = build_base_window
+        restore_window_geometry
         set_window_icon
         window.set_style_sheet(theme.application_stylesheet)
         ui = MainWindowLayoutBuilder.new(
@@ -68,6 +70,29 @@ module QTimetrap
 
       def connect_key_events
         window.on(:key_press) { |event| on_key_press(event) }
+      end
+
+      def restore_window_geometry
+        geometry = settings_store.read_window_geometry
+        return unless geometry
+
+        window.set_geometry(
+          geometry.fetch(:left),
+          geometry.fetch(:top),
+          geometry.fetch(:width),
+          geometry.fetch(:height)
+        )
+      end
+
+      def persist_window_geometry
+        settings_store.write_window_geometry(
+          left: window.x,
+          top: window.y,
+          width: window.width,
+          height: window.height
+        )
+      rescue StandardError => e
+        warn("[qtimetrap] save geometry failed: #{e.class}: #{e.message}")
       end
 
       def layout_callbacks

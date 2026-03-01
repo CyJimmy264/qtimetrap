@@ -24,6 +24,27 @@ module QTimetrap
         File.write(path, payload.to_yaml)
       end
 
+      def read_window_geometry
+        value = data['window']
+        return nil unless value.is_a?(Hash)
+
+        geometry = stringify_keys(value)
+        parse_window_geometry(geometry)
+      end
+
+      def write_window_geometry(left:, top:, width:, height:)
+        payload = data.merge(
+          'window' => {
+            'left' => Integer(left),
+            'top' => Integer(top),
+            'width' => Integer(width),
+            'height' => Integer(height)
+          }
+        )
+        FileUtils.mkdir_p(File.dirname(path))
+        File.write(path, payload.to_yaml)
+      end
+
       private
 
       attr_reader :path
@@ -39,6 +60,18 @@ module QTimetrap
 
       def stringify_keys(hash)
         hash.each_with_object({}) { |(k, v), memo| memo[k.to_s] = v }
+      end
+
+      def parse_window_geometry(geometry)
+        left = Integer(geometry['left'] || geometry['x'])
+        top = Integer(geometry['top'] || geometry['y'])
+        width = Integer(geometry['width'])
+        height = Integer(geometry['height'])
+        return nil unless width.positive? && height.positive?
+
+        { left: left, top: top, width: width, height: height }
+      rescue ArgumentError, TypeError
+        nil
       end
 
       def default_path

@@ -108,6 +108,7 @@ module QTimetrap
       def build_branch_button(node, level, expanded_state, parent_widget:)
         text = branch_button_text(level, node.fetch(:label), expanded_state)
         button = build_button(parent_widget, object_name_for(node), text, 0, 32)
+        button.set_fixed_width(branch_button_width)
         node_id = node.fetch(:id)
         button.connect('clicked') { |_| toggle_node(node_id) }
         button

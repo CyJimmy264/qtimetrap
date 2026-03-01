@@ -46,6 +46,18 @@ QPushButton#entry_node_week {
   padding-left: 8px;
 }
 
+QPushButton#entry_node_week:hover {
+  background-color: #1d4ed8;
+}
+
+QPushButton#entry_node_week:pressed {
+  background-color: #1e40af;
+}
+
+QPushButton#entry_node_week:focus {
+  border: 2px solid #93c5fd;
+}
+
 QPushButton#entry_node_day {
   background-color: #ecf1f6;
   border: 1px solid #d5dee8;
@@ -56,6 +68,18 @@ QPushButton#entry_node_day {
   padding-left: 8px;
 }
 
+QPushButton#entry_node_day:hover {
+  background-color: #e5ebf2;
+}
+
+QPushButton#entry_node_day:pressed {
+  background-color: #dfe6ee;
+}
+
+QPushButton#entry_node_day:focus {
+  border: 2px solid #93c5fd;
+}
+
 QPushButton#entry_node_project {
   background-color: #ffffff;
   border: 1px solid #d8e0ea;
@@ -64,6 +88,18 @@ QPushButton#entry_node_project {
   font-weight: 700;
   text-align: left;
   padding-left: 8px;
+}
+
+QPushButton#entry_node_project:hover {
+  background-color: #f8fafc;
+}
+
+QPushButton#entry_node_project:pressed {
+  background-color: #f1f5f9;
+}
+
+QPushButton#entry_node_project:focus {
+  border: 2px solid #60a5fa;
 }
 
 QLabel#entry_node_entry {

@@ -31,4 +31,18 @@ RSpec.describe QTimetrap::Services::SettingsStore do
 
     expect(store.read_theme_name).to be_nil
   end
+
+  it 'writes and reads window geometry' do
+    store.write_window_geometry(left: 20, top: 30, width: 1400, height: 900)
+
+    expect(store.read_window_geometry).to eq(left: 20, top: 30, width: 1400, height: 900)
+    expect(File.read(path)).to include('window:')
+  end
+
+  it 'returns nil for invalid window geometry values' do
+    FileUtils.mkdir_p(File.dirname(path))
+    File.write(path, { 'window' => { 'left' => 10, 'top' => 20, 'width' => 0, 'height' => 200 } }.to_yaml)
+
+    expect(store.read_window_geometry).to be_nil
+  end
 end

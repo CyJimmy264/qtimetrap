@@ -30,6 +30,25 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
     expect(unknown_leaf).not_to be_nil
   end
 
+  it 'keeps branch nodes inside scroll viewport width for long labels' do
+    parent.resize(920, 720)
+    component.render(long_label_nodes)
+    parent.show
+    QApplication.process_events
+
+    scroll_area = component.send(:scroll_area)
+    host = component.send(:host)
+
+    widest_branch = descendants(parent)
+                    .grep(QPushButton)
+                    .select { |button| button.object_name.start_with?('entry_node_') }
+                    .map(&:width)
+                    .max
+
+    expect(host.width).to be <= scroll_area.width
+    expect(widest_branch).to be <= scroll_area.width
+  end
+
   private
 
   def expand_button
@@ -84,6 +103,33 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
         type: :unknown_type,
         label: 'mystery node',
         children: []
+      }
+    ]
+  end
+
+  def long_label_nodes
+    [
+      {
+        id: 'week:long',
+        type: :week,
+        label: "Week #{'X' * 300}",
+        children: [
+          {
+            id: 'day:long',
+            type: :day,
+            label: "Day #{'Y' * 300}",
+            children: [
+              {
+                id: 'project:long',
+                type: :project,
+                label: "Project #{'Z' * 300}",
+                children: [
+                  { id: 'entry:long', type: :entry, label: 'entry', children: [] }
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   end

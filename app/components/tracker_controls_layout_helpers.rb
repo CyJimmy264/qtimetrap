@@ -9,7 +9,7 @@ module QTimetrap
         'Small steps, big output',
         'Focus. Build. Finish.',
         'Consistency beats intensity',
-        'Today''s minutes, tomorrow''s results',
+        "Today's minutes, tomorrow's results",
         'Make progress visible',
         'Do the next right task'
       ].freeze

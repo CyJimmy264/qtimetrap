@@ -8,6 +8,9 @@ module QTimetrap
       include EntriesTreeHelpers
       include EntriesRenderHelpers
 
+      HOST_HORIZONTAL_MARGINS = 28
+      WIDTH_PADDING = 16
+
       attr_reader :widget
 
       def initialize(parent:)
@@ -38,6 +41,7 @@ module QTimetrap
         panel_layout = build_panel_layout
         panel_layout.add_widget(build_toolbar(parent_widget: widget))
         @scroll_area = build_scroll_area
+        bind_scroll_resize
         panel_layout.add_widget(scroll_area)
         panel_layout.set_stretch(1, 1)
         rebuild_host!
@@ -67,6 +71,16 @@ module QTimetrap
         scroll_area.set_widget(host)
       end
 
+      def branch_button_width
+        available = scroll_area.width - HOST_HORIZONTAL_MARGINS - WIDTH_PADDING
+        [available, 120].max
+      end
+
+      def adjust_branch_button_widths
+        width = branch_button_width
+        branch_bindings.each_value { |binding| binding.fetch(:button).set_fixed_width(width) }
+      end
+
       def build_panel_layout
         QVBoxLayout.new(widget).tap do |layout|
           layout.set_contents_margins(0, 0, 0, 0)
@@ -79,6 +93,10 @@ module QTimetrap
           area.set_object_name('entries_scroll')
           area.set_widget_resizable(true)
         end
+      end
+
+      def bind_scroll_resize
+        scroll_area.on(:resize) { |_| adjust_branch_button_widths }
       end
     end
   end
