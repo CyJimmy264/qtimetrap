@@ -10,11 +10,11 @@ RSpec.describe QTimetrap::Views::MainWindow do
   it 'toggles visibility through public show/close API' do
     main_window.show
     QApplication.process_events
-    expect(visible?(qt_window)).to be(true)
+    expect(qt_window.is_visible).to be(true)
 
     main_window.close
     QApplication.process_events
-    expect(visible?(qt_window)).to be(false)
+    expect(qt_window.is_visible).to be(false)
   end
 
   it 'sets pending refresh when refresh button is clicked' do
@@ -52,19 +52,12 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(main_window.instance_variable_get(:@shutdown_requested)).to be(false)
   end
 
-  it 'logs and continues when icon loader fails' do
+  it 'logs and continues when icon loader fails', :silence_stderr do
     broken_loader = instance_double(QTimetrap::Views::WindowIconLoader)
     allow(QTimetrap::Views::WindowIconLoader).to receive(:new).and_return(broken_loader)
     allow(broken_loader).to receive(:apply).and_raise(StandardError, 'icon boom')
     allow(main_window).to receive(:warn)
     main_window.send(:set_window_icon)
     expect(main_window).to have_received(:warn).with(include('[qtimetrap] icon load failed: StandardError: icon boom'))
-  end
-
-  private
-
-  def visible?(widget)
-    value = widget.is_visible
-    [true, 1].include?(value)
   end
 end
