@@ -60,7 +60,7 @@ module QTimetrap
         fill_task_buttons(task_values)
         return unless on_task_selected
 
-        on_task_selected.call(item[:task])
+        on_task_selected.call(selected_task_values, item[:task])
       end
 
       def tasks_visible?(selected_project, values)
@@ -76,9 +76,15 @@ module QTimetrap
       def update_task_button(slot:, task:, index:)
         view = slot.fetch(:view)
         slot[:task] = task
-        view.set_text(task.to_s[0, 24])
+        text = task.to_s
+        view.set_text(text)
+        view.set_tool_tip(text)
         view.set_checked(selected_task_indices.include?(index))
         view.show
+      end
+
+      def selected_task_values
+        selected_task_indices.filter_map { |index| task_values[index] }
       end
 
       attr_reader :selected_task_indices, :last_task_anchor_index, :task_values

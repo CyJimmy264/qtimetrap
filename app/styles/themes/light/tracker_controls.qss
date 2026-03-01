@@ -28,12 +28,12 @@ QLineEdit#task_input {
   padding-left: 8px;
 }
 
-QLabel#project_label {
+QLineEdit#project_input {
   background-color: #ffffff;
   border: 1px solid #cfd8e3;
-  color: #0f172a;
-  font-size: 13px;
-  font-weight: 700;
+  color: #111827;
+  font-size: 14px;
+  padding-left: 8px;
 }
 
 QLabel#timer_label {

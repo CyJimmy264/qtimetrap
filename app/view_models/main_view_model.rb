@@ -6,13 +6,17 @@ module QTimetrap
   module ViewModels
     # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
+      include MainViewModelSheetHelpers
+      include MainViewModelTaskFilterHelpers
+
       EPOCH_TIME = Time.at(0)
 
-      attr_reader :selected_project, :entries, :current_started_at, :current_sheet
+      attr_reader :selected_project, :selected_tasks, :entries, :current_started_at, :current_sheet
 
       def initialize(gateway: Services::TimetrapGateway.new)
         @gateway = gateway
         @selected_project = '* ALL'
+        @selected_tasks = []
         @entries = []
         @current_started_at = nil
         @current_sheet = nil
@@ -23,16 +27,22 @@ module QTimetrap
         @entries = gateway.entries
         @current_sheet = detect_current_sheet
         @selected_project = '* ALL' unless project_names.include?(@selected_project)
+        seed_current_fields_from_sheet!
+        normalize_selected_tasks!
         self
       end
 
       def select_project(project)
         @selected_project = project
+        @selected_tasks = []
+        apply_selected_project_to_current_field!
+        self.current_task_input = latest_task_for_project(project)
       end
 
       def start_tracking(note)
         value = normalize_text(note).strip
-        value = 'gui-clockify' if value.empty?
+        raise ArgumentError, 'Task is required' if value.empty?
+
         gateway.start(value)
         @current_started_at = Time.now unless current_started_at
       end
@@ -55,12 +65,6 @@ module QTimetrap
           .reject(&:empty?)
           .uniq
           .sort
-      end
-
-      def filtered_entries
-        return entries if selected_project == '* ALL'
-
-        entries.select { |entry| entry.project == selected_project }
       end
 
       def week_total_seconds
@@ -93,19 +97,6 @@ module QTimetrap
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
-      def current_sheet_label(now: Time.now)
-        value = current_sheet.to_s.strip
-        value = '* ALL' if value.empty?
-        return value unless running_current_sheet?
-
-        "#{value} #{running_timer_line(now: now)}"
-      end
-
-      def current_sheet_input
-        value = current_sheet.to_s.strip
-        value.empty? ? 'gui-clockify' : value
-      end
-
       private
 
       attr_reader :gateway
@@ -124,6 +115,13 @@ module QTimetrap
 
       def newest_entry(collection)
         collection.max_by { |entry| entry.start_time || EPOCH_TIME }
+      end
+
+      def latest_task_for_project(project)
+        return '' if project == '* ALL'
+
+        entry = newest_entry(entries.select { |item| item.project == project })
+        entry ? entry.task.to_s : ''
       end
 
       def normalize_text(value)

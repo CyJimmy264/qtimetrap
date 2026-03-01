@@ -7,12 +7,9 @@ module QTimetrap
       include QtUiHelpers
       include TrackerControlsLayoutHelpers
 
-      def initialize(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
+      def initialize(parent:, callbacks:)
         @parent = parent
-        @on_start = on_start
-        @on_stop = on_stop
-        @on_refresh = on_refresh
-        @on_switch_theme = on_switch_theme
+        @callbacks = callbacks
       end
 
       def build
@@ -27,7 +24,7 @@ module QTimetrap
 
       private
 
-      attr_reader :parent, :widget, :on_start, :on_stop, :on_refresh, :on_switch_theme
+      attr_reader :parent, :widget, :callbacks
 
       def build_topbar
         topbar = QWidget.new(widget)
@@ -62,15 +59,39 @@ module QTimetrap
         QLineEdit.new(parent_widget).tap do |input|
           input.set_object_name('task_input')
           input.set_placeholder_text('What are you working on?')
-          input.text = 'gui-clockify'
+          input.text = ''
+        end
+      end
+
+      def build_project_input(parent_widget)
+        QLineEdit.new(parent_widget).tap do |input|
+          input.set_object_name('project_input')
+          input.set_placeholder_text('your project')
+          input.text = ''
+          input.set_fixed_width(190)
         end
       end
 
       def connect_actions(start_button, stop_button, refresh_button)
-        start_button.connect('clicked') { |_| on_start.call(@task_input.text.to_s) }
-        stop_button.connect('clicked') { |_| on_stop.call }
-        @theme_button.connect('clicked') { |_| on_switch_theme.call }
-        refresh_button.connect('clicked') { |_| on_refresh.call }
+        connect_start_stop(start_button, stop_button)
+        connect_theme_refresh(refresh_button)
+        connect_project_input
+      end
+
+      def connect_start_stop(start_button, stop_button)
+        start_button.connect('clicked') do |_|
+          callbacks.fetch(:on_start).call(@task_input.text.to_s, @project_input.text.to_s)
+        end
+        stop_button.connect('clicked') { |_| callbacks.fetch(:on_stop).call }
+      end
+
+      def connect_theme_refresh(refresh_button)
+        @theme_button.connect('clicked') { |_| callbacks.fetch(:on_switch_theme).call }
+        refresh_button.connect('clicked') { |_| callbacks.fetch(:on_refresh).call }
+      end
+
+      def connect_project_input
+        @project_input.connect('textChanged(QString)') { |text| callbacks.fetch(:on_project_change).call(text.to_s) }
       end
     end
   end

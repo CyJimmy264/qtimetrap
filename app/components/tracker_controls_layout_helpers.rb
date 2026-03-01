@@ -35,14 +35,13 @@ module QTimetrap
 
       def add_tracker_row_widgets(layout, row)
         @task_input = build_task_input(row)
-        @project_label = build_label(row, 'project_label', 'Project: ALL', width: 150)
-        @project_label.set_alignment(Qt::AlignCenter)
+        @project_input = build_project_input(row)
         @timer_label = build_label(row, 'timer_label', '00:00:00', width: 120)
         @timer_label.set_alignment(Qt::AlignCenter)
         @start_button = build_button(row, 'start_button', 'START', 64, 48)
         @stop_button = build_button(row, 'stop_button', 'STOP', 64, 48)
         @stop_button.hide
-        [@task_input, @project_label, @timer_label, @start_button, @stop_button].each { |item| layout.add_widget(item) }
+        [@task_input, @project_input, @timer_label, @start_button, @stop_button].each { |item| layout.add_widget(item) }
         [@start_button, @stop_button]
       end
 
@@ -74,7 +73,7 @@ module QTimetrap
       def ui_controls_payload
         {
           summary_label: @summary_label,
-          project_label: @project_label,
+          project_input: @project_input,
           theme_button: @theme_button,
           start_button: @start_button,
           stop_button: @stop_button

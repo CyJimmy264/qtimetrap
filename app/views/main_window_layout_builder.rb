@@ -81,10 +81,13 @@ module QTimetrap
       def build_controls(content)
         Components::TrackerControlsComponent.new(
           parent: content,
-          on_start: callbacks.fetch(:on_start),
-          on_stop: callbacks.fetch(:on_stop),
-          on_refresh: callbacks.fetch(:on_refresh),
-          on_switch_theme: callbacks.fetch(:on_switch_theme)
+          callbacks: {
+            on_start: callbacks.fetch(:on_start),
+            on_stop: callbacks.fetch(:on_stop),
+            on_refresh: callbacks.fetch(:on_refresh),
+            on_switch_theme: callbacks.fetch(:on_switch_theme),
+            on_project_change: callbacks.fetch(:on_project_change)
+          }
         )
       end
     end

@@ -63,17 +63,23 @@ RSpec.shared_context :main_window_setup do
       refresh!: nil,
       project_names: ['* ALL', 'acme'],
       selected_project: 'acme',
+      selected_tasks: [],
       summary_line: 'Week total: 00:10:00 | Total: 02:00:00',
-      current_sheet_input: 'acme|core',
+      current_sheet_input: 'core',
+      current_project_name: 'acme',
       task_names_for_selected_project: ['core'],
       running_current_sheet?: false,
       entry_nodes: entry_nodes,
       running_timer_line: '00:00:05',
       start_tracking: nil,
       stop_tracking: nil,
-      select_project: nil
+      select_project: nil,
+      select_tasks: nil,
+      'current_project_name=': nil,
+      'current_task_input=': nil,
+      sheet_for_task_input: 'acme|core'
     ).tap do |vm|
-      allow(vm).to receive(:current_sheet_label).and_return('acme|core')
+      allow(vm).to receive(:sheet_for_task_input) { |task| "acme|#{task}" }
     end
   end
 

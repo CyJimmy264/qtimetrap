@@ -14,11 +14,12 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
     view_model.refresh!
 
-    expect(view_model.current_sheet_label).to eq('focus|deep')
-    expect(view_model.current_sheet_input).to eq('focus|deep')
+    expect(view_model.current_project_name).to eq('focus')
+    expect(view_model.current_sheet_label).to eq('focus')
+    expect(view_model.current_sheet_input).to eq('deep')
   end
 
-  it 'appends elapsed time to sheet label while running' do
+  it 'keeps project label stable while running' do
     started_at = Time.new(2026, 2, 28, 10, 0, 0, '+00:00')
     running = QTimetrap::Models::TimeEntry.new(
       id: 9, note: 'n', sheet: 'focus|deep',
@@ -29,6 +30,35 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
     view_model.refresh!
 
-    expect(view_model.current_sheet_label(now: started_at + 65)).to eq('focus|deep 00:01:05')
+    expect(view_model.current_sheet_label(now: started_at + 65)).to eq('focus')
+  end
+
+  it 'builds sheet from project and task input for start action' do
+    allow(gateway).to receive(:entries).and_return([])
+    view_model.refresh!
+    view_model.select_project('acme')
+
+    expect(view_model.sheet_for_task_input('deep work')).to eq('acme|deep work')
+  end
+
+  it 'updates current project field when selecting sidebar project' do
+    view_model.refresh!
+    view_model.select_project('acme')
+
+    expect(view_model.current_project_name).to eq('acme')
+  end
+
+  it 'updates current task field from selected sidebar task' do
+    view_model.refresh!
+    view_model.current_task_input = 'review'
+
+    expect(view_model.current_sheet_input).to eq('review')
+  end
+
+  it 'supports custom current project input for start sheet composition' do
+    view_model.refresh!
+    view_model.current_project_name = 'custom-client'
+
+    expect(view_model.sheet_for_task_input('planning')).to eq('custom-client|planning')
   end
 end

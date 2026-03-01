@@ -5,10 +5,9 @@ require 'spec_helper'
 RSpec.describe QTimetrap::ViewModels::MainViewModel do
   include_context :main_view_model_setup
 
-  it 'sends default note when blank' do
-    view_model.start_tracking('  ')
-    expect(gateway).to have_received(:start).with('gui-clockify')
-    expect(view_model.current_started_at).not_to be_nil
+  it 'raises when start note is blank' do
+    expect { view_model.start_tracking('  ') }.to raise_error(ArgumentError, 'Task is required')
+    expect(gateway).not_to have_received(:start)
   end
 
   it 'normalizes note encoding before start' do

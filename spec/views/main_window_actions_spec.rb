@@ -8,10 +8,14 @@ RSpec.describe QTimetrap::Views::MainWindow do
   include_context :main_window_cleanup
 
   it 'sends start action with task input text' do
-    input = widgets_of_type(qt_window, QLineEdit).first
-    input.text = 'focus task'
+    task_input = find_widget(qt_window, 'task_input')
+    project_input = find_widget(qt_window, 'project_input')
+    task_input.text = 'focus task'
+    project_input.text = 'my-custom-project'
     button_with_text('START').click
-    expect(view_model).to have_received(:start_tracking).with('focus task')
+
+    expect(view_model).to have_received(:current_project_name=).with('my-custom-project')
+    expect(view_model).to have_received(:start_tracking).with('acme|focus task')
   end
 
   it 'sends stop action on stop click' do

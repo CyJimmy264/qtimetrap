@@ -20,6 +20,49 @@ RSpec.describe QTimetrap::Views::MainWindow do
     main_window.send(:render!)
     button_with_text('acme').click
     expect(view_model).to have_received(:select_project).with('acme')
+    expect(view_model).to have_received(:current_project_name=).with('acme')
+  end
+
+  it 'updates current project field when project is selected in sidebar' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      current_project_name: 'acme',
+      project_names: ['* ALL', 'acme']
+    )
+
+    main_window.send(:render!)
+    button_with_text('acme').click
+
+    project_input = find_widget(qt_window, 'project_input')
+    expect(project_input.text.to_s).to eq('acme')
+  end
+
+  it 'fills current project input from clicked sidebar project even when vm field is blank' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      current_project_name: '',
+      project_names: ['* ALL', 'acme']
+    )
+
+    main_window.send(:render!)
+    button_with_text('acme').click
+
+    project_input = find_widget(qt_window, 'project_input')
+    expect(project_input.text.to_s).to eq('acme')
+  end
+
+  it 'updates current task field to latest project task on project click' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      current_sheet_input: 'deploy',
+      project_names: ['* ALL', 'acme']
+    )
+
+    main_window.send(:render!)
+    button_with_text('acme').click
+
+    task_input = find_widget(qt_window, 'task_input')
+    expect(task_input.text.to_s).to eq('deploy')
   end
 
   it 'renders task shortcuts for selected non-all project and fills input on click' do
@@ -31,8 +74,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
     main_window.send(:render!)
     button_with_text('core').click
 
-    input = widgets_of_type(qt_window, QLineEdit).first
-    expect(input.text.to_s).to eq('acme|core')
+    task_input = find_widget(qt_window, 'task_input')
+    expect(task_input.text.to_s).to eq('core')
   end
 
   it 'does not render task shortcuts when selected project is * ALL' do
@@ -105,5 +148,19 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(ops.is_checked).to be(true)
     expect(qa.is_checked).to be(true)
     expect(ux.is_checked).to be(false)
+  end
+
+  it 'keeps full long task text and tooltip in sidebar buttons' do
+    long_task = 'very-long-task-name-with-details-and-suffix-1234567890'
+    allow(view_model).to receive_messages(
+      selected_project: 'acme',
+      task_names_for_selected_project: [long_task]
+    )
+
+    main_window.send(:render!)
+    task_button = widgets_of_type(qt_window, QPushButton).find { |button| button.object_name == 'task_button' }
+
+    expect(task_button.text.to_s).to eq(long_task)
+    expect(task_button.tool_tip.to_s).to eq(long_task)
   end
 end

@@ -6,16 +6,17 @@ module QTimetrap
     class TrackerControlsComponent
       attr_reader :task_input, :clock_label, :timer_label, :widget
 
-      def initialize(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
-        assign_ui(build_ui(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:))
+      def initialize(parent:, callbacks:)
+        assign_ui(build_ui(parent:, callbacks:))
       end
 
       def update_summary(text)
         summary_label.set_text(text)
       end
 
-      def update_project_label(selected_project)
-        project_label.set_text("Sheet: #{selected_project[0, 20]}")
+      def update_project_input(project_name)
+        value = project_name.to_s.strip
+        project_input.set_text(value)
       end
 
       def update_task_input(text)
@@ -33,15 +34,12 @@ module QTimetrap
 
       private
 
-      attr_reader :summary_label, :project_label, :theme_button, :start_button, :stop_button
+      attr_reader :summary_label, :project_input, :theme_button, :start_button, :stop_button
 
-      def build_ui(parent:, on_start:, on_stop:, on_refresh:, on_switch_theme:)
+      def build_ui(parent:, callbacks:)
         TrackerControlsLayoutBuilder.new(
           parent: parent,
-          on_start: on_start,
-          on_stop: on_stop,
-          on_refresh: on_refresh,
-          on_switch_theme: on_switch_theme
+          callbacks: callbacks
         ).build
       end
 
@@ -51,7 +49,7 @@ module QTimetrap
         @clock_label = ui_map.fetch(:clock_label)
         @timer_label = ui_map.fetch(:timer_label)
         @summary_label = ui_map.fetch(:summary_label)
-        @project_label = ui_map.fetch(:project_label)
+        @project_input = ui_map.fetch(:project_input)
         @theme_button = ui_map.fetch(:theme_button)
         @start_button = ui_map.fetch(:start_button)
         @stop_button = ui_map.fetch(:stop_button)
