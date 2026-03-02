@@ -112,6 +112,31 @@ QLabel#entry_node_entry_prefix {
   font-size: 12px;
 }
 
+QLabel#entry_node_entry_time_sep {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+QLineEdit#entry_node_entry_start,
+QLineEdit#entry_node_entry_end {
+  color: #94a3b8;
+  font-size: 12px;
+  background: transparent;
+  border: 0px;
+}
+
+QLineEdit#entry_node_entry_start:read-only,
+QLineEdit#entry_node_entry_end:read-only {
+  background: transparent;
+  border: 0px;
+}
+
+QLineEdit#entry_node_entry_start:focus,
+QLineEdit#entry_node_entry_end:focus {
+  background-color: #111827;
+  border: 1px solid #334155;
+}
+
 QLineEdit#entry_node_entry_note {
   color: #94a3b8;
   font-size: 12px;

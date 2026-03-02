@@ -67,6 +67,17 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(main_window).to have_received(:warn).with(include('[qtimetrap] save theme failed: StandardError: boom'))
   end
 
+  it 'defers UI rerender after entry time update to heartbeat' do
+    allow(main_window).to receive(:render!)
+    main_window.instance_variable_set(:@pending_refresh, false)
+
+    main_window.send(:handle_entry_time_changed, 1, '10:00', '11:00')
+
+    expect(view_model).to have_received(:update_entry_time).with(1, '10:00', '11:00')
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+    expect(main_window).not_to have_received(:render!)
+  end
+
   it 'ignores key press when event payload has no key data' do
     main_window.send(:on_key_press, {})
     expect(main_window.instance_variable_get(:@shutdown_requested)).to be(false)

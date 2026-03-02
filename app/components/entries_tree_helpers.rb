@@ -6,6 +6,7 @@ module QTimetrap
     module EntriesTreeHelpers
       include EntriesBranchHierarchyHelpers
       include EntriesLeafNoteHelpers
+      include EntriesLeafTimeHelpers
       include EntriesNodePresentationHelpers
 
       private

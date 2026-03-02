@@ -18,5 +18,6 @@ RSpec.shared_context :main_view_model_setup do
     allow(gateway).to receive(:start)
     allow(gateway).to receive(:stop)
     allow(gateway).to receive(:update_note)
+    allow(gateway).to receive(:update_time)
   end
 end

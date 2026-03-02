@@ -7,6 +7,7 @@ module QTimetrap
     # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
       include MainViewModelEntryNoteHelpers
+      include MainViewModelEntryTimeHelpers
       include MainViewModelSheetHelpers
       include MainViewModelTaskFilterHelpers
 

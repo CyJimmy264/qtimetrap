@@ -13,9 +13,10 @@ module QTimetrap
 
       attr_reader :widget
 
-      def initialize(parent:, on_entry_note_change: nil)
+      def initialize(parent:, on_entry_note_change: nil, on_entry_time_change: nil)
         @parent = parent
         @on_entry_note_change = on_entry_note_change
+        @on_entry_time_change = on_entry_time_change
         initialize_state!
         build
       end
@@ -36,7 +37,7 @@ module QTimetrap
       private
 
       attr_reader :parent, :host, :host_layout, :expanded, :current_nodes, :branch_bindings, :leaf_labels, :entry_rows,
-                  :rendering, :scroll_area, :on_entry_note_change
+                  :rendering, :scroll_area, :on_entry_note_change, :on_entry_time_change
 
       def build
         @widget = QWidget.new(parent)

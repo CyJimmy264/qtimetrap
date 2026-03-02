@@ -4,6 +4,8 @@ module QTimetrap
   module Views
     # Event/runtime behavior extracted from MainWindow.
     module MainWindowRuntime
+      include MainWindowRuntimeEntryTimeHelpers
+
       private
 
       def on_tick

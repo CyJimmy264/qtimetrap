@@ -9,9 +9,11 @@ module QTimetrap
       def render_entry_leaf_node(node, level, layout:, parent_widget:)
         row = build_entry_row(parent_widget)
         row_layout = build_entry_row_layout(row)
+        start_input, end_input = add_entry_time_widgets(row_layout, row, node)
         row_layout.add_widget(build_entry_prefix_label(row, node, level))
         row_layout.add_widget(build_entry_note_input(row, node))
-        row_layout.set_stretch(1, 1)
+        bind_entry_time_input_events(start_input, end_input, resolve_entry_id(node))
+        row_layout.set_stretch(2, 1)
         entry_rows << row
         layout.add_widget(row)
       end
@@ -27,7 +29,7 @@ module QTimetrap
       def build_entry_row_layout(row)
         QHBoxLayout.new(row).tap do |layout|
           layout.set_contents_margins(8, 0, 8, 0)
-          layout.set_spacing(8)
+          layout.set_spacing(6)
         end
       end
 
@@ -60,6 +62,8 @@ module QTimetrap
       end
 
       def handle_entry_note_commit(note_input, entry_id)
+        return if note_input.is_read_only
+
         note = note_input.text.to_s
         deactivate_entry_note_input(note_input)
         return unless on_entry_note_change

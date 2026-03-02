@@ -14,6 +14,7 @@ module QTimetrap
     # Integrates with Timetrap via Ruby API or CLI fallback.
     class TimetrapGateway
       include TimetrapGatewayStartHelpers
+      include TimetrapGatewayUpdateTimeHelpers
       include TimetrapGatewayUpdateNoteHelpers
       include TimetrapGatewayQueryHelpers
 

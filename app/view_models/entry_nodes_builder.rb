@@ -71,15 +71,17 @@ module QTimetrap
       def entry_node(entry, index)
         note = entry.note.strip
         display_note = note.empty? ? '(no note)' : note
-        range = Services::Formatters.time_range(entry)
+        start_label, end_label = Services::Formatters.time_bounds(entry)
         duration = Services::Formatters.seconds_to_hms(entry.duration_seconds)
         {
           id: "entry:#{entry.id || index}",
           type: :entry,
           entry_id: entry.id || index,
-          prefix: "#{range}  #{duration}",
+          start_label: start_label,
+          end_label: end_label,
+          prefix: duration,
           note: note,
-          label: "#{range}  #{duration}  #{display_note}",
+          label: "#{start_label} - #{end_label}  #{duration}  #{display_note}",
           children: []
         }
       end

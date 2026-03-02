@@ -15,9 +15,14 @@ module QTimetrap
       end
 
       def time_range(entry)
+        start_label, finish_label = time_bounds(entry)
+        "#{start_label} - #{finish_label}"
+      end
+
+      def time_bounds(entry)
         start_label = entry.start_time ? entry.start_time.strftime('%H:%M') : '--:--'
         finish_label = entry.end_time ? entry.end_time.strftime('%H:%M') : 'running'
-        "#{start_label} - #{finish_label}"
+        [start_label, finish_label]
       end
     end
   end

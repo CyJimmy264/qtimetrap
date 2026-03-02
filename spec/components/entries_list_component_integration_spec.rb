@@ -7,7 +7,14 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
 
   let(:parent) { QWidget.new }
   let(:on_entry_note_change) { instance_double(Proc, call: nil) }
-  let(:component) { described_class.new(parent: parent, on_entry_note_change: on_entry_note_change) }
+  let(:on_entry_time_change) { instance_double(Proc, call: nil) }
+  let(:component) do
+    described_class.new(
+      parent: parent,
+      on_entry_note_change: on_entry_note_change,
+      on_entry_time_change: on_entry_time_change
+    )
+  end
   let(:widget) { component.widget }
 
   after do
@@ -67,6 +74,62 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
 
     expect(note_input.is_read_only).to be(true)
     expect(on_entry_note_change).to have_received(:call).with(1, 'updated note')
+  end
+
+  it 'renders start/end inputs for entry rows' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
+    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
+    expect(start_input).not_to be_nil
+    expect(end_input).not_to be_nil
+    expect(start_input.text.to_s).to eq('10:00')
+    expect(end_input.text.to_s).to eq('11:00')
+    expect(start_input.is_read_only).to be(true)
+  end
+
+  it 'commits edited start/end values on Enter' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
+    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
+
+    component.send(:activate_entry_note_input, start_input)
+    expect(start_input.is_read_only).to be(false)
+
+    start_input.text = '10:15'
+    component.send(
+      :handle_entry_time_key_press,
+      time_input: start_input,
+      entry_id: 1,
+      start_input: start_input,
+      end_input: end_input,
+      event: { a: Qt::Key_Return }
+    )
+
+    expect(start_input.is_read_only).to be(true)
+    expect(on_entry_time_change).to have_received(:call).with(1, '10:15', '11:00')
+  end
+
+  it 'does not commit time when input is already read-only' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
+    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
+
+    expect(start_input.is_read_only).to be(true)
+    component.send(
+      :handle_entry_time_commit,
+      time_input: start_input,
+      entry_id: 1,
+      start_input: start_input,
+      end_input: end_input
+    )
+
+    expect(on_entry_time_change).not_to have_received(:call)
   end
 
   it 'deactivates note input on focus loss without committing' do
@@ -170,7 +233,9 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
                     id: 'entry:1',
                     type: :entry,
                     entry_id: 1,
-                    prefix: '10:00 - 11:00  01:00:00',
+                    start_label: '10:00',
+                    end_label: '11:00',
+                    prefix: '01:00:00',
                     note: 'test',
                     label: '10:00 - 11:00  01:00:00  test',
                     children: []
@@ -238,7 +303,9 @@ RSpec.describe QTimetrap::Components::EntriesListComponent do
                     id: 'entry:no-note',
                     type: :entry,
                     entry_id: 11,
-                    prefix: '10:00 - 10:05  00:05:00',
+                    start_label: '10:00',
+                    end_label: '10:05',
+                    prefix: '00:05:00',
                     note: '',
                     label: '10:00 - 10:05  00:05:00  (no note)',
                     children: []
