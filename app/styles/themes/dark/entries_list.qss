@@ -36,6 +36,30 @@ QPushButton#entries_collapse_all {
   font-weight: 700;
 }
 
+QCheckBox#entries_time_filter_from_toggle,
+QCheckBox#entries_time_filter_to_toggle {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+QCheckBox#entries_time_filter_from_toggle:checked,
+QCheckBox#entries_time_filter_to_toggle:checked {
+  background-color: #1e3a8a;
+  border: 1px solid #2563eb;
+}
+
+QDateTimeEdit#entries_time_filter_from,
+QDateTimeEdit#entries_time_filter_to {
+  background-color: #111827;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 12px;
+  padding-left: 4px;
+}
+
 QPushButton#entry_node_week {
   background-color: #1d4ed8;
   border: 1px solid #1e40af;

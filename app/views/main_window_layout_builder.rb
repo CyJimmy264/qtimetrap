@@ -66,7 +66,8 @@ module QTimetrap
         entries = QTimetrap::Entries::ListComponent.new(
           parent: content,
           on_entry_note_change: callbacks.fetch(:on_entry_note_change),
-          on_entry_time_change: callbacks.fetch(:on_entry_time_change)
+          on_entry_time_change: callbacks.fetch(:on_entry_time_change),
+          on_time_range_change: callbacks.fetch(:on_time_range_change)
         )
         layout.add_widget(controls.widget)
         layout.add_widget(entries.widget)

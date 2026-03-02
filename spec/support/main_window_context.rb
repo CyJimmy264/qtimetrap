@@ -67,6 +67,8 @@ RSpec.shared_context :main_window_setup do
       summary_line: 'Week total: 00:10:00 | Total: 02:00:00',
       current_sheet_input: 'core',
       current_project_name: 'acme',
+      time_filter_from_at: nil,
+      time_filter_to_at: nil,
       task_names_for_selected_project: ['core'],
       running_current_sheet?: false,
       entry_nodes: entry_nodes,
@@ -75,6 +77,7 @@ RSpec.shared_context :main_window_setup do
       stop_tracking: nil,
       update_entry_note: nil,
       update_entry_time: nil,
+      update_time_range_filter: nil,
       select_project: nil,
       select_tasks: nil,
       'current_project_name=': nil,
@@ -96,6 +99,7 @@ end
 RSpec.shared_context :main_window_cleanup do
   after do
     main_window.send(:heartbeat).stop
+    main_window.send(:entries).shutdown
     qt_window.close if qt_window.respond_to?(:close)
     QApplication.process_events
   end

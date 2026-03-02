@@ -10,10 +10,12 @@ module QTimetrap
       include MainViewModelEntryTimeHelpers
       include MainViewModelSheetHelpers
       include MainViewModelTaskFilterHelpers
+      include MainViewModelTimeRangeFilterHelpers
 
       EPOCH_TIME = Time.at(0)
 
-      attr_reader :selected_project, :selected_tasks, :entries, :current_started_at, :current_sheet
+      attr_reader :selected_project, :selected_tasks, :entries, :current_started_at, :current_sheet,
+                  :time_filter_from_at, :time_filter_to_at
 
       def initialize(gateway: Services::TimetrapGateway.new)
         @gateway = gateway
@@ -22,6 +24,8 @@ module QTimetrap
         @entries = []
         @current_started_at = nil
         @current_sheet = nil
+        @time_filter_from_at = nil
+        @time_filter_to_at = nil
       end
 
       def refresh!
@@ -34,9 +38,11 @@ module QTimetrap
         self
       end
 
-      def select_project(project)
+      def select_project(project, sync_current_fields: true)
         @selected_project = project
         @selected_tasks = []
+        return unless sync_current_fields
+
         apply_selected_project_to_current_field!
         self.current_task_input = latest_task_for_project(project)
       end

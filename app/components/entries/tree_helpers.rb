@@ -19,12 +19,70 @@ module QTimetrap
         layout.set_spacing(8)
         layout.add_widget(build_toolbar_button(toolbar, 'entries_expand_all', 'EXPAND ALL') { expand_all! })
         layout.add_widget(build_toolbar_button(toolbar, 'entries_collapse_all', 'COLLAPSE ALL') { collapse_all! })
+        layout.add_spacing(8)
+        @time_filter_from_toggle = build_filter_toggle(toolbar, 'entries_time_filter_from_toggle', 'FROM')
+        layout.add_widget(time_filter_from_toggle)
+        @time_filter_from_input = build_filter_input(toolbar, 'entries_time_filter_from')
+        layout.add_widget(time_filter_from_input)
+        @time_filter_to_toggle = build_filter_toggle(toolbar, 'entries_time_filter_to_toggle', 'TO')
+        layout.add_widget(time_filter_to_toggle)
+        @time_filter_to_input = build_filter_input(toolbar, 'entries_time_filter_to')
+        layout.add_widget(time_filter_to_input)
+        set_initial_filter_ui_state
         layout.add_stretch(1)
         toolbar
       end
 
       def build_toolbar_button(parent_widget, name, text)
         build_button(parent_widget, name, text, 136, 28).tap { |button| button.connect('clicked') { |_| yield } }
+      end
+
+      def build_filter_toggle(parent_widget, name, text)
+        QCheckBox.new(parent_widget).tap do |checkbox|
+          checkbox.set_object_name(name)
+          checkbox.set_text(text)
+          checkbox.set_fixed_height(28)
+          checkbox.connect('clicked') { |_| on_filter_toggle_changed }
+        end
+      end
+
+      def build_filter_input(parent_widget, name)
+        QDateTimeEdit.new(parent_widget).tap do |input|
+          input.set_object_name(name)
+          input.set_fixed_width(172)
+          input.set_calendar_popup(true)
+          input.set_display_format('yyyy-MM-dd HH:mm')
+          input.set_date_time(Time.now)
+          input.connect('dateTimeChanged(QDateTime)') { |_| schedule_time_range_filter_changed }
+        end
+      end
+
+      def on_filter_toggle_changed
+        schedule_time_range_filter_changed
+      end
+
+      def set_initial_filter_ui_state
+        time_filter_from_toggle.set_checked(false)
+        time_filter_to_toggle.set_checked(false)
+      end
+
+      def emit_time_range_filter_changed
+        return if syncing_time_filters?
+        return unless on_time_range_change
+
+        on_time_range_change.call(selected_time_filter(time_filter_from_toggle, time_filter_from_input),
+                                  selected_time_filter(time_filter_to_toggle, time_filter_to_input))
+      end
+
+      def selected_time_filter(toggle, input)
+        return nil unless filter_toggle_checked?(toggle)
+
+        input.date_time
+      end
+
+      def filter_toggle_checked?(toggle)
+        value = toggle.is_checked
+        value == true || value == 1
       end
 
       def expand_all!

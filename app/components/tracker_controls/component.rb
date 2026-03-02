@@ -30,6 +30,8 @@ module QTimetrap
       def update_action_button(running:)
         start_button.set_visible(!running)
         stop_button.set_visible(running)
+        task_input.set_read_only(running)
+        project_input.set_read_only(running)
       end
 
       private

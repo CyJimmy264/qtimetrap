@@ -39,6 +39,10 @@ module QTimetrap
           selected_task: view_model.selected_tasks.first
         )
         render_controls(sync_sheet: sync_sheet)
+        entries.update_time_range_inputs(
+          from_at: view_model.time_filter_from_at,
+          to_at: view_model.time_filter_to_at
+        )
         entries.render(view_model.entry_nodes)
       end
 
@@ -61,9 +65,12 @@ module QTimetrap
       end
 
       def handle_project_selected(project)
-        view_model.select_project(project)
-        view_model.current_project_name = project unless project == '* ALL'
+        update_current_fields = !view_model.running_current_sheet?
+        view_model.select_project(project, sync_current_fields: update_current_fields)
+        view_model.current_project_name = project if update_current_fields && project != '* ALL'
         render!
+        return unless update_current_fields
+
         controls.update_task_input(view_model.current_sheet_input)
         controls.update_project_input(project == '* ALL' ? '' : project)
       end
@@ -77,7 +84,21 @@ module QTimetrap
       end
 
       def handle_project_input(project_name)
+        return if view_model.running_current_sheet?
+
         view_model.current_project_name = project_name
+      end
+
+      def handle_time_range_changed(from_at, to_at)
+        view_model.update_time_range_filter(from_at: from_at, to_at: to_at)
+        render_controls(sync_sheet: false)
+        entries.update_time_range_inputs(
+          from_at: view_model.time_filter_from_at,
+          to_at: view_model.time_filter_to_at
+        )
+        entries.render(view_model.entry_nodes)
+      rescue StandardError => e
+        warn("[qtimetrap] update time-range failed: #{e.class}: #{e.message}")
       end
 
       def handle_entry_note_changed(entry_id, note)

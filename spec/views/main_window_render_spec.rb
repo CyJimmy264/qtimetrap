@@ -19,7 +19,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   it 'updates selected project on sidebar project click' do
     main_window.send(:render!)
     button_with_text('acme').click
-    expect(view_model).to have_received(:select_project).with('acme')
+    expect(view_model).to have_received(:select_project).with('acme', sync_current_fields: true)
     expect(view_model).to have_received(:current_project_name=).with('acme')
   end
 
@@ -178,5 +178,37 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
     expect(task_button.text.to_s).to eq(long_task)
     expect(task_button.tool_tip.to_s).to eq(long_task)
+  end
+
+  it 'keeps current task/project inputs unchanged on sidebar project click while running' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      current_sheet_input: 'running-task',
+      current_project_name: 'running-project',
+      project_names: ['* ALL', 'acme', 'internal'],
+      running_current_sheet?: true
+    )
+
+    main_window.send(:render!)
+    before_task = find_widget(qt_window, 'task_input').text.to_s
+    before_project = find_widget(qt_window, 'project_input').text.to_s
+    button_with_text('internal').click
+
+    task_input = find_widget(qt_window, 'task_input')
+    project_input = find_widget(qt_window, 'project_input')
+    expect(task_input.text.to_s).to eq(before_task)
+    expect(project_input.text.to_s).to eq(before_project)
+    expect(view_model).to have_received(:select_project).with('internal', sync_current_fields: false)
+    expect(view_model).not_to have_received(:current_project_name=).with('internal')
+  end
+
+  it 'locks task/project inputs when tracking is running' do
+    allow(view_model).to receive(:running_current_sheet?).and_return(true)
+
+    main_window.send(:render!)
+    task_input = find_widget(qt_window, 'task_input')
+    project_input = find_widget(qt_window, 'project_input')
+    expect(task_input.is_read_only).to eq(true)
+    expect(project_input.is_read_only).to eq(true)
   end
 end

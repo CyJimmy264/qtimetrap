@@ -11,12 +11,22 @@ module QTimetrap
 
       def filtered_entries
         scoped = selected_project == '* ALL' ? entries : entries.select { |entry| entry.project == selected_project }
-        return scoped if selected_tasks.empty?
+        scoped = scoped.select { |entry| selected_tasks.include?(entry.task.to_s) } unless selected_tasks.empty?
+        return scoped if @time_filter_from_at.nil? && @time_filter_to_at.nil?
 
-        scoped.select { |entry| selected_tasks.include?(entry.task.to_s) }
+        scoped.select { |entry| entry_in_selected_time_range?(entry) }
       end
 
       private
+
+      def entry_in_selected_time_range?(entry)
+        start_at = entry.start_time
+        return false unless start_at
+        return false if @time_filter_from_at && start_at < @time_filter_from_at
+        return false if @time_filter_to_at && start_at > @time_filter_to_at
+
+        true
+      end
 
       def normalize_selected_tasks!
         return @selected_tasks = [] if selected_project == '* ALL'

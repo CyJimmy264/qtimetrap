@@ -99,6 +99,7 @@ module QTimetrap
           on_task_selected: method(:handle_task_selected),
           on_start: method(:handle_start),
           on_project_change: method(:handle_project_input),
+          on_time_range_change: method(:handle_time_range_changed),
           on_entry_note_change: method(:handle_entry_note_changed),
           on_entry_time_change: method(:handle_entry_time_changed),
           on_stop: method(:handle_stop),
