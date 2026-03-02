@@ -49,7 +49,7 @@ module QTimetrap
       end
 
       def build_sidebar(parent:)
-        Components::ProjectSidebarComponent.new(
+        QTimetrap::ProjectSidebar::Component.new(
           parent: parent,
           on_project_selected: callbacks.fetch(:on_project_selected),
           on_task_selected: callbacks.fetch(:on_task_selected)
@@ -63,7 +63,7 @@ module QTimetrap
       def build_content(parent:)
         content, layout = build_content_widget(parent: parent)
         controls = build_controls(content)
-        entries = Components::EntriesListComponent.new(
+        entries = QTimetrap::Entries::ListComponent.new(
           parent: content,
           on_entry_note_change: callbacks.fetch(:on_entry_note_change),
           on_entry_time_change: callbacks.fetch(:on_entry_time_change)
@@ -83,7 +83,7 @@ module QTimetrap
       end
 
       def build_controls(content)
-        Components::TrackerControlsComponent.new(
+        QTimetrap::TrackerControls::Component.new(
           parent: content,
           callbacks: {
             on_start: callbacks.fetch(:on_start),

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Hierarchical branch container/show-hide helpers for entries tree UI.
-    module EntriesBranchHierarchyHelpers
+    module BranchHierarchyHelpers
       private
 
       def build_children_container(parent_widget)

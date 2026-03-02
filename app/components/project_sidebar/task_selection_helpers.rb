@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module ProjectSidebar
     # Selection state behavior for sidebar task shortcuts.
-    module ProjectSidebarTaskSelectionHelpers
+    module TaskSelectionHelpers
       private
 
       def refresh_task_state(values, selected_task)

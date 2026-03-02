@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe QTimetrap::Components::EntriesListComponent do
+RSpec.describe QTimetrap::Entries::ListComponent do
   include_context :qt
 
   let(:parent) { QWidget.new }

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Entry-leaf helpers for editable start/end time controls.
-    module EntriesLeafTimeHelpers
+    module LeafTimeHelpers
       private
 
       def add_entry_time_widgets(row_layout, row, node)

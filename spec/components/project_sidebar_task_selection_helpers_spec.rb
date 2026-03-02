@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-RSpec.describe QTimetrap::Components::ProjectSidebarTaskSelectionHelpers do
+RSpec.describe QTimetrap::ProjectSidebar::TaskSelectionHelpers do
   subject(:host) { host_class.new }
 
   let(:host_class) do
     Class.new do
-      include QTimetrap::Components::ProjectSidebarTaskSelectionHelpers
+      include QTimetrap::ProjectSidebar::TaskSelectionHelpers
 
       attr_reader :selected_task_indices, :last_task_anchor_index, :task_values
 

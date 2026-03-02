@@ -37,6 +37,7 @@ module QTimetrap
     def loader
       @loader ||= Zeitwerk::Loader.new.tap do |autoload|
         autoload.push_dir(File.join(root, 'app'), namespace: QTimetrap)
+        autoload.collapse(File.join(root, 'app', 'components'))
         autoload.enable_reloading if configuration.enable_reloading
       end
     end

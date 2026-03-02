@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Render-cycle helpers to reduce flicker during entries tree rebuild.
-    module EntriesRenderHelpers
+    module RenderHelpers
       private
 
       def with_widget_updates_suspended

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Helper methods for entries tree rendering and expand/collapse controls.
-    module EntriesTreeHelpers
-      include EntriesBranchHierarchyHelpers
-      include EntriesLeafNoteHelpers
-      include EntriesLeafTimeHelpers
-      include EntriesNodePresentationHelpers
+    module TreeHelpers
+      include BranchHierarchyHelpers
+      include LeafNoteHelpers
+      include LeafTimeHelpers
+      include NodePresentationHelpers
 
       private
 
@@ -23,7 +23,7 @@ module QTimetrap
         toolbar
       end
 
-      def build_toolbar_button(parent_widget, name, text, &block)
+      def build_toolbar_button(parent_widget, name, text)
         build_button(parent_widget, name, text, 136, 28).tap { |button| button.connect('clicked') { |_| yield } }
       end
 

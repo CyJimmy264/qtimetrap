@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Entry-leaf row builders for editable note nodes.
-    module EntriesLeafNoteHelpers
+    module LeafNoteHelpers
       private
 
       def render_entry_leaf_node(node, level, layout:, parent_widget:)

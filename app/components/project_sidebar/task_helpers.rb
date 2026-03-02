@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module ProjectSidebar
     # Sidebar tasks section rendering and interactions.
-    module ProjectSidebarTaskHelpers
-      include ProjectSidebarTaskSelectionHelpers
+    module TaskHelpers
+      include TaskSelectionHelpers
 
       private
 

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module TrackerControls
     # Builds tracker controls widget tree and wires all button callbacks.
-    class TrackerControlsLayoutBuilder
+    class LayoutBuilder
       include QtUiHelpers
-      include TrackerControlsLayoutHelpers
+      include LayoutHelpers
 
       def initialize(parent:, callbacks:)
         @parent = parent

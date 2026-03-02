@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module TrackerControls
     # Extracted helper methods for tracker controls layout assembly.
-    module TrackerControlsLayoutHelpers
+    module LayoutHelpers
       TITLE_SLOGANS = [
         'Track time, ship value',
         'Small steps, big output',

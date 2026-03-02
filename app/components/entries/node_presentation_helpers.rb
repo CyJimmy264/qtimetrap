@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Node text/object-name helpers for entries tree rendering.
-    module EntriesNodePresentationHelpers
+    module NodePresentationHelpers
       private
 
       def object_name_for(node)

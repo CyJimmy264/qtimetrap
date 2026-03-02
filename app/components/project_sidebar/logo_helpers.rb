@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module ProjectSidebar
     # Sidebar header/logo construction helpers.
-    module ProjectSidebarLogoHelpers
+    module LogoHelpers
       private
 
       def build_logo

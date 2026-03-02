@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module Entries
     # Renders expandable week/day/project nodes and leaf time entries.
-    class EntriesListComponent
+    class ListComponent
       include QtUiHelpers
-      include EntriesTreeHelpers
-      include EntriesRenderHelpers
+      include TreeHelpers
+      include RenderHelpers
 
       HOST_HORIZONTAL_MARGINS = 28
       WIDTH_PADDING = 24

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module QTimetrap
-  module Components
+  module ProjectSidebar
     # Displays project shortcuts and notifies on project selection.
-    class ProjectSidebarComponent
-      include ProjectSidebarLogoHelpers
-      include ProjectSidebarTaskHelpers
+    class Component
+      include LogoHelpers
+      include TaskHelpers
 
       attr_reader :widget
 
