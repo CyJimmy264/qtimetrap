@@ -1,6 +1,8 @@
 QWidget#sidebar_panel {
   background-color: #f7f9fb;
   border-right: 1px solid #d9e0e7;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 QWidget#sidebar_logo {
@@ -27,6 +29,7 @@ QLabel#sidebar_tasks_heading {
 QPushButton#project_button {
   background-color: #f7f9fb;
   border: 1px solid #e2e8f0;
+  border-radius: 8px;
   color: #334155;
   font-size: 12px;
   font-weight: 700;
@@ -48,6 +51,7 @@ QPushButton#project_button:disabled {
 QPushButton#task_button {
   background-color: #ffffff;
   border: 1px solid #d7e0ea;
+  border-radius: 8px;
   color: #334155;
   font-size: 11px;
   text-align: left;
@@ -77,6 +81,7 @@ QPushButton#sidebar_toggle_button:hover {
 QPushButton#sidebar_archive_toggle {
   background-color: #ffffff;
   border: 1px solid #d7e0ea;
+  border-radius: 8px;
   color: #64748b;
   font-size: 16px;
   font-weight: 700;

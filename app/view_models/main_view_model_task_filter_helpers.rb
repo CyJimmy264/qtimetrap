@@ -10,20 +10,30 @@ module QTimetrap
       end
 
       def filtered_entries
-        scoped = if selected_project == '* ALL'
-                   entries_for_mode
-                 else
-                   entries_for_mode.select do |entry|
-                     entry.project == selected_project
-                   end
-                 end
-        scoped = scoped.select { |entry| selected_tasks.include?(entry.task.to_s) } unless selected_tasks.empty?
+        scoped = entries_for_selected_project
+        scoped = apply_selected_tasks_filter(scoped)
+        apply_time_range_filter(scoped)
+      end
+
+      private
+
+      def entries_for_selected_project
+        return entries_for_mode if selected_project == '* ALL'
+
+        entries_for_mode.select { |entry| entry.project == selected_project }
+      end
+
+      def apply_selected_tasks_filter(scoped)
+        return scoped if selected_tasks.empty?
+
+        scoped.select { |entry| selected_tasks.include?(entry.task.to_s) }
+      end
+
+      def apply_time_range_filter(scoped)
         return scoped if @time_filter_from_at.nil? && @time_filter_to_at.nil?
 
         scoped.select { |entry| entry_in_selected_time_range?(entry) }
       end
-
-      private
 
       def entry_in_selected_time_range?(entry)
         start_at = entry.start_time

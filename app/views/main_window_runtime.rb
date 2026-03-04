@@ -5,6 +5,8 @@ module QTimetrap
     # Event/runtime behavior extracted from MainWindow.
     module MainWindowRuntime
       include MainWindowRuntimeEntryTimeHelpers
+      include MainWindowRuntimeKeyHelpers
+      include MainWindowRuntimeRenderHelpers
 
       private
 
@@ -28,23 +30,6 @@ module QTimetrap
         view_model.refresh!
         render!(sync_sheet: true)
         @pending_refresh = false
-      end
-
-      def render!(sync_sheet: false)
-        selected_project = view_model.selected_project
-        sidebar.render(
-          projects: view_model.project_names,
-          selected_project: selected_project,
-          tasks: view_model.task_names_for_selected_project,
-          selected_task: view_model.selected_tasks.first,
-          archive_mode: view_model.archive_mode?
-        )
-        render_controls(sync_sheet: sync_sheet)
-        entries.update_time_range_inputs(
-          from_at: view_model.time_filter_from_at,
-          to_at: view_model.time_filter_to_at
-        )
-        entries.render(view_model.entry_nodes)
       end
 
       def handle_start(task_input, project_name)
@@ -134,33 +119,12 @@ module QTimetrap
         fallback.to_s.strip
       end
 
-      def render_controls(sync_sheet:)
-        controls.update_summary(view_model.summary_line)
-        update_tracking_controls(sync_sheet: sync_sheet)
-        controls.update_theme_label(theme.name)
-      end
-
-      def update_tracking_controls(sync_sheet:)
-        controls.update_task_input(view_model.current_sheet_input) if sync_sheet
-        controls.update_action_button(running: view_model.running_current_sheet?)
-        project_name = view_model.current_project_name.to_s
-        controls.update_project_input(project_name) unless project_name.strip.empty?
-      end
-
       def switch_theme!
         @theme = theme.with_name(next_theme_name)
         apply_theme
         render!
       rescue StandardError => e
         warn("[qtimetrap] save theme failed: #{e.class}: #{e.message}")
-      end
-
-      def on_key_press(event)
-        key = extract_event_value(event, :a) || 0
-        modifiers = extract_event_value(event, :b) || 0
-        ctrl_mask = Qt::ControlModifier
-        quit_key = Qt::Key_Q
-        request_shutdown if modifiers.anybits?(ctrl_mask) && key == quit_key
       end
     end
   end

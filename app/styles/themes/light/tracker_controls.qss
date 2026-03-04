@@ -1,6 +1,7 @@
 QWidget#topbar {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
+  border-radius: 10px;
 }
 
 QLabel#title_label {
@@ -17,12 +18,14 @@ QLabel#clock_label {
 QWidget#tracker_row {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
+  border-radius: 10px;
   color: #111827;
 }
 
 QLineEdit#task_input {
   background-color: #ffffff;
   border: 1px solid #cfd8e3;
+  border-radius: 8px;
   color: #111827;
   font-size: 14px;
   padding-left: 8px;
@@ -31,6 +34,7 @@ QLineEdit#task_input {
 QLineEdit#project_input {
   background-color: #ffffff;
   border: 1px solid #cfd8e3;
+  border-radius: 8px;
   color: #111827;
   font-size: 14px;
   padding-left: 8px;
@@ -39,12 +43,14 @@ QLineEdit#project_input {
 QLabel#timer_label {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
+  border-radius: 8px;
   color: #111827;
 }
 
 QPushButton#start_button {
   background-color: #0ea5e9;
   border: 1px solid #0284c7;
+  border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 800;
@@ -53,6 +59,7 @@ QPushButton#start_button {
 QPushButton#stop_button {
   background-color: #ef4444;
   border: 1px solid #dc2626;
+  border-radius: 8px;
   color: #ffffff;
   font-size: 14px;
   font-weight: 800;
@@ -62,6 +69,7 @@ QPushButton#theme_button,
 QPushButton#refresh_button {
   background-color: #ffffff;
   border: 1px solid #cfd8e3;
+  border-radius: 8px;
   color: #0f172a;
   font-size: 13px;
   font-weight: 700;
@@ -70,6 +78,7 @@ QPushButton#refresh_button {
 QLabel#summary_label {
   background-color: #ffffff;
   border: 1px solid #d9e0e7;
+  border-radius: 8px;
   color: #111827;
   padding: 0 10px;
 }

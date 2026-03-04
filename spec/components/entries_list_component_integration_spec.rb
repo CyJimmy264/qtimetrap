@@ -6,22 +6,26 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   include_context :qt
 
   let(:parent) { QWidget.new }
-  let(:on_entry_note_change) { instance_double(Proc, call: nil) }
-  let(:on_entry_time_change) { instance_double(Proc, call: nil) }
-  let(:on_entry_archive) { instance_double(Proc, call: nil) }
-  let(:on_time_range_change) { instance_double(Proc, call: nil) }
+  let(:callbacks) do
+    {
+      on_entry_note_change: instance_double(Proc, call: nil),
+      on_entry_time_change: instance_double(Proc, call: nil),
+      on_entry_archive: instance_double(Proc, call: nil),
+      on_time_range_change: instance_double(Proc, call: nil)
+    }
+  end
   let(:component) do
     described_class.new(
       parent: parent,
-      on_entry_note_change: on_entry_note_change,
-      on_entry_time_change: on_entry_time_change,
-      on_entry_archive: on_entry_archive,
-      on_time_range_change: on_time_range_change
+      on_entry_note_change: callbacks.fetch(:on_entry_note_change),
+      on_entry_time_change: callbacks.fetch(:on_entry_time_change),
+      on_entry_archive: callbacks.fetch(:on_entry_archive),
+      on_time_range_change: callbacks.fetch(:on_time_range_change)
     )
   end
-  let(:widget) { component.widget }
 
   after do
+    component.shutdown
     parent.close if parent.respond_to?(:close)
     QApplication.process_events
   end
@@ -77,7 +81,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     component.send(:handle_entry_note_key_press, note_input, 1, { a: Qt::Key_Return })
 
     expect(note_input.is_read_only).to be(true)
-    expect(on_entry_note_change).to have_received(:call).with(1, 'updated note')
+    expect(callbacks.fetch(:on_entry_note_change)).to have_received(:call).with(1, 'updated note')
   end
 
   it 'renders start/end inputs for entry rows' do
@@ -114,7 +118,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     )
 
     expect(start_input.is_read_only).to be(true)
-    expect(on_entry_time_change).to have_received(:call).with(1, '10:15', '11:00')
+    expect(callbacks.fetch(:on_entry_time_change)).to have_received(:call).with(1, '10:15', '11:00')
   end
 
   it 'does not commit time when input is already read-only' do
@@ -133,7 +137,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
       end_input: end_input
     )
 
-    expect(on_entry_time_change).not_to have_received(:call)
+    expect(callbacks.fetch(:on_entry_time_change)).not_to have_received(:call)
   end
 
   it 'deactivates note input on focus loss without committing' do
@@ -147,7 +151,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     component.send(:handle_entry_note_focus_out, note_input)
 
     expect(note_input.is_read_only).to be(true)
-    expect(on_entry_note_change).not_to have_received(:call)
+    expect(callbacks.fetch(:on_entry_note_change)).not_to have_received(:call)
   end
 
   it 'uses native placeholder for empty note and keeps text empty on activation' do
@@ -195,16 +199,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     component.render(entry_nodes)
     QApplication.process_events
 
-    from_toggle = descendants(parent).grep(QCheckBox).find do |button|
-      button.object_name == 'entries_time_filter_from_toggle'
-    end
-    to_toggle = descendants(parent).grep(QCheckBox).find do |button|
-      button.object_name == 'entries_time_filter_to_toggle'
-    end
-    from_input = descendants(parent).grep(QDateTimeEdit).find do |input|
-      input.object_name == 'entries_time_filter_from'
-    end
-    to_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_to' }
+    from_toggle, to_toggle, from_input, to_input = time_filter_widgets
     expect(from_toggle).not_to be_nil
     expect(to_toggle).not_to be_nil
     expect(from_input).not_to be_nil
@@ -219,7 +214,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     sleep 0.25
     QApplication.process_events
 
-    expect(on_time_range_change).to have_received(:call).with(kind_of(Time), kind_of(Time)).at_least(:once)
+    expect(callbacks.fetch(:on_time_range_change))
+      .to have_received(:call).with(kind_of(Time), kind_of(Time)).at_least(:once)
   end
 
   it 'sends nil range when both date-time checkboxes are off' do
@@ -235,7 +231,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
     component.send(:emit_time_range_filter_changed)
 
-    expect(on_time_range_change).to have_received(:call).with(nil, nil).at_least(:once)
+    expect(callbacks.fetch(:on_time_range_change)).to have_received(:call).with(nil, nil).at_least(:once)
   end
 
   it 'keeps chosen from datetime when checkbox is off' do
@@ -280,7 +276,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect(archive_button).not_to be_nil
 
     archive_button.click
-    expect(on_entry_archive).to have_received(:call).with(1)
+    expect(callbacks.fetch(:on_entry_archive)).to have_received(:call).with(1)
   end
 
   private
@@ -299,6 +295,22 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   def week_buttons
     descendants(parent).grep(QPushButton).select { |button| button.object_name == 'entry_node_week' }
+  end
+
+  def time_filter_widgets
+    from_toggle = find_checkbox('entries_time_filter_from_toggle')
+    to_toggle = find_checkbox('entries_time_filter_to_toggle')
+    from_input = find_datetime_input('entries_time_filter_from')
+    to_input = find_datetime_input('entries_time_filter_to')
+    [from_toggle, to_toggle, from_input, to_input]
+  end
+
+  def find_checkbox(object_name)
+    descendants(parent).grep(QCheckBox).find { |button| button.object_name == object_name }
+  end
+
+  def find_datetime_input(object_name)
+    descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == object_name }
   end
 
   def normalized_text(button)

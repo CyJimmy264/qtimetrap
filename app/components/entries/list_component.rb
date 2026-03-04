@@ -4,6 +4,8 @@ module QTimetrap
   module Entries
     # Renders expandable week/day/project nodes and leaf time entries.
     class ListComponent
+      include ListHostHelpers
+      include ListStateHelpers
       include QtUiHelpers
       include TreeHelpers
       include RenderHelpers
@@ -79,64 +81,6 @@ module QTimetrap
         panel_layout.add_widget(scroll_area)
         panel_layout.set_stretch(1, 1)
         rebuild_host!
-      end
-
-      def initialize_state!
-        @expanded = {}
-        @current_nodes = []
-        @branch_bindings = {}
-        @leaf_labels = []
-        @entry_rows = []
-        @rendering = false
-        @time_filter_from_toggle = nil
-        @time_filter_to_toggle = nil
-        @time_filter_from_input = nil
-        @time_filter_to_input = nil
-        @time_filter_debounce = nil
-        @syncing_time_filters = false
-      end
-
-      def set_time_filter_state(toggle:, input:, value:)
-        enabled = !value.nil?
-        toggle.set_checked(enabled)
-        input.set_date_time(value) if enabled
-      end
-
-      def syncing_time_filters?
-        @syncing_time_filters
-      end
-
-      def schedule_time_range_filter_changed
-        return if syncing_time_filters?
-        return unless on_time_range_change
-
-        time_filter_debounce.stop if time_filter_debounce.is_active
-        time_filter_debounce.start
-      end
-
-      def build_time_filter_debounce_timer
-        QTimer.new(parent).tap do |timer|
-          timer.set_single_shot(true)
-          timer.set_interval(TIME_FILTER_DEBOUNCE_MS)
-          timer.connect('timeout') { |_| emit_time_range_filter_changed }
-        end
-      end
-
-      def build_host
-        QWidget.new(scroll_area).tap { |container| container.set_object_name('entries_host') }
-      end
-
-      def build_host_layout
-        QVBoxLayout.new(host).tap do |layout|
-          layout.set_contents_margins(14, 10, 14, 10)
-          layout.set_spacing(2)
-        end
-      end
-
-      def rebuild_host!
-        @host = build_host
-        @host_layout = build_host_layout
-        scroll_area.set_widget(host)
       end
 
       def branch_button_width

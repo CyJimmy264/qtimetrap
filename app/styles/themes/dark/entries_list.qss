@@ -1,6 +1,7 @@
 QScrollArea#entries_scroll {
   background-color: #111827;
   border: 1px solid #2b3b4f;
+  border-radius: 10px;
 }
 
 QScrollArea#entries_scroll QScrollBar:vertical {
@@ -31,6 +32,7 @@ QPushButton#entries_expand_all,
 QPushButton#entries_collapse_all {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 8px;
   color: #cbd5e1;
   font-size: 12px;
   font-weight: 700;
@@ -40,6 +42,7 @@ QCheckBox#entries_time_filter_from_toggle,
 QCheckBox#entries_time_filter_to_toggle {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 8px;
   color: #cbd5e1;
   font-size: 12px;
   font-weight: 700;
@@ -55,6 +58,7 @@ QDateTimeEdit#entries_time_filter_from,
 QDateTimeEdit#entries_time_filter_to {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 8px;
   color: #cbd5e1;
   font-size: 12px;
   padding-left: 4px;
@@ -63,6 +67,7 @@ QDateTimeEdit#entries_time_filter_to {
 QPushButton#entry_node_week {
   background-color: #1d4ed8;
   border: 1px solid #1e40af;
+  border-radius: 8px;
   color: #dbeafe;
   font-size: 13px;
   font-weight: 800;
@@ -85,6 +90,7 @@ QPushButton#entry_node_week:focus {
 QPushButton#entry_node_day {
   background-color: #1f2937;
   border: 1px solid #334155;
+  border-radius: 8px;
   color: #cbd5e1;
   font-size: 13px;
   font-weight: 700;
@@ -107,6 +113,7 @@ QPushButton#entry_node_day:focus {
 QPushButton#entry_node_project {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 8px;
   color: #e2e8f0;
   font-size: 14px;
   font-weight: 700;
@@ -129,6 +136,7 @@ QPushButton#entry_node_project:focus {
 QWidget#entry_node_entry_row {
   background-color: #0b1220;
   border: 1px solid #243244;
+  border-radius: 8px;
 }
 
 QLabel#entry_node_entry_prefix {
@@ -159,6 +167,7 @@ QLineEdit#entry_node_entry_start:focus,
 QLineEdit#entry_node_entry_end:focus {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 6px;
 }
 
 QLineEdit#entry_node_entry_note {
@@ -177,12 +186,14 @@ QLineEdit#entry_node_entry_note:read-only {
 QLineEdit#entry_node_entry_note:focus {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 6px;
   padding-left: 6px;
 }
 
 QPushButton#entry_node_entry_archive {
   background-color: #111827;
   border: 1px solid #334155;
+  border-radius: 6px;
   color: #94a3b8;
   font-size: 12px;
   font-weight: 700;
@@ -195,6 +206,7 @@ QPushButton#entry_node_entry_archive:hover {
 QLabel#entry_node_empty {
   background-color: #0f172a;
   border: 1px solid #243244;
+  border-radius: 8px;
   color: #94a3b8;
   font-size: 12px;
   padding-left: 8px;

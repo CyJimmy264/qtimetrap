@@ -11,6 +11,7 @@ module QTimetrap
       include MainViewModelSheetHelpers
       include MainViewModelTaskFilterHelpers
       include MainViewModelTimeRangeFilterHelpers
+      include MainViewModelArchiveModeHelpers
 
       EPOCH_TIME = Time.at(0)
 
@@ -60,31 +61,6 @@ module QTimetrap
       def stop_tracking
         gateway.stop
         @current_started_at = nil
-      end
-
-      def project_names
-        ['* ALL', *entries_for_mode.map(&:project).uniq.sort]
-      end
-
-      def task_names_for_selected_project
-        return [] if selected_project == '* ALL'
-
-        entries_for_mode
-          .select { |entry| entry.project == selected_project }
-          .map { |entry| entry.task.to_s }
-          .reject(&:empty?)
-          .uniq
-          .sort
-      end
-
-      def archive_mode?
-        @archive_mode
-      end
-
-      def archive_mode=(enabled)
-        @archive_mode = [true, 1].include?(enabled)
-        @selected_project = '* ALL' unless project_names.include?(@selected_project)
-        normalize_selected_tasks!
       end
 
       def week_total_seconds
@@ -146,10 +122,6 @@ module QTimetrap
 
         entry = newest_entry(entries.select { |item| item.project == project })
         entry ? entry.task.to_s : ''
-      end
-
-      def entries_for_mode
-        entries.select { |entry| archived_entries_store.archived?(entry.id) == archive_mode? }
       end
 
       def normalize_text(value)
