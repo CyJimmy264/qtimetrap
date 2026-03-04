@@ -44,6 +44,7 @@ module QTimetrap
         QPushButton.new(widget).tap do |button|
           button.set_object_name('task_button')
           button.set_checkable(true)
+          button.set_focus_policy(Qt::NoFocus)
           button.set_fixed_height(28)
           button.connect('clicked') { |_| on_task_button_clicked(button) }
         end

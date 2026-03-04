@@ -4,6 +4,12 @@ module QTimetrap
   module TrackerControls
     # Contains main tracking controls, summary labels, and theme actions.
     class Component
+      TIMER_FONT_MIN_PT = 12
+      TIMER_FONT_MAX_PT = 20
+      TIMER_CHAR_WIDTH_FACTOR = 0.72
+      TIMER_HORIZONTAL_PADDING = 12
+      TIMER_FIT_SAMPLE = '000:00:00'
+
       attr_reader :task_input, :project_input, :clock_label, :timer_label, :widget
 
       def initialize(parent:, callbacks:)
@@ -38,6 +44,14 @@ module QTimetrap
 
       attr_reader :summary_label, :theme_button, :start_button, :stop_button
 
+      def apply_timer_font_fit(text)
+        chars = [text.length, 1].max
+        available = [timer_label.width - TIMER_HORIZONTAL_PADDING, 24].max
+        estimated = (available / (chars * TIMER_CHAR_WIDTH_FACTOR)).floor
+        font_size = estimated.clamp(TIMER_FONT_MIN_PT, TIMER_FONT_MAX_PT)
+        timer_label.set_style_sheet("font-size: #{font_size}pt;")
+      end
+
       def build_ui(parent:, callbacks:)
         LayoutBuilder.new(
           parent: parent,
@@ -55,6 +69,11 @@ module QTimetrap
         @theme_button = ui_map.fetch(:theme_button)
         @start_button = ui_map.fetch(:start_button)
         @stop_button = ui_map.fetch(:stop_button)
+        configure_timer_font_fit!
+      end
+
+      def configure_timer_font_fit!
+        apply_timer_font_fit(TIMER_FIT_SAMPLE)
       end
     end
   end

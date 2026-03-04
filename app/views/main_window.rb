@@ -25,6 +25,7 @@ module QTimetrap
 
         build_window
         connect_key_events
+        connect_shortcuts
         connect_heartbeat
       end
 
@@ -68,6 +69,11 @@ module QTimetrap
 
       def connect_key_events
         window.on(:key_press) { |event| on_key_press(event) }
+      end
+
+      def connect_shortcuts
+        @space_shortcut = QShortcut.new(QKeySequence.new('Space'), window)
+        @space_shortcut.connect('activated') { |_| on_space_shortcut }
       end
 
       def restore_window_geometry

@@ -76,6 +76,7 @@ module QTimetrap
         QCheckBox.new(parent_widget).tap do |checkbox|
           checkbox.set_object_name(name)
           checkbox.set_text(text)
+          checkbox.set_focus_policy(Qt::NoFocus)
           checkbox.set_fixed_height(28)
           checkbox.connect('clicked') { |_| on_filter_toggle_changed }
         end
@@ -84,6 +85,7 @@ module QTimetrap
       def build_filter_input(parent_widget, name)
         QDateTimeEdit.new(parent_widget).tap do |input|
           input.set_object_name(name)
+          input.set_focus_policy(Qt::ClickFocus)
           input.set_fixed_width(172)
           input.set_calendar_popup(true)
           input.set_display_format('yyyy-MM-dd HH:mm')

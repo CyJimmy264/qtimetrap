@@ -105,6 +105,7 @@ module QTimetrap
         QPushButton.new(widget).tap do |button|
           button.set_object_name('project_button')
           button.set_checkable(true)
+          button.set_focus_policy(Qt::NoFocus)
           button.set_fixed_height(30)
           button.connect('clicked') { |_| on_button_clicked(button) }
         end

@@ -33,6 +33,11 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(sidebar_panel.maximum_width).to eq(520)
   end
 
+  it 'applies fitted timer font size on startup' do
+    timer_label = find_widget(qt_window, 'timer_label')
+    expect(timer_label.style_sheet.to_s).to include('font-size:')
+  end
+
   it 'collapses and expands sidebar from splitter toggle button' do
     main_window.show
     QApplication.process_events

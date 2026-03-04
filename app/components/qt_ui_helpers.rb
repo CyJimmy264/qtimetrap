@@ -18,6 +18,7 @@ module QTimetrap
       QPushButton.new(parent_widget).tap do |button|
         button.set_object_name(name)
         button.set_text(text)
+        button.set_focus_policy(Qt::NoFocus)
         button.set_fixed_width(width) if width&.positive?
         button.set_fixed_height(height)
       end

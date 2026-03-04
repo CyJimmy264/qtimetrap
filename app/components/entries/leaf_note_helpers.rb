@@ -55,6 +55,7 @@ module QTimetrap
         QPushButton.new(row).tap do |button|
           button.set_object_name('entry_node_entry_archive')
           button.set_text('🗑')
+          button.set_focus_policy(Qt::NoFocus)
           button.set_fixed_width(28)
           button.set_fixed_height(24)
           entry_id = resolve_entry_id(node)

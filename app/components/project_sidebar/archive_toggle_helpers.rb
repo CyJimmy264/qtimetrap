@@ -10,6 +10,7 @@ module QTimetrap
         QPushButton.new(widget).tap do |button|
           button.set_object_name('sidebar_archive_toggle')
           button.set_checkable(true)
+          button.set_focus_policy(Qt::NoFocus)
           button.set_fixed_height(30)
           button.set_text("\u{1F5D1}")
           button.set_tool_tip('Show archived entries only')

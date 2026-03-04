@@ -59,6 +59,7 @@ module QTimetrap
         QLineEdit.new(parent_widget).tap do |input|
           input.set_object_name('task_input')
           input.set_placeholder_text('What are you working on?')
+          input.set_focus_policy(Qt::ClickFocus)
           input.text = ''
         end
       end
@@ -67,6 +68,7 @@ module QTimetrap
         QLineEdit.new(parent_widget).tap do |input|
           input.set_object_name('project_input')
           input.set_placeholder_text('your project')
+          input.set_focus_policy(Qt::ClickFocus)
           input.text = ''
           input.set_fixed_width(190)
         end

@@ -41,6 +41,7 @@ module QTimetrap
         QPushButton.new(window).tap do |button|
           button.set_object_name('sidebar_toggle_button')
           button.set_text('◀')
+          button.set_focus_policy(Qt::NoFocus)
           button.set_tool_tip('Collapse sidebar')
           button.set_fixed_size(SIDEBAR_TOGGLE_W, SIDEBAR_TOGGLE_H)
           button.raise
