@@ -52,7 +52,8 @@ module QTimetrap
         QTimetrap::ProjectSidebar::Component.new(
           parent: parent,
           on_project_selected: callbacks.fetch(:on_project_selected),
-          on_task_selected: callbacks.fetch(:on_task_selected)
+          on_task_selected: callbacks.fetch(:on_task_selected),
+          on_archive_mode_toggled: callbacks.fetch(:on_archive_mode_toggled)
         ).tap do |component|
           component.widget.set_base_size(SIDEBAR_WIDTH, 0)
           component.widget.set_minimum_width(SIDEBAR_MIN_WIDTH)
@@ -67,6 +68,7 @@ module QTimetrap
           parent: content,
           on_entry_note_change: callbacks.fetch(:on_entry_note_change),
           on_entry_time_change: callbacks.fetch(:on_entry_time_change),
+          on_entry_archive: callbacks.fetch(:on_entry_archive),
           on_time_range_change: callbacks.fetch(:on_time_range_change)
         )
         layout.add_widget(controls.widget)

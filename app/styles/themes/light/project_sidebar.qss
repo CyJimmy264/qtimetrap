@@ -73,3 +73,22 @@ QPushButton#sidebar_toggle_button:hover {
   background-color: #eff6ff;
   border: 1px solid #93c5fd;
 }
+
+QPushButton#sidebar_archive_toggle {
+  background-color: #ffffff;
+  border: 1px solid #d7e0ea;
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+QPushButton#sidebar_archive_toggle:hover {
+  border: 1px solid #f59e0b;
+  color: #b45309;
+}
+
+QPushButton#sidebar_archive_toggle:checked {
+  background-color: #ffedd5;
+  border: 2px solid #f59e0b;
+  color: #92400e;
+}

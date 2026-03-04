@@ -36,7 +36,8 @@ module QTimetrap
           projects: view_model.project_names,
           selected_project: selected_project,
           tasks: view_model.task_names_for_selected_project,
-          selected_task: view_model.selected_tasks.first
+          selected_task: view_model.selected_tasks.first,
+          archive_mode: view_model.archive_mode?
         )
         render_controls(sync_sheet: sync_sheet)
         entries.update_time_range_inputs(
@@ -83,6 +84,11 @@ module QTimetrap
         entries.render(view_model.entry_nodes)
       end
 
+      def handle_archive_mode_toggled(enabled)
+        view_model.archive_mode = enabled
+        render!(sync_sheet: false)
+      end
+
       def handle_project_input(project_name)
         return if view_model.running_current_sheet?
 
@@ -105,6 +111,13 @@ module QTimetrap
         view_model.update_entry_note(entry_id, note)
       rescue StandardError => e
         warn("[qtimetrap] update note failed: #{e.class}: #{e.message}")
+      end
+
+      def handle_entry_archived(entry_id)
+        view_model.archive_entry(entry_id)
+        @pending_refresh = true
+      rescue StandardError => e
+        warn("[qtimetrap] archive entry failed: #{e.class}: #{e.message}")
       end
 
       def resolved_start_task(fallback_task)

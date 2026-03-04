@@ -106,6 +106,25 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(task_buttons).to be_empty
   end
 
+  it 'renders archive toggle button state from view model' do
+    allow(view_model).to receive(:archive_mode?).and_return(true)
+
+    main_window.send(:render!)
+    archive_toggle = find_widget(qt_window, 'sidebar_archive_toggle')
+
+    expect(archive_toggle).not_to be_nil
+    expect(archive_toggle.is_checked).to be(true)
+  end
+
+  it 'toggles archive-only mode from sidebar trash button' do
+    main_window.send(:render!)
+    archive_toggle = find_widget(qt_window, 'sidebar_archive_toggle')
+
+    archive_toggle.click
+
+    expect(view_model).to have_received(:archive_mode=).with(true)
+  end
+
   it 'uses single-select for task buttons by default' do
     allow(view_model).to receive_messages(
       selected_project: 'acme',
@@ -208,7 +227,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
     main_window.send(:render!)
     task_input = find_widget(qt_window, 'task_input')
     project_input = find_widget(qt_window, 'project_input')
-    expect(task_input.is_read_only).to eq(true)
-    expect(project_input.is_read_only).to eq(true)
+    expect(task_input.is_read_only).to be(true)
+    expect(project_input.is_read_only).to be(true)
   end
 end

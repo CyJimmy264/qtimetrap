@@ -8,12 +8,14 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   let(:parent) { QWidget.new }
   let(:on_entry_note_change) { instance_double(Proc, call: nil) }
   let(:on_entry_time_change) { instance_double(Proc, call: nil) }
+  let(:on_entry_archive) { instance_double(Proc, call: nil) }
   let(:on_time_range_change) { instance_double(Proc, call: nil) }
   let(:component) do
     described_class.new(
       parent: parent,
       on_entry_note_change: on_entry_note_change,
       on_entry_time_change: on_entry_time_change,
+      on_entry_archive: on_entry_archive,
       on_time_range_change: on_time_range_change
     )
   end
@@ -224,10 +226,12 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     component.render(entry_nodes)
     QApplication.process_events
 
-    from_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_from' }
+    from_input = descendants(parent).grep(QDateTimeEdit).find do |input|
+      input.object_name == 'entries_time_filter_from'
+    end
     to_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_to' }
-    expect(from_input.is_enabled).to eq(true)
-    expect(to_input.is_enabled).to eq(true)
+    expect(from_input.is_enabled).to be(true)
+    expect(to_input.is_enabled).to be(true)
 
     component.send(:emit_time_range_filter_changed)
 
@@ -238,7 +242,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     component.render(entry_nodes)
     QApplication.process_events
 
-    from_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_from' }
+    from_input = descendants(parent).grep(QDateTimeEdit).find do |input|
+      input.object_name == 'entries_time_filter_from'
+    end
     chosen = Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
     from_input.set_date_time(chosen)
     QApplication.process_events
@@ -262,6 +268,19 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     QApplication.process_events
 
     expect(to_input.date_time.to_i).to eq(chosen.to_i)
+  end
+
+  it 'renders archive icon button and sends archive callback' do
+    component.render(entry_nodes)
+    QApplication.process_events
+
+    archive_button = descendants(parent).grep(QPushButton).find do |button|
+      button.object_name == 'entry_node_entry_archive'
+    end
+    expect(archive_button).not_to be_nil
+
+    archive_button.click
+    expect(on_entry_archive).to have_received(:call).with(1)
   end
 
   private

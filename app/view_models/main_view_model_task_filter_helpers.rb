@@ -10,7 +10,13 @@ module QTimetrap
       end
 
       def filtered_entries
-        scoped = selected_project == '* ALL' ? entries : entries.select { |entry| entry.project == selected_project }
+        scoped = if selected_project == '* ALL'
+                   entries_for_mode
+                 else
+                   entries_for_mode.select do |entry|
+                     entry.project == selected_project
+                   end
+                 end
         scoped = scoped.select { |entry| selected_tasks.include?(entry.task.to_s) } unless selected_tasks.empty?
         return scoped if @time_filter_from_at.nil? && @time_filter_to_at.nil?
 

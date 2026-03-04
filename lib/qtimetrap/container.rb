@@ -34,8 +34,14 @@ module QTimetrap
     def register_core
       register(:theme) { Styles::Theme.new(name: config.theme_name, root: Application.root) }
       register(:settings_store) { Services::SettingsStore.new }
+      register(:archived_entries_store) { Services::ArchivedEntriesStore.new }
       register(:timetrap_gateway) { Services::TimetrapGateway.new(bin: config.timetrap_bin) }
-      register(:main_view_model) { ViewModels::MainViewModel.new(gateway: fetch(:timetrap_gateway)) }
+      register(:main_view_model) do
+        ViewModels::MainViewModel.new(
+          gateway: fetch(:timetrap_gateway),
+          archived_entries_store: fetch(:archived_entries_store)
+        )
+      end
     end
 
     def register_ui

@@ -97,11 +97,13 @@ module QTimetrap
         {
           on_project_selected: method(:handle_project_selected),
           on_task_selected: method(:handle_task_selected),
+          on_archive_mode_toggled: method(:handle_archive_mode_toggled),
           on_start: method(:handle_start),
           on_project_change: method(:handle_project_input),
           on_time_range_change: method(:handle_time_range_changed),
           on_entry_note_change: method(:handle_entry_note_changed),
           on_entry_time_change: method(:handle_entry_time_changed),
+          on_entry_archive: method(:handle_entry_archived),
           on_stop: method(:handle_stop),
           on_refresh: -> { @pending_refresh = true },
           on_switch_theme: method(:switch_theme!)

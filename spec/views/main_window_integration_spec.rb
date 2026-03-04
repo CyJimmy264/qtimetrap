@@ -78,6 +78,17 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(main_window).not_to have_received(:render!)
   end
 
+  it 'archives entry through view model and defers rerender to heartbeat' do
+    allow(main_window).to receive(:render!)
+    main_window.instance_variable_set(:@pending_refresh, false)
+
+    main_window.send(:handle_entry_archived, 1)
+
+    expect(view_model).to have_received(:archive_entry).with(1)
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+    expect(main_window).not_to have_received(:render!)
+  end
+
   it 'ignores key press when event payload has no key data' do
     main_window.send(:on_key_press, {})
     expect(main_window.instance_variable_get(:@shutdown_requested)).to be(false)

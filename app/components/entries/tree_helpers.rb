@@ -82,7 +82,7 @@ module QTimetrap
 
       def filter_toggle_checked?(toggle)
         value = toggle.is_checked
-        value == true || value == 1
+        [true, 1].include?(value)
       end
 
       def expand_all!

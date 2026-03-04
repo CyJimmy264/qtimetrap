@@ -12,6 +12,7 @@ module QTimetrap
         start_input, end_input = add_entry_time_widgets(row_layout, row, node)
         row_layout.add_widget(build_entry_prefix_label(row, node, level))
         row_layout.add_widget(build_entry_note_input(row, node))
+        row_layout.add_widget(build_entry_archive_button(row, node))
         bind_entry_time_input_events(start_input, end_input, resolve_entry_id(node))
         row_layout.set_stretch(2, 1)
         entry_rows << row
@@ -47,6 +48,17 @@ module QTimetrap
           note_input.set_placeholder_text('(no note)')
           note_input.set_read_only(true)
           bind_entry_note_input_events(note_input, resolve_entry_id(node))
+        end
+      end
+
+      def build_entry_archive_button(row, node)
+        QPushButton.new(row).tap do |button|
+          button.set_object_name('entry_node_entry_archive')
+          button.set_text('🗑')
+          button.set_fixed_width(28)
+          button.set_fixed_height(24)
+          entry_id = resolve_entry_id(node)
+          button.connect('clicked') { |_| on_entry_archive&.call(entry_id) }
         end
       end
 

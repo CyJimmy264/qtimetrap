@@ -9,10 +9,11 @@ module QTimetrap
 
       attr_reader :widget
 
-      def initialize(parent:, on_project_selected:, on_task_selected: nil)
+      def initialize(parent:, on_project_selected:, on_task_selected: nil, on_archive_mode_toggled: nil)
         @parent = parent
         @on_project_selected = on_project_selected
         @on_task_selected = on_task_selected
+        @on_archive_mode_toggled = on_archive_mode_toggled
         @buttons = []
         @task_buttons = []
         @selected_task_indices = []
@@ -22,17 +23,18 @@ module QTimetrap
         build
       end
 
-      def render(projects:, selected_project:, tasks: [], selected_task: nil)
+      def render(projects:, selected_project:, tasks: [], selected_task: nil, archive_mode: false)
         values = Array(projects)
         sync_project_buttons(values.size)
         buttons.each_with_index { |slot, index| render_slot(slot, values[index], selected_project) }
         render_tasks(tasks: tasks, selected_project: selected_project, selected_task: selected_task)
+        archive_toggle_button.set_checked(archive_mode)
       end
 
       private
 
       attr_reader :parent, :on_project_selected, :on_task_selected, :buttons, :buttons_layout, :task_buttons,
-                  :task_buttons_layout, :tasks_heading
+                  :task_buttons_layout, :tasks_heading, :on_archive_mode_toggled, :archive_toggle_button
 
       def build
         @widget = QWidget.new(parent)
@@ -43,6 +45,8 @@ module QTimetrap
         layout.add_layout(buttons_layout)
         add_tasks_section(layout)
         layout.add_stretch(1)
+        @archive_toggle_button = build_archive_toggle_button
+        layout.add_widget(archive_toggle_button)
       end
 
       def render_slot(slot, project, selected_project)
@@ -110,6 +114,17 @@ module QTimetrap
         return unless item && item[:project]
 
         on_project_selected.call(item[:project])
+      end
+
+      def build_archive_toggle_button
+        QPushButton.new(widget).tap do |button|
+          button.set_object_name('sidebar_archive_toggle')
+          button.set_checkable(true)
+          button.set_fixed_height(30)
+          button.set_text("\u{1F5D1}")
+          button.set_tool_tip('Show archived entries only')
+          button.connect('clicked') { |_| on_archive_mode_toggled&.call(button.is_checked) }
+        end
       end
     end
   end

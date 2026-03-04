@@ -180,6 +180,18 @@ QLineEdit#entry_node_entry_note:focus {
   padding-left: 6px;
 }
 
+QPushButton#entry_node_entry_archive {
+  background-color: #ffffff;
+  border: 1px solid #cfd8e3;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+QPushButton#entry_node_entry_archive:hover {
+  background-color: #f8fafc;
+}
+
 QLabel#entry_node_empty {
   background-color: #f9fbfd;
   border: 1px solid #e3e8ef;

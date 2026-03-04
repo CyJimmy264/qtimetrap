@@ -2,7 +2,13 @@
 
 RSpec.shared_context :main_view_model_setup do
   let(:gateway) { instance_double(QTimetrap::Services::TimetrapGateway) }
-  let(:view_model) { QTimetrap::ViewModels::MainViewModel.new(gateway: gateway) }
+  let(:archived_entries_store) { instance_double(QTimetrap::Services::ArchivedEntriesStore) }
+  let(:view_model) do
+    QTimetrap::ViewModels::MainViewModel.new(
+      gateway: gateway,
+      archived_entries_store: archived_entries_store
+    )
+  end
   let(:entry_today) do
     QTimetrap::Models::TimeEntry.new(id: 1, note: 'build widget', sheet: 'acme|core',
                                      start_time: Time.now - 3600, end_time: Time.now)
@@ -19,5 +25,7 @@ RSpec.shared_context :main_view_model_setup do
     allow(gateway).to receive(:stop)
     allow(gateway).to receive(:update_note)
     allow(gateway).to receive(:update_time)
+    allow(archived_entries_store).to receive(:archived?).and_return(false)
+    allow(archived_entries_store).to receive(:archive)
   end
 end

@@ -17,8 +17,9 @@ module QTimetrap
       attr_reader :selected_project, :selected_tasks, :entries, :current_started_at, :current_sheet,
                   :time_filter_from_at, :time_filter_to_at
 
-      def initialize(gateway: Services::TimetrapGateway.new)
+      def initialize(gateway: Services::TimetrapGateway.new, archived_entries_store: Services::ArchivedEntriesStore.new)
         @gateway = gateway
+        @archived_entries_store = archived_entries_store
         @selected_project = '* ALL'
         @selected_tasks = []
         @entries = []
@@ -26,6 +27,7 @@ module QTimetrap
         @current_sheet = nil
         @time_filter_from_at = nil
         @time_filter_to_at = nil
+        @archive_mode = false
       end
 
       def refresh!
@@ -61,18 +63,28 @@ module QTimetrap
       end
 
       def project_names
-        ['* ALL', *entries.map(&:project).uniq.sort]
+        ['* ALL', *entries_for_mode.map(&:project).uniq.sort]
       end
 
       def task_names_for_selected_project
         return [] if selected_project == '* ALL'
 
-        entries
+        entries_for_mode
           .select { |entry| entry.project == selected_project }
           .map { |entry| entry.task.to_s }
           .reject(&:empty?)
           .uniq
           .sort
+      end
+
+      def archive_mode?
+        @archive_mode
+      end
+
+      def archive_mode=(enabled)
+        @archive_mode = [true, 1].include?(enabled)
+        @selected_project = '* ALL' unless project_names.include?(@selected_project)
+        normalize_selected_tasks!
       end
 
       def week_total_seconds
@@ -105,9 +117,13 @@ module QTimetrap
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
+      def archive_entry(entry_id)
+        archived_entries_store.archive(entry_id)
+      end
+
       private
 
-      attr_reader :gateway
+      attr_reader :gateway, :archived_entries_store
 
       def detect_current_sheet
         running_sheet || latest_sheet
@@ -130,6 +146,10 @@ module QTimetrap
 
         entry = newest_entry(entries.select { |item| item.project == project })
         entry ? entry.task.to_s : ''
+      end
+
+      def entries_for_mode
+        entries.select { |entry| archived_entries_store.archived?(entry.id) == archive_mode? }
       end
 
       def normalize_text(value)
