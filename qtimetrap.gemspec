@@ -5,25 +5,33 @@ require_relative 'lib/qtimetrap/version'
 Gem::Specification.new do |spec|
   spec.name = 'qtimetrap'
   spec.version = QTimetrap::VERSION
-  spec.authors = ['mveynberg']
-  spec.email = ['dev@example.com']
+  spec.authors = ['Maksim Veynberg']
+  spec.email = ['mv@cj264.ru']
 
   spec.summary = 'Desktop Timetrap UI on Qt'
   spec.description = 'MVVM Ruby desktop app for Timetrap built with Qt and Zeitwerk.'
-  spec.homepage = 'https://example.com/qtimetrap'
+  spec.homepage = 'https://github.com/CyJimmy264/qtimetrap'
   spec.license = 'MIT'
-  spec.required_ruby_version = '>= 3.1'
+  spec.required_ruby_version = '>= 3.2'
 
-  spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = spec.homepage
-  spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.files = Dir[
+    'app/**/*',
+    'bin/*',
+    'config/**/*',
+    'lib/**/*.rb',
+    'README.md',
+    'LICENSE',
+    'Rakefile'
+  ]
 
-  spec.files = Dir.glob('{app,bin,config,lib}/**/*', File::FNM_DOTMATCH).reject do |path|
-    File.directory?(path)
-  end
   spec.bindir = 'bin'
   spec.executables = ['qtimetrap']
   spec.require_paths = ['lib']
+
+  spec.metadata['source_code_uri'] = spec.homepage
+  spec.metadata['changelog_uri'] = "#{spec.homepage}/releases"
+  spec.metadata['bug_tracker_uri'] = "#{spec.homepage}/issues"
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.add_dependency 'qt', '>= 0.1.0'
   spec.add_dependency 'zeitwerk', '~> 2.6'

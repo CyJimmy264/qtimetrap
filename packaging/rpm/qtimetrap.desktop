@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=QTimetrap
+Comment=Desktop Timetrap UI on Qt
+Exec=qtimetrap
+Icon=qtimetrap
+Terminal=false
+Categories=Office;
+StartupNotify=true
+StartupWMClass=qtimetrap
+X-KDE-StartupNotify=true
