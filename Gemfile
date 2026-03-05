@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gemspec
-gem 'qt', git: 'https://github.com/CyJimmy264/qt'
+gem 'qt', '~> 0.1'
 
 group :development, :test do
   gem 'bundler', '>= 2.4'

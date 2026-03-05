@@ -65,11 +65,11 @@ QDateTimeEdit#entries_time_filter_to {
 }
 
 QPushButton#entry_node_week {
-  background-color: #1d4ed8;
-  border: 1px solid #1e40af;
+  background-color: #21346A;
+  border: 1px solid #101A39;
   border-radius: 8px;
   color: #dbeafe;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   text-align: left;
   padding-left: 8px;
@@ -92,7 +92,7 @@ QPushButton#entry_node_day {
   border: 1px solid #334155;
   border-radius: 8px;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-align: left;
   padding-left: 8px;
@@ -115,7 +115,7 @@ QPushButton#entry_node_project {
   border: 1px solid #334155;
   border-radius: 8px;
   color: #e2e8f0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-align: left;
   padding-left: 8px;

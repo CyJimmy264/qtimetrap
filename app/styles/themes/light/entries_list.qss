@@ -69,7 +69,7 @@ QPushButton#entry_node_week {
   border: 1px solid #1d4ed8;
   border-radius: 8px;
   color: #eff6ff;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   text-align: left;
   padding-left: 8px;
@@ -92,7 +92,7 @@ QPushButton#entry_node_day {
   border: 1px solid #d5dee8;
   border-radius: 8px;
   color: #5b6776;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   text-align: left;
   padding-left: 8px;
@@ -115,7 +115,7 @@ QPushButton#entry_node_project {
   border: 1px solid #d8e0ea;
   border-radius: 8px;
   color: #0f172a;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-align: left;
   padding-left: 8px;
