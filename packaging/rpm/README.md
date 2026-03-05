@@ -57,4 +57,6 @@ copr-cli build ruby-qtimetrap packaging/rpm/.rpmbuild/SRPMS/*.src.rpm
 
 - RPM package name is `ruby-qtimetrap` (gem name stays `qtimetrap`).
 - Runtime dependency on `timetrap` CLI is expected from user environment.
+- `ruby-qtimetrap` requires a working `ruby-qt` RPM with built native extension
+  (`qt_ruby_bridge.so` + extension metadata for system Ruby ABI).
 - Desktop file and app icons are installed into standard system paths.

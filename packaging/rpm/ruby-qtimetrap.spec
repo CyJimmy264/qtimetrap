@@ -16,6 +16,7 @@ BuildRequires:  rubygem-ffi
 BuildRequires:  desktop-file-utils
 
 Requires:       ruby
+Requires:       ruby-qt >= 0.1.0
 Requires:       rubygem(qt) >= 0.1.0
 Requires:       rubygem(zeitwerk)
 
