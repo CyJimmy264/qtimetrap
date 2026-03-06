@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = 'Desktop Timetrap UI on Qt'
   spec.description = 'MVVM Ruby desktop app for Timetrap built with Qt and Zeitwerk.'
   spec.homepage = 'https://github.com/CyJimmy264/qtimetrap'
-  spec.license = 'MIT'
+  spec.license = 'BSD-2-Clause'
   spec.required_ruby_version = '>= 3.2'
 
   spec.files = Dir[

@@ -3,7 +3,7 @@ Version:        0.1.0
 Release:        1%{?dist}
 Summary:        Desktop Timetrap UI built with Ruby + Qt
 
-License:        MIT
+License:        BSD-2-Clause
 URL:            https://github.com/CyJimmy264/qtimetrap
 Source0:        %{name}-%{version}.tar.gz
 Source1:        qtimetrap.desktop
