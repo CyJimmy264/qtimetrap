@@ -11,11 +11,11 @@
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods, IgnoreNotImplementedMethods, NotImplementedExceptions.
 # NotImplementedExceptions: NotImplementedError
 RSpec/ExampleLength:
-  Max: 19
+  Max: 15
 
 # Offense count: 20
 RSpec/MultipleExpectations:
-  Max: 6
+  Max: 4
 
 # Offense count: 22
 # Configuration parameters: CustomTransform, IgnoreMethods, IgnoreMetadata, InflectorPath, EnforcedInflector.

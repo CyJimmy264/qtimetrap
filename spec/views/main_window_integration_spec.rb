@@ -8,13 +8,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   include_context :main_window_cleanup
 
   it 'toggles visibility through public show/close API' do
-    main_window.show
-    QApplication.process_events
-    expect(qt_window.is_visible).to be(true)
-
-    main_window.close
-    QApplication.process_events
-    expect(qt_window.is_visible).to be(false)
+    expect(window_visibility_after_show_and_close).to eq([true, false])
   end
 
   it 'restores and persists window geometry through settings store' do
@@ -48,9 +42,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   it 'logs and continues when stop fails' do
     allow(view_model).to receive(:running_current_sheet?).and_return(true)
     allow(view_model).to receive(:stop_tracking).and_raise(StandardError, 'boom')
-    main_window.send(:render!)
-    allow(main_window).to receive(:warn)
-    button_with_text('STOP').click
+    trigger_window_warning('STOP')
     expect(main_window).to have_received(:warn).with(include('[qtimetrap] stop failed: StandardError: boom'))
   end
 
@@ -63,48 +55,24 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'defers UI rerender after entry time update to heartbeat' do
-    allow(main_window).to receive(:render!)
-    main_window.instance_variable_set(:@pending_refresh, false)
-
-    main_window.send(:handle_entry_time_changed, 1, '10:00', '11:00')
-
-    expect(view_model).to have_received(:update_entry_time).with(1, '10:00', '11:00')
-    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
-    expect(main_window).not_to have_received(:render!)
+    invoke_deferred_refresh(:handle_entry_time_changed, 1, '10:00', '11:00')
+    expect_deferred_entry_update(:update_entry_time, 1, '10:00', '11:00')
   end
 
   it 'defers UI rerender after entry task update to heartbeat' do
-    allow(main_window).to receive(:render!)
-    main_window.instance_variable_set(:@pending_refresh, false)
-
-    main_window.send(:handle_entry_task_changed, 1, 'deploy')
-
-    expect(view_model).to have_received(:update_entry_task).with(1, 'deploy')
-    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
-    expect(main_window).not_to have_received(:render!)
+    invoke_deferred_refresh(:handle_entry_task_changed, 1, 'deploy')
+    expect_deferred_entry_update(:update_entry_task, 1, 'deploy')
   end
 
   it 'archives entry through view model and defers rerender to heartbeat' do
-    allow(main_window).to receive(:render!)
-    main_window.instance_variable_set(:@pending_refresh, false)
-
-    main_window.send(:handle_entry_archived, 1)
-
-    expect(view_model).to have_received(:archive_entry).with(1)
-    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
-    expect(main_window).not_to have_received(:render!)
+    invoke_deferred_refresh(:handle_entry_archived, 1)
+    expect_deferred_entry_update(:archive_entry, 1)
   end
 
   it 'restores archived entry through view model and defers rerender to heartbeat' do
     allow(view_model).to receive(:archive_mode?).and_return(true)
-    allow(main_window).to receive(:render!)
-    main_window.instance_variable_set(:@pending_refresh, false)
-
-    main_window.send(:handle_entry_archived, 1)
-
-    expect(view_model).to have_received(:unarchive_entry).with(1)
-    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
-    expect(main_window).not_to have_received(:render!)
+    invoke_deferred_refresh(:handle_entry_archived, 1)
+    expect_deferred_entry_update(:unarchive_entry, 1)
   end
 
   it 'ignores key press when event payload has no key data' do
@@ -113,11 +81,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'logs and continues when icon loader fails', :silence_stderr do
-    broken_loader = instance_double(QTimetrap::Views::WindowIconLoader)
-    allow(QTimetrap::Views::WindowIconLoader).to receive(:new).and_return(broken_loader)
-    allow(broken_loader).to receive(:apply).and_raise(StandardError, 'icon boom')
-    allow(main_window).to receive(:warn)
-    main_window.send(:set_window_icon)
+    break_window_icon_loader
     expect(main_window).to have_received(:warn).with(include('[qtimetrap] icon load failed: StandardError: icon boom'))
   end
 
@@ -134,5 +98,40 @@ RSpec.describe QTimetrap::Views::MainWindow do
       width: 1200,
       height: 760
     )
+  end
+
+  def window_visibility_after_show_and_close
+    main_window.show
+    QApplication.process_events
+    visible_after_show = qt_window.is_visible
+    main_window.close
+    QApplication.process_events
+    [visible_after_show, qt_window.is_visible]
+  end
+
+  def trigger_window_warning(button_text)
+    main_window.send(:render!)
+    allow(main_window).to receive(:warn)
+    button_with_text(button_text).click
+  end
+
+  def invoke_deferred_refresh(method_name, *args)
+    allow(main_window).to receive(:render!)
+    main_window.instance_variable_set(:@pending_refresh, false)
+    main_window.send(method_name, *args)
+  end
+
+  def expect_deferred_entry_update(message, *args)
+    expect(view_model).to have_received(message).with(*args)
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+    expect(main_window).not_to have_received(:render!)
+  end
+
+  def break_window_icon_loader
+    broken_loader = instance_double(QTimetrap::Views::WindowIconLoader)
+    allow(QTimetrap::Views::WindowIconLoader).to receive(:new).and_return(broken_loader)
+    allow(broken_loader).to receive(:apply).and_raise(StandardError, 'icon boom')
+    allow(main_window).to receive(:warn)
+    main_window.send(:set_window_icon)
   end
 end

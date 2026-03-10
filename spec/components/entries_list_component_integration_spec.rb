@@ -42,14 +42,11 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
     collapse_button.click
     QApplication.process_events
-    expect(week_buttons).to all(satisfy { |button| normalized_text(button).lstrip.start_with?('▸') })
+    expect_all_week_buttons_to_start_with('▸')
 
     expand_button.click
     QApplication.process_events
-    expect(week_buttons).to all(satisfy { |button| normalized_text(button).lstrip.start_with?('▾') })
-
-    unknown_leaf = descendants(parent).grep(QLabel).find { |label| label.object_name == 'entry_node_empty' }
-    expect(unknown_leaf).not_to be_nil
+    expect_expanded_state_and_unknown_leaf
   end
 
   it 'keeps branch nodes inside scroll viewport width for long labels' do
@@ -64,15 +61,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     render_component(entry_nodes)
 
     note_input = entry_note_input
-    expect_note_input_state(note_input, text: 'test', read_only: true)
-
-    component.send(:activate_entry_note_input, note_input)
-    expect(note_input.is_read_only).to be(false)
-
-    note_input.text = 'updated note'
-    component.send(:handle_entry_note_key_press, note_input, 1, { a: Qt::Key_Return })
-
-    expect(note_input.is_read_only).to be(true)
+    commit_note_input(note_input, 'updated note')
     expect(callbacks.fetch(:on_entry_note_change)).to have_received(:call).with(1, 'updated note')
   end
 
@@ -88,9 +77,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     render_component(entry_nodes)
 
     task_input = entry_task_input
-    expect(task_input).not_to be_nil
-    expect(task_input.current_text.to_s).to eq('core')
-    expect(task_combo_items(task_input)).to eq(%w[core ops deploy])
+    expect_task_input_state(task_input)
   end
 
   it 'commits edited task value on Enter' do
@@ -120,33 +107,13 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
     start_input = entry_start_input
     end_input = entry_end_input
-
-    component.send(:activate_entry_note_input, start_input)
-    expect(start_input.is_read_only).to be(false)
-
-    start_input.text = '10:15'
-    commit_time_change(start_input: start_input, end_input: end_input)
-
-    expect(start_input.is_read_only).to be(true)
+    commit_time_input_change(start_input, end_input)
     expect(callbacks.fetch(:on_entry_time_change)).to have_received(:call).with(1, '10:15', '11:00')
   end
 
   it 'does not commit time when input is already read-only' do
     render_component(entry_nodes)
-
-    start_input = entry_start_input
-    end_input = entry_end_input
-
-    expect(start_input.is_read_only).to be(true)
-    component.send(
-      :handle_entry_time_commit,
-      time_input: start_input,
-      entry_id: 1,
-      start_input: start_input,
-      end_input: end_input
-    )
-
-    expect(callbacks.fetch(:on_entry_time_change)).not_to have_received(:call)
+    assert_time_input_ignores_commit_while_read_only
   end
 
   it 'deactivates note input on focus loss without committing' do
@@ -164,29 +131,12 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'uses native placeholder for empty note and keeps text empty on activation' do
     render_component(no_note_entry_nodes)
-
-    note_input = entry_note_input
-    expect(note_input.text.to_s).to eq('')
-    expect(note_input.placeholder_text.to_s).to eq('(no note)')
-
-    component.send(:activate_entry_note_input, note_input)
-
-    expect(note_input.is_read_only).to be(false)
-    expect(note_input.text.to_s).to eq('')
+    expect_empty_note_placeholder_on_activation
   end
 
   it 'keeps native placeholder on deactivation when input is blank' do
     render_component(no_note_entry_nodes)
-
-    note_input = entry_note_input
-    component.send(:activate_entry_note_input, note_input)
-    expect(note_input.text.to_s).to eq('')
-
-    component.send(:handle_entry_note_focus_out, note_input)
-
-    expect(note_input.is_read_only).to be(true)
-    expect(note_input.text.to_s).to eq('')
-    expect(note_input.placeholder_text.to_s).to eq('(no note)')
+    expect_empty_note_placeholder_on_deactivation
   end
 
   it 'extracts enter key code from hash payload with string key' do
@@ -214,15 +164,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'sends nil range when both date-time checkboxes are off' do
     render_component(entry_nodes)
-
-    from_input = find_datetime_input('entries_time_filter_from')
-    to_input = find_datetime_input('entries_time_filter_to')
-    expect(from_input.is_enabled).to be(true)
-    expect(to_input.is_enabled).to be(true)
-
-    component.send(:emit_time_range_filter_changed)
-
-    expect(callbacks.fetch(:on_time_range_change)).to have_received(:call).with(nil, nil).at_least(:once)
+    expect_nil_time_range_change
   end
 
   it 'keeps chosen from datetime when checkbox is off' do
@@ -329,10 +271,52 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect(input.is_read_only).to be(read_only)
   end
 
+  def expect_all_week_buttons_to_start_with(marker)
+    expect(week_buttons).to all(satisfy { |button| normalized_text(button).lstrip.start_with?(marker) })
+  end
+
+  def expect_expanded_state_and_unknown_leaf
+    expect_all_week_buttons_to_start_with('▾')
+    expect(find_unknown_leaf).not_to be_nil
+  end
+
+  def find_unknown_leaf
+    descendants(parent).grep(QLabel).find { |label| label.object_name == 'entry_node_empty' }
+  end
+
+  def commit_note_input(note_input, text)
+    expect_note_input_state(note_input, text: 'test', read_only: true)
+    component.send(:activate_entry_note_input, note_input)
+    note_input.text = text
+    component.send(:handle_entry_note_key_press, note_input, 1, { a: Qt::Key_Return })
+    expect_note_commit
+  end
+
+  def expect_note_commit
+    expect(entry_note_input.is_read_only).to be(true)
+  end
+
+  def expect_task_input_state(task_input)
+    expect(task_input).not_to be_nil
+    expect(task_input.current_text.to_s).to eq('core')
+    expect(task_combo_items(task_input)).to eq(%w[core ops deploy])
+  end
+
   def expect_time_inputs(start_input, end_input, start_text:, end_text:, read_only:)
     expect_inputs_present(start_input, end_input)
     expect_input_texts(start_input, end_input, start_text, end_text)
     expect(start_input.is_read_only).to be(read_only)
+  end
+
+  def commit_time_input_change(start_input, end_input)
+    component.send(:activate_entry_note_input, start_input)
+    start_input.text = '10:15'
+    commit_time_change(start_input: start_input, end_input: end_input)
+    expect_time_commit
+  end
+
+  def expect_time_commit
+    expect(entry_start_input.is_read_only).to be(true)
   end
 
   def commit_time_change(start_input:, end_input:)
@@ -344,6 +328,19 @@ RSpec.describe QTimetrap::Entries::ListComponent do
       end_input: end_input,
       event: { a: Qt::Key_Return }
     )
+  end
+
+  def assert_time_input_ignores_commit_while_read_only
+    start_input = entry_start_input
+    end_input = entry_end_input
+    component.send(
+      :handle_entry_time_commit,
+      time_input: start_input,
+      entry_id: 1,
+      start_input: start_input,
+      end_input: end_input
+    )
+    expect(callbacks.fetch(:on_entry_time_change)).not_to have_received(:call)
   end
 
   def time_filter_widgets
@@ -382,6 +379,25 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     (0...task_input.count).map { |index| task_input.item_text(index).to_s }
   end
 
+  def expect_empty_note_placeholder_on_activation
+    note_input = entry_note_input
+    component.send(:activate_entry_note_input, note_input)
+    expect_note_placeholder_state(note_input, read_only: false)
+  end
+
+  def expect_empty_note_placeholder_on_deactivation
+    note_input = entry_note_input
+    component.send(:activate_entry_note_input, note_input)
+    component.send(:handle_entry_note_focus_out, note_input)
+    expect_note_placeholder_state(note_input, read_only: true)
+  end
+
+  def expect_note_placeholder_state(note_input, read_only:)
+    expect(note_input.text.to_s).to eq('')
+    expect(note_input.placeholder_text.to_s).to eq('(no note)')
+    expect(note_input.is_read_only).to be(read_only)
+  end
+
   def expect_inputs_present(start_input, end_input)
     expect(start_input).not_to be_nil
     expect(end_input).not_to be_nil
@@ -394,6 +410,17 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   def find_datetime_input(object_name)
     descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == object_name }
+  end
+
+  def expect_nil_time_range_change
+    expect_time_inputs_enabled
+    component.send(:emit_time_range_filter_changed)
+    expect(callbacks.fetch(:on_time_range_change)).to have_received(:call).with(nil, nil).at_least(:once)
+  end
+
+  def expect_time_inputs_enabled
+    expect(find_datetime_input('entries_time_filter_from').is_enabled).to be(true)
+    expect(find_datetime_input('entries_time_filter_to').is_enabled).to be(true)
   end
 
   def normalized_text(button)
