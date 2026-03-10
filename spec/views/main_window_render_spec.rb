@@ -19,46 +19,35 @@ RSpec.describe QTimetrap::Views::MainWindow do
   it 'updates selected project on sidebar project click' do
     main_window.send(:render!)
     button_with_text('acme').click
-    expect(view_model).to have_received(:select_projects).with(['acme'], primary_project: 'acme', sync_current_fields: true)
+    expect(view_model).to have_received(:select_projects)
+      .with(['acme'], primary_project: 'acme', sync_current_fields: true)
     expect(view_model).to have_received(:current_project_name=).with('acme')
   end
 
   it 'updates current project field when project is selected in sidebar' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      current_project_name: 'acme',
-      project_names: ['* ALL', 'acme']
-    )
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme'], current_project_name: 'acme')
 
-    main_window.send(:render!)
-    button_with_text('acme').click
+    render_and_click('acme')
 
-    project_input = find_widget(qt_window, 'project_input')
     expect(project_input.text.to_s).to eq('acme')
   end
 
   it 'fills current project input from clicked sidebar project even when vm field is blank' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      current_project_name: '',
-      project_names: ['* ALL', 'acme']
-    )
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme'], current_project_name: '')
 
-    main_window.send(:render!)
-    button_with_text('acme').click
+    render_and_click('acme')
 
-    project_input = find_widget(qt_window, 'project_input')
     expect(project_input.text.to_s).to eq('acme')
   end
 
   it 'does not clear project input on refresh when vm current project is blank' do
-    allow(view_model).to receive_messages(
+    stub_sidebar_project_state(
       selected_project: 'acme',
-      current_project_name: 'acme',
-      project_names: ['* ALL', 'acme']
+      selected_projects: ['acme'],
+      project_names: ['* ALL', 'acme'],
+      current_project_name: 'acme'
     )
     main_window.send(:render!, sync_sheet: true)
-    project_input = find_widget(qt_window, 'project_input')
     expect(project_input.text.to_s).to eq('acme')
 
     allow(view_model).to receive(:current_project_name).and_return('')
@@ -68,16 +57,10 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'updates current task field to latest project task on project click' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      current_sheet_input: 'deploy',
-      project_names: ['* ALL', 'acme']
-    )
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme'], current_sheet_input: 'deploy')
 
-    main_window.send(:render!)
-    button_with_text('acme').click
+    render_and_click('acme')
 
-    task_input = find_widget(qt_window, 'task_input')
     expect(task_input.text.to_s).to eq('deploy')
   end
 
@@ -126,73 +109,35 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'uses single-select for project buttons by default' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      selected_projects: ['* ALL'],
-      project_names: ['* ALL', 'acme', 'internal']
-    )
-    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
-      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
-    end
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme', 'internal'])
     allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
 
-    main_window.send(:render!)
-    acme = button_with_text('acme')
-    internal = button_with_text('internal')
+    render_and_click('acme')
+    button_with_text('internal').click
 
-    acme.click
-    internal.click
-
-    expect(acme.is_checked).to be(false)
-    expect(internal.is_checked).to be(true)
+    expect_button_check_states('acme' => false, 'internal' => true)
   end
 
   it 'allows multi-select with Ctrl for project buttons' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      selected_projects: ['* ALL'],
-      project_names: ['* ALL', 'acme', 'internal']
-    )
-    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
-      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
-    end
-
-    main_window.send(:render!)
-    acme = button_with_text('acme')
-    internal = button_with_text('internal')
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme', 'internal'])
 
     allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
-    acme.click
+    render_and_click('acme')
     allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ControlModifier)
-    internal.click
+    button_with_text('internal').click
 
-    expect(acme.is_checked).to be(true)
-    expect(internal.is_checked).to be(true)
+    expect_button_check_states('acme' => true, 'internal' => true)
   end
 
   it 'selects project range with Shift from last anchor' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      selected_projects: ['* ALL'],
-      project_names: ['* ALL', 'acme', 'internal', 'ops']
-    )
-    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
-      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
-    end
-
-    main_window.send(:render!)
-    acme = button_with_text('acme')
-    internal = button_with_text('internal')
-    ops = button_with_text('ops')
+    stub_sidebar_project_state(project_names: ['* ALL', 'acme', 'internal', 'ops'])
 
     allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
-    acme.click
+    render_and_click('acme')
     allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ShiftModifier)
-    ops.click
+    button_with_text('ops').click
 
-    expect(acme.is_checked).to be(true)
-    expect(internal.is_checked).to be(true)
-    expect(ops.is_checked).to be(true)
+    expect_button_check_states('acme' => true, 'internal' => true, 'ops' => true)
   end
 
   it 'uses single-select for task buttons by default' do
@@ -219,17 +164,12 @@ RSpec.describe QTimetrap::Views::MainWindow do
       task_names_for_selected_project: %w[core ops qa]
     )
 
-    main_window.send(:render!)
-    core = button_with_text('core')
-    ops = button_with_text('ops')
-
     allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
-    core.click
+    render_and_click('core')
     allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ControlModifier)
-    ops.click
+    button_with_text('ops').click
 
-    expect(core.is_checked).to be(true)
-    expect(ops.is_checked).to be(true)
+    expect_button_check_states('core' => true, 'ops' => true)
   end
 
   it 'selects task range with Shift from last anchor' do
@@ -238,21 +178,12 @@ RSpec.describe QTimetrap::Views::MainWindow do
       task_names_for_selected_project: %w[core ops qa ux]
     )
 
-    main_window.send(:render!)
-    core = button_with_text('core')
-    ops = button_with_text('ops')
-    qa = button_with_text('qa')
-    ux = button_with_text('ux')
-
     allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
-    core.click
+    render_and_click('core')
     allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ShiftModifier)
-    qa.click
+    button_with_text('qa').click
 
-    expect(core.is_checked).to be(true)
-    expect(ops.is_checked).to be(true)
-    expect(qa.is_checked).to be(true)
-    expect(ux.is_checked).to be(false)
+    expect_button_check_states('core' => true, 'ops' => true, 'qa' => true, 'ux' => false)
   end
 
   it 'keeps full long task text and tooltip in sidebar buttons' do
@@ -270,23 +201,13 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'keeps current task/project inputs unchanged on sidebar project click while running' do
-    allow(view_model).to receive_messages(
-      selected_project: '* ALL',
-      current_sheet_input: 'running-task',
-      current_project_name: 'running-project',
-      project_names: ['* ALL', 'acme', 'internal'],
-      running_current_sheet?: true
-    )
+    stub_running_sidebar_project_state
 
     main_window.send(:render!)
-    before_task = find_widget(qt_window, 'task_input').text.to_s
-    before_project = find_widget(qt_window, 'project_input').text.to_s
+    previous_inputs = current_input_values
     button_with_text('internal').click
 
-    task_input = find_widget(qt_window, 'task_input')
-    project_input = find_widget(qt_window, 'project_input')
-    expect(task_input.text.to_s).to eq(before_task)
-    expect(project_input.text.to_s).to eq(before_project)
+    expect_current_inputs(*previous_inputs)
     expect(view_model).to have_received(:select_projects)
       .with(['internal'], primary_project: 'internal', sync_current_fields: false)
     expect(view_model).not_to have_received(:current_project_name=).with('internal')
@@ -296,9 +217,59 @@ RSpec.describe QTimetrap::Views::MainWindow do
     allow(view_model).to receive(:running_current_sheet?).and_return(true)
 
     main_window.send(:render!)
-    task_input = find_widget(qt_window, 'task_input')
-    project_input = find_widget(qt_window, 'project_input')
     expect(task_input.is_read_only).to be(true)
     expect(project_input.is_read_only).to be(true)
+  end
+
+  private
+
+  def render_and_click(text)
+    main_window.send(:render!)
+    button_with_text(text).click
+  end
+
+  def project_input
+    find_widget(qt_window, 'project_input')
+  end
+
+  def task_input
+    find_widget(qt_window, 'task_input')
+  end
+
+  def expect_button_check_states(states)
+    states.each do |text, checked|
+      expect(button_with_text(text).is_checked).to be(checked)
+    end
+  end
+
+  def current_input_values
+    [task_input.text.to_s, project_input.text.to_s]
+  end
+
+  def expect_current_inputs(task_value, project_value)
+    expect(task_input.text.to_s).to eq(task_value)
+    expect(project_input.text.to_s).to eq(project_value)
+  end
+
+  def stub_sidebar_project_state(options = {})
+    values = {
+      selected_project: '* ALL',
+      selected_projects: ['* ALL'],
+      project_names: ['* ALL', 'acme'],
+      running_current_sheet?: false
+    }.merge(options)
+    allow(view_model).to receive_messages(values)
+    allow(view_model).to receive(:select_projects) do |new_projects, primary_project:, **|
+      allow(view_model).to receive_messages(selected_projects: new_projects, selected_project: primary_project)
+    end
+  end
+
+  def stub_running_sidebar_project_state
+    stub_sidebar_project_state(
+      project_names: ['* ALL', 'acme', 'internal'],
+      current_sheet_input: 'running-task',
+      current_project_name: 'running-project',
+      running_current_sheet?: true
+    )
   end
 end

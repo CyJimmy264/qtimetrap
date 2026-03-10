@@ -34,13 +34,8 @@ RSpec.describe QTimetrap::Container do
   it 'builds default graph and memoizes fetched dependencies' do
     container = described_class.new(config: config)
 
-    expect(container.fetch(:theme)).to equal(deps.fetch(:theme))
-    expect(container.fetch('theme')).to equal(deps.fetch(:theme))
-    expect(QTimetrap::Styles::Theme).to have_received(:new).once
-
-    expect(container.fetch(:main_window)).to equal(deps.fetch(:main_window))
-    expect(container.fetch(:main_window)).to equal(deps.fetch(:main_window))
-    expect(QTimetrap::Views::MainWindow).to have_received(:new).once
+    expect_memoized_fetch(container, :theme, deps.fetch(:theme), QTimetrap::Styles::Theme)
+    expect_memoized_fetch(container, :main_window, deps.fetch(:main_window), QTimetrap::Views::MainWindow)
   end
 
   it 'supports runtime registration and symbolized keys' do
@@ -54,5 +49,13 @@ RSpec.describe QTimetrap::Container do
     expect(container.fetch(:custom)).to eq(:value)
     expect(container.fetch('custom')).to eq(:value)
     expect(calls).to eq(1)
+  end
+
+  private
+
+  def expect_memoized_fetch(container, key, value, provider)
+    expect(container.fetch(key)).to equal(value)
+    expect(container.fetch(key.to_s)).to equal(value)
+    expect(provider).to have_received(:new).once
   end
 end

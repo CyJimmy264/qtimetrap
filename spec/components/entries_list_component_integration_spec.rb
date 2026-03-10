@@ -48,31 +48,17 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'keeps branch nodes inside scroll viewport width for long labels' do
     parent.resize(920, 720)
-    component.render(long_label_nodes)
-    parent.show
-    QApplication.process_events
+    render_component(long_label_nodes, show_parent: true)
 
-    scroll_area = component.send(:scroll_area)
-    host = component.send(:host)
-
-    widest_branch = descendants(parent)
-                    .grep(QPushButton)
-                    .select { |button| button.object_name.start_with?('entry_node_') }
-                    .map(&:width)
-                    .max
-
-    expect(host.width).to be <= scroll_area.width
-    expect(widest_branch).to be <= scroll_area.width
+    expect(rendered_host.width).to be <= rendered_scroll_area.width
+    expect(widest_branch_width).to be <= rendered_scroll_area.width
   end
 
   it 'activates note input on click and commits only on Enter' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
-    expect(note_input).not_to be_nil
-    expect(note_input.text.to_s).to eq('test')
-    expect(note_input.is_read_only).to be(true)
+    note_input = entry_note_input
+    expect_note_input_state(note_input, text: 'test', read_only: true)
 
     component.send(:activate_entry_note_input, note_input)
     expect(note_input.is_read_only).to be(false)
@@ -85,48 +71,34 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'renders start/end inputs for entry rows' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
-    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
-    expect(start_input).not_to be_nil
-    expect(end_input).not_to be_nil
-    expect(start_input.text.to_s).to eq('10:00')
-    expect(end_input.text.to_s).to eq('11:00')
-    expect(start_input.is_read_only).to be(true)
+    start_input = entry_start_input
+    end_input = entry_end_input
+    expect_time_inputs(start_input, end_input, start_text: '10:00', end_text: '11:00', read_only: true)
   end
 
   it 'commits edited start/end values on Enter' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
-    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
+    start_input = entry_start_input
+    end_input = entry_end_input
 
     component.send(:activate_entry_note_input, start_input)
     expect(start_input.is_read_only).to be(false)
 
     start_input.text = '10:15'
-    component.send(
-      :handle_entry_time_key_press,
-      time_input: start_input,
-      entry_id: 1,
-      start_input: start_input,
-      end_input: end_input,
-      event: { a: Qt::Key_Return }
-    )
+    commit_time_change(start_input: start_input, end_input: end_input)
 
     expect(start_input.is_read_only).to be(true)
     expect(callbacks.fetch(:on_entry_time_change)).to have_received(:call).with(1, '10:15', '11:00')
   end
 
   it 'does not commit time when input is already read-only' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    start_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_start' }
-    end_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_end' }
+    start_input = entry_start_input
+    end_input = entry_end_input
 
     expect(start_input.is_read_only).to be(true)
     component.send(
@@ -141,10 +113,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'deactivates note input on focus loss without committing' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    note_input = entry_note_input
     component.send(:activate_entry_note_input, note_input)
     note_input.text = 'changed but not committed'
 
@@ -155,10 +126,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'uses native placeholder for empty note and keeps text empty on activation' do
-    component.render(no_note_entry_nodes)
-    QApplication.process_events
+    render_component(no_note_entry_nodes)
 
-    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    note_input = entry_note_input
     expect(note_input.text.to_s).to eq('')
     expect(note_input.placeholder_text.to_s).to eq('(no note)')
 
@@ -169,10 +139,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'keeps native placeholder on deactivation when input is blank' do
-    component.render(no_note_entry_nodes)
-    QApplication.process_events
+    render_component(no_note_entry_nodes)
 
-    note_input = descendants(parent).grep(QLineEdit).find { |input| input.object_name == 'entry_node_entry_note' }
+    note_input = entry_note_input
     component.send(:activate_entry_note_input, note_input)
     expect(note_input.text.to_s).to eq('')
 
@@ -196,36 +165,21 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'renders toolbar date-time range controls and auto-applies filter callback' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
     from_toggle, to_toggle, from_input, to_input = time_filter_widgets
-    expect(from_toggle).not_to be_nil
-    expect(to_toggle).not_to be_nil
-    expect(from_input).not_to be_nil
-    expect(to_input).not_to be_nil
-
-    from_toggle.click
-    to_toggle.click
-    from_value = Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
-    to_value = Time.new(2026, 3, 1, 18, 0, 0, '+00:00')
-    from_input.set_date_time(from_value)
-    to_input.set_date_time(to_value)
-    sleep 0.25
-    QApplication.process_events
+    expect_time_filter_widgets(from_toggle, to_toggle, from_input, to_input)
+    apply_time_filter_values(from_toggle, to_toggle, from_input, to_input)
 
     expect(callbacks.fetch(:on_time_range_change))
       .to have_received(:call).with(kind_of(Time), kind_of(Time)).at_least(:once)
   end
 
   it 'sends nil range when both date-time checkboxes are off' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    from_input = descendants(parent).grep(QDateTimeEdit).find do |input|
-      input.object_name == 'entries_time_filter_from'
-    end
-    to_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_to' }
+    from_input = find_datetime_input('entries_time_filter_from')
+    to_input = find_datetime_input('entries_time_filter_to')
     expect(from_input.is_enabled).to be(true)
     expect(to_input.is_enabled).to be(true)
 
@@ -235,12 +189,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'keeps chosen from datetime when checkbox is off' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    from_input = descendants(parent).grep(QDateTimeEdit).find do |input|
-      input.object_name == 'entries_time_filter_from'
-    end
+    from_input = find_datetime_input('entries_time_filter_from')
     chosen = Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
     from_input.set_date_time(chosen)
     QApplication.process_events
@@ -252,10 +203,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'keeps chosen to datetime when checkbox is off' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    to_input = descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == 'entries_time_filter_to' }
+    to_input = find_datetime_input('entries_time_filter_to')
     chosen = Time.new(2026, 3, 1, 18, 0, 0, '+00:00')
     to_input.set_date_time(chosen)
     QApplication.process_events
@@ -267,12 +217,9 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'renders archive icon button and sends archive callback' do
-    component.render(entry_nodes)
-    QApplication.process_events
+    render_component(entry_nodes)
 
-    archive_button = descendants(parent).grep(QPushButton).find do |button|
-      button.object_name == 'entry_node_entry_archive'
-    end
+    archive_button = entry_archive_button
     expect(archive_button).not_to be_nil
 
     archive_button.click
@@ -293,8 +240,69 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     descendants(parent).grep(QPushButton).find { |button| button.object_name == name }
   end
 
+  def render_component(nodes, show_parent: false)
+    component.render(nodes)
+    parent.show if show_parent
+    QApplication.process_events
+  end
+
+  def rendered_scroll_area
+    component.send(:scroll_area)
+  end
+
+  def rendered_host
+    component.send(:host)
+  end
+
+  def widest_branch_width
+    descendants(parent)
+      .grep(QPushButton)
+      .select { |button| button.object_name.start_with?('entry_node_') }
+      .map(&:width)
+      .max
+  end
+
   def week_buttons
     descendants(parent).grep(QPushButton).select { |button| button.object_name == 'entry_node_week' }
+  end
+
+  def entry_note_input
+    find_line_edit('entry_node_entry_note')
+  end
+
+  def entry_start_input
+    find_line_edit('entry_node_entry_start')
+  end
+
+  def entry_end_input
+    find_line_edit('entry_node_entry_end')
+  end
+
+  def entry_archive_button
+    descendants(parent).grep(QPushButton).find { |button| button.object_name == 'entry_node_entry_archive' }
+  end
+
+  def expect_note_input_state(input, text:, read_only:)
+    expect(input).not_to be_nil
+    expect(input.text.to_s).to eq(text)
+    expect(input.is_read_only).to be(read_only)
+  end
+
+  def expect_time_inputs(start_input, end_input, start_text:, end_text:, read_only:)
+    expect_inputs_present(start_input, end_input)
+    expect_input_texts(start_input, end_input, start_text, end_text)
+    expect(start_input.is_read_only).to be(read_only)
+  end
+
+  def commit_time_change(start_input:, end_input:)
+    component.send(
+      :handle_entry_time_key_press,
+      time_input: start_input,
+      entry_id: 1,
+      start_input: start_input,
+      end_input: end_input,
+      event: { a: Qt::Key_Return }
+    )
   end
 
   def time_filter_widgets
@@ -307,6 +315,36 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   def find_checkbox(object_name)
     descendants(parent).grep(QCheckBox).find { |button| button.object_name == object_name }
+  end
+
+  def expect_time_filter_widgets(from_toggle, to_toggle, from_input, to_input)
+    expect(from_toggle).not_to be_nil
+    expect(to_toggle).not_to be_nil
+    expect(from_input).not_to be_nil
+    expect(to_input).not_to be_nil
+  end
+
+  def apply_time_filter_values(from_toggle, to_toggle, from_input, to_input)
+    from_toggle.click
+    to_toggle.click
+    from_input.set_date_time(Time.new(2026, 3, 1, 10, 0, 0, '+00:00'))
+    to_input.set_date_time(Time.new(2026, 3, 1, 18, 0, 0, '+00:00'))
+    sleep 0.25
+    QApplication.process_events
+  end
+
+  def find_line_edit(object_name)
+    descendants(parent).grep(QLineEdit).find { |input| input.object_name == object_name }
+  end
+
+  def expect_inputs_present(start_input, end_input)
+    expect(start_input).not_to be_nil
+    expect(end_input).not_to be_nil
+  end
+
+  def expect_input_texts(start_input, end_input, start_text, end_text)
+    expect(start_input.text.to_s).to eq(start_text)
+    expect(end_input.text.to_s).to eq(end_text)
   end
 
   def find_datetime_input(object_name)

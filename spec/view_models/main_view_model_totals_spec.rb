@@ -33,9 +33,19 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
   it 'computes weekly and total summaries and builds entry nodes' do
     view_model.refresh!
 
-    expect(view_model.week_total_seconds).to eq(3600)
-    expect(view_model.total_seconds).to eq(9000)
-    expect(view_model.summary_line).to eq('Week total: 01:00:00 | Total: 02:30:00')
+    expect_summary_totals(week: 3600, total: 9000, summary: 'Week total: 01:00:00 | Total: 02:30:00')
+    expect_entry_nodes_present
+  end
+
+  private
+
+  def expect_summary_totals(week:, total:, summary:)
+    expect(view_model.week_total_seconds).to eq(week)
+    expect(view_model.total_seconds).to eq(total)
+    expect(view_model.summary_line).to eq(summary)
+  end
+
+  def expect_entry_nodes_present
     expect(view_model.entry_nodes).to be_a(Array)
     expect(view_model.entry_nodes).not_to be_empty
   end
