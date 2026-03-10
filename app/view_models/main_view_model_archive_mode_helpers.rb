@@ -5,19 +5,14 @@ module QTimetrap
     # Archive-mode specific filtering and projections for MainViewModel.
     module MainViewModelArchiveModeHelpers
       def project_names
-        ['* ALL', *entries_for_mode.map(&:project).uniq.sort]
+        ['* ALL', *ordered_project_names(entries_for_mode)]
       end
 
       def task_names_for_selected_project
         return [] unless selected_projects == [selected_project]
         return [] if selected_project == '* ALL'
 
-        entries_for_mode
-          .select { |entry| entry.project == selected_project }
-          .map { |entry| entry.task.to_s }
-          .reject(&:empty?)
-          .uniq
-          .sort
+        ordered_task_names(entries_for_mode.select { |entry| entry.project == selected_project })
       end
 
       def archive_mode?
@@ -34,6 +29,26 @@ module QTimetrap
 
       def entries_for_mode
         entries.select { |entry| archived_entries_store.archived?(entry.id) == archive_mode? }
+      end
+
+      def ordered_project_names(collection)
+        collection
+          .group_by(&:project)
+          .sort_by { |project, project_entries| sort_key(project, project_entries) }
+          .map(&:first)
+      end
+
+      def ordered_task_names(collection)
+        collection
+          .group_by { |entry| entry.task.to_s }
+          .reject { |task, _| task.empty? }
+          .sort_by { |task, task_entries| sort_key(task, task_entries) }
+          .map(&:first)
+      end
+
+      def sort_key(name, grouped_entries)
+        newest_started_at = newest_entry(grouped_entries)&.start_time || EPOCH_TIME
+        [-newest_started_at.to_i, name]
       end
 
       def normalize_selected_projects!

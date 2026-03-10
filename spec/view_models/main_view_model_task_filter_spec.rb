@@ -42,4 +42,20 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     expect(view_model.selected_tasks).to eq([])
     expect(view_model.task_names_for_selected_project).to eq([])
   end
+
+  it 'orders task names by most recent entry first' do
+    acme_newer = QTimetrap::Models::TimeEntry.new(
+      id: 4,
+      note: 'later',
+      sheet: 'acme|deploy',
+      start_time: Time.now + 60,
+      end_time: Time.now + 120
+    )
+    allow(gateway).to receive(:entries).and_return([entry_today, entry_acme_ops, acme_newer, entry_other_project])
+
+    view_model.refresh!
+    view_model.select_project('acme')
+
+    expect(view_model.task_names_for_selected_project).to eq(%w[deploy ops core])
+  end
 end

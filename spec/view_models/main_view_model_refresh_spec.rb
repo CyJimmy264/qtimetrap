@@ -12,9 +12,19 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     expect(view_model.selected_projects).to eq(['* ALL'])
   end
 
-  it 'returns sorted project names with ALL first' do
+  it 'returns project names ordered by most recent entry with ALL first' do
+    newer_internal = QTimetrap::Models::TimeEntry.new(
+      id: 3,
+      note: 'latest',
+      sheet: 'internal|deploy',
+      start_time: Time.now + 60,
+      end_time: Time.now + 120
+    )
+    allow(gateway).to receive(:entries).and_return([entry_today, entry_other_project, newer_internal])
+
     view_model.refresh!
-    expect(view_model.project_names).to eq(['* ALL', 'acme', 'internal'])
+
+    expect(view_model.project_names).to eq(['* ALL', 'internal', 'acme'])
   end
 
   it 'filters by selected project' do
