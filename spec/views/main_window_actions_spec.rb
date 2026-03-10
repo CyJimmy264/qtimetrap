@@ -84,22 +84,35 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'binds space shortcut on startup and routes activated to on_space_shortcut' do
+    window, captured_handler = build_window_with_captured_shortcut
+    expect_shortcut_binding(captured_handler)
+
+    trigger_space_shortcut(window, captured_handler)
+    expect(window).to have_received(:on_space_shortcut)
+  ensure
+    window&.send(:heartbeat)&.stop
+    window&.send(:window)&.close
+  end
+
+  private
+
+  def build_window_with_captured_shortcut
     captured_handler = nil
     shortcut = instance_double(QShortcut)
     allow(shortcut).to receive(:connect) do |signal, &block|
       captured_handler = block if signal == 'activated'
     end
     allow(QShortcut).to receive(:new).and_return(shortcut)
+    [described_class.new(view_model: view_model, settings_store: settings_store), captured_handler]
+  end
 
-    window = described_class.new(view_model: view_model, settings_store: settings_store)
+  def expect_shortcut_binding(captured_handler)
     expect(QShortcut).to have_received(:new).with(kind_of(QKeySequence), kind_of(QWidget))
     expect(captured_handler).not_to be_nil
-    allow(window).to receive(:on_space_shortcut)
+  end
 
+  def trigger_space_shortcut(window, captured_handler)
+    allow(window).to receive(:on_space_shortcut)
     captured_handler.call(nil)
-    expect(window).to have_received(:on_space_shortcut)
-  ensure
-    window&.send(:heartbeat)&.stop
-    window&.send(:window)&.close
   end
 end

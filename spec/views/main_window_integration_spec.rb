@@ -23,15 +23,10 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
     window = described_class.new(view_model: view_model, settings_store: settings_store)
     qt_window = window.send(:window)
-    expect([qt_window.x, qt_window.y, qt_window.width, qt_window.height]).to eq([70, 80, 1200, 760])
+    expect_window_geometry(qt_window, [70, 80, 1200, 760])
 
     window.close
-    expect(settings_store).to have_received(:write_window_geometry).with(
-      left: 70,
-      top: 80,
-      width: 1200,
-      height: 760
-    )
+    expect_persisted_geometry
   ensure
     window&.send(:heartbeat)&.stop
     qt_window&.close
@@ -101,5 +96,20 @@ RSpec.describe QTimetrap::Views::MainWindow do
     allow(main_window).to receive(:warn)
     main_window.send(:set_window_icon)
     expect(main_window).to have_received(:warn).with(include('[qtimetrap] icon load failed: StandardError: icon boom'))
+  end
+
+  private
+
+  def expect_window_geometry(window, values)
+    expect([window.x, window.y, window.width, window.height]).to eq(values)
+  end
+
+  def expect_persisted_geometry
+    expect(settings_store).to have_received(:write_window_geometry).with(
+      left: 70,
+      top: 80,
+      width: 1200,
+      height: 760
+    )
   end
 end

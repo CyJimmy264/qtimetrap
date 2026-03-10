@@ -6,35 +6,15 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   subject(:gateway) { described_class.new }
 
   it 'updates note via API when timetrap API is available' do
-    entry_klass = Class.new do
-      attr_accessor :note
-
-      def save; end
-    end
-    stub_const('Timetrap', Module.new)
-    Timetrap.const_set(:Entry, entry_klass)
-    Timetrap.const_set(:Timer, Class.new)
-    entry = instance_double(entry_klass)
-    allow(Timetrap::Entry).to receive(:[]).with(42).and_return(entry)
-    allow(entry).to receive(:note=)
-    allow(entry).to receive(:save)
+    entry = stub_note_api_entry
 
     gateway.update_note(42, 'updated note')
 
-    expect(Timetrap::Entry).to have_received(:[]).with(42)
-    expect(entry).to have_received(:note=).with('updated note')
-    expect(entry).to have_received(:save)
+    expect_note_update(entry, 'updated note')
   end
 
   it 'raises when API entry is not found by id' do
-    entry_klass = Class.new do
-      attr_accessor :note
-
-      def save; end
-    end
-    stub_const('Timetrap', Module.new)
-    Timetrap.const_set(:Entry, entry_klass)
-    Timetrap.const_set(:Timer, Class.new)
+    stub_note_api_constants
     allow(Timetrap::Entry).to receive(:[]).with(42).and_return(nil)
 
     expect { gateway.update_note(42, 'updated note') }
@@ -61,5 +41,36 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     gateway.update_note(42, '')
 
     expect(Open3).to have_received(:capture2e).with('t', 'edit', '--id', '42', '--clear')
+  end
+
+  private
+
+  def stub_note_api_entry
+    stub_note_api_constants
+    entry = instance_double(note_entry_class)
+    allow(Timetrap::Entry).to receive(:[]).with(42).and_return(entry)
+    allow(entry).to receive(:note=)
+    allow(entry).to receive(:save)
+    entry
+  end
+
+  def stub_note_api_constants
+    stub_const('Timetrap', Module.new)
+    Timetrap.const_set(:Entry, note_entry_class)
+    Timetrap.const_set(:Timer, Class.new)
+  end
+
+  def note_entry_class
+    @note_entry_class ||= Class.new do
+      attr_accessor :note
+
+      def save; end
+    end
+  end
+
+  def expect_note_update(entry, value)
+    expect(Timetrap::Entry).to have_received(:[]).with(42)
+    expect(entry).to have_received(:note=).with(value)
+    expect(entry).to have_received(:save)
   end
 end

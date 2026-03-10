@@ -47,13 +47,18 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(toggle_button).not_to be_nil
     expect(sidebar_panel.is_visible).to be(true)
 
-    toggle_button.show
-    toggle_button.click
-    QApplication.process_events
+    toggle_sidebar(toggle_button)
     expect(sidebar_panel.is_visible).to be(false)
 
-    toggle_button.click
-    QApplication.process_events
+    toggle_sidebar(toggle_button)
     expect(sidebar_panel.is_visible).to be(true)
+  end
+
+  private
+
+  def toggle_sidebar(button)
+    button.show
+    button.click
+    QApplication.process_events
   end
 end
