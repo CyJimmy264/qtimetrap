@@ -30,19 +30,11 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
   end
 
   it 'filters nodes by date-time interval' do
-    view_model.update_time_range_filter(
+    apply_time_range_filter(
       from_at: Time.new(2026, 3, 1, 0, 0, 0, '+00:00'),
       to_at: Time.new(2026, 3, 1, 23, 59, 0, '+00:00')
     )
-
-    labels = view_model.entry_nodes
-                       .flat_map { |week| week.fetch(:children) }
-                       .flat_map { |day| day.fetch(:children) }
-                       .map { |project| project.fetch(:label) }
-                       .join(' ')
-
-    expect(labels).to include('acme | core')
-    expect(view_model.total_seconds).to eq(entry_in_range.duration_seconds)
+    expect_filtered_labels_and_total('acme | core', entry_in_range.duration_seconds)
   end
 
   it 'accepts date-only upper bound as end of day' do
@@ -52,8 +44,31 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
   end
 
   it 'raises when FROM is after TO' do
+    expect_invalid_time_range_to_raise
+  end
+
+  private
+
+  def apply_time_range_filter(from_at:, to_at:)
+    view_model.update_time_range_filter(from_at: from_at, to_at: to_at)
+  end
+
+  def expect_filtered_labels_and_total(label, total_seconds)
+    expect(filtered_project_labels).to include(label)
+    expect(view_model.total_seconds).to eq(total_seconds)
+  end
+
+  def filtered_project_labels
+    view_model.entry_nodes
+      .flat_map { |week| week.fetch(:children) }
+      .flat_map { |day| day.fetch(:children) }
+      .map { |project| project.fetch(:label) }
+      .join(' ')
+  end
+
+  def expect_invalid_time_range_to_raise
     expect do
-      view_model.update_time_range_filter(
+      apply_time_range_filter(
         from_at: Time.new(2026, 3, 2, 10, 0, 0, '+00:00'),
         to_at: Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
       )

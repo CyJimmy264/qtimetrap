@@ -9,29 +9,31 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
 
   it 'returns formatted failure when executable is missing' do
     allow(Open3).to receive(:capture2e).and_raise(Errno::ENOENT)
-
-    ok, message = gateway.send(:run, 'display')
-    expect(ok).to be(false)
-    expect(message).to include('Command not found: t')
-    expect(logger).to have_received(:log_cli).with(
-      bin: 't',
-      args: ['display'],
-      success: false,
-      output: include('Command not found: t')
-    )
+    run_result = gateway.send(:run, 'display')
+    expect_run_failure(run_result, include('Command not found: t'))
+    expect_cli_failure_log(include('Command not found: t'))
   end
 
   it 'returns formatted failure for generic runtime exceptions' do
     allow(Open3).to receive(:capture2e).and_raise(StandardError, 'boom')
+    run_result = gateway.send(:run, 'display')
+    expect_run_failure(run_result, 'StandardError: boom')
+    expect_cli_failure_log('StandardError: boom')
+  end
 
-    ok, message = gateway.send(:run, 'display')
-    expect(ok).to be(false)
-    expect(message).to eq('StandardError: boom')
+  private
+
+  def expect_run_failure(run_result, message)
+    expect(run_result.first).to be(false)
+    expect(run_result.last).to match(message)
+  end
+
+  def expect_cli_failure_log(output)
     expect(logger).to have_received(:log_cli).with(
       bin: 't',
       args: ['display'],
       success: false,
-      output: 'StandardError: boom'
+      output: output
     )
   end
 end

@@ -6,29 +6,15 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
   include_context :main_view_model_setup
 
   it 'uses running entry sheet for controls fields' do
-    running = QTimetrap::Models::TimeEntry.new(
-      id: 7, note: 'n', sheet: 'focus|deep',
-      start_time: Time.now - 60, end_time: nil
-    )
-    allow(gateway).to receive(:entries).and_return([entry_today, running])
-
+    allow(gateway).to receive(:entries).and_return([entry_today, running_entry])
     view_model.refresh!
-
-    expect(view_model.current_project_name).to eq('focus')
-    expect(view_model.current_sheet_label).to eq('focus')
-    expect(view_model.current_sheet_input).to eq('deep')
+    expect_current_sheet_fields('focus', 'focus', 'deep')
   end
 
   it 'keeps project label stable while running' do
     started_at = Time.new(2026, 2, 28, 10, 0, 0, '+00:00')
-    running = QTimetrap::Models::TimeEntry.new(
-      id: 9, note: 'n', sheet: 'focus|deep',
-      start_time: started_at, end_time: nil
-    )
-    allow(gateway).to receive_messages(active_started_at: started_at, entries: [running])
-
+    allow(gateway).to receive_messages(active_started_at: started_at, entries: [running_entry(id: 9, started_at: started_at)])
     view_model.refresh!
-
     expect(view_model.current_sheet_label(now: started_at + 65)).to eq('focus')
   end
 
@@ -67,5 +53,23 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     task = 'задача'
 
     expect(view_model.sheet_for_task_input(task)).to eq('проект|задача')
+  end
+
+  private
+
+  def running_entry(id: 7, started_at: Time.now - 60)
+    QTimetrap::Models::TimeEntry.new(
+      id: id,
+      note: 'n',
+      sheet: 'focus|deep',
+      start_time: started_at,
+      end_time: nil
+    )
+  end
+
+  def expect_current_sheet_fields(project_name, sheet_label, sheet_input)
+    expect(view_model.current_project_name).to eq(project_name)
+    expect(view_model.current_sheet_label).to eq(sheet_label)
+    expect(view_model.current_sheet_input).to eq(sheet_input)
   end
 end
