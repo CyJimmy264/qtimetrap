@@ -37,24 +37,15 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'applies expand/collapse all recursively and renders unknown leaf type as empty node style' do
-    component.render(entry_nodes)
-    QApplication.process_events
-
-    collapse_button.click
-    QApplication.process_events
-    expect_all_week_buttons_to_start_with('▸')
-
-    expand_button.click
-    QApplication.process_events
+    render_component(entry_nodes)
+    collapse_all_nodes
     expect_expanded_state_and_unknown_leaf
   end
 
   it 'keeps branch nodes inside scroll viewport width for long labels' do
     parent.resize(920, 720)
     render_component(long_label_nodes, show_parent: true)
-
-    expect(rendered_host.width).to be <= rendered_scroll_area.width
-    expect(widest_branch_width).to be <= rendered_scroll_area.width
+    expect_branch_widths_within_viewport
   end
 
   it 'activates note input on click and commits only on Enter' do
@@ -82,14 +73,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'commits edited task value on Enter' do
     render_component(entry_nodes)
-
-    task_input = entry_task_input
-    component.send(:activate_entry_task_input, task_input)
-    task_input.set_current_text('deploy')
-    component.send(:handle_entry_task_key_press, task_input, 1, { a: Qt::Key_Return })
-
-    expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, 'deploy')
-    expect(component.send(:entry_task_line_edit, task_input).is_read_only).to be(true)
+    commit_entry_task_input('deploy')
+    expect_task_commit('deploy')
   end
 
   it 'commits selected task from combo activation' do
@@ -118,15 +103,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'deactivates note input on focus loss without committing' do
     render_component(entry_nodes)
-
-    note_input = entry_note_input
-    component.send(:activate_entry_note_input, note_input)
-    note_input.text = 'changed but not committed'
-
-    component.send(:handle_entry_note_focus_out, note_input)
-
-    expect(note_input.is_read_only).to be(true)
-    expect(callbacks.fetch(:on_entry_note_change)).not_to have_received(:call)
+    deactivate_note_input_without_commit
+    expect_note_not_committed
   end
 
   it 'uses native placeholder for empty note and keeps text empty on activation' do
@@ -140,24 +118,16 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   it 'extracts enter key code from hash payload with string key' do
-    expect(component.send(:event_key_code, { 'a' => Qt::Key_Return })).to eq(Qt::Key_Return)
-    expect(component.send(:enter_key?, { 'a' => Qt::Key_Return })).to be(true)
+    expect_hash_event_to_match_enter_key
   end
 
   it 'extracts key code from event object responding to key' do
-    event = Struct.new(:key).new(Qt::Key_Enter)
-
-    expect(component.send(:event_key_code, event)).to eq(Qt::Key_Enter)
-    expect(component.send(:enter_key?, event)).to be(true)
+    expect_object_event_to_match_enter_key
   end
 
   it 'renders toolbar date-time range controls and auto-applies filter callback' do
     render_component(entry_nodes)
-
-    from_toggle, to_toggle, from_input, to_input = time_filter_widgets
-    expect_time_filter_widgets(from_toggle, to_toggle, from_input, to_input)
-    apply_time_filter_values(from_toggle, to_toggle, from_input, to_input)
-
+    apply_time_filter_widget_values
     expect(callbacks.fetch(:on_time_range_change))
       .to have_received(:call).with(kind_of(Time), kind_of(Time)).at_least(:once)
   end
@@ -169,40 +139,20 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   it 'keeps chosen from datetime when checkbox is off' do
     render_component(entry_nodes)
-
-    from_input = find_datetime_input('entries_time_filter_from')
     chosen = Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
-    from_input.set_date_time(chosen)
-    QApplication.process_events
-
-    component.update_time_range_inputs(from_at: nil, to_at: nil)
-    QApplication.process_events
-
-    expect(from_input.date_time.to_i).to eq(chosen.to_i)
+    keep_chosen_datetime('entries_time_filter_from', chosen)
   end
 
   it 'keeps chosen to datetime when checkbox is off' do
     render_component(entry_nodes)
-
-    to_input = find_datetime_input('entries_time_filter_to')
     chosen = Time.new(2026, 3, 1, 18, 0, 0, '+00:00')
-    to_input.set_date_time(chosen)
-    QApplication.process_events
-
-    component.update_time_range_inputs(from_at: nil, to_at: nil)
-    QApplication.process_events
-
-    expect(to_input.date_time.to_i).to eq(chosen.to_i)
+    keep_chosen_datetime('entries_time_filter_to', chosen)
   end
 
   it 'renders archive icon button and sends archive callback' do
     render_component(entry_nodes)
-
-    archive_button = entry_archive_button
-    expect(archive_button).not_to be_nil
-
-    archive_button.click
-    expect(callbacks.fetch(:on_entry_archive)).to have_received(:call).with(1)
+    click_archive_button
+    expect_entry_archived
   end
 
   private
@@ -225,6 +175,14 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     QApplication.process_events
   end
 
+  def collapse_all_nodes
+    collapse_button.click
+    QApplication.process_events
+    expect_all_week_buttons_to_start_with('▸')
+    expand_button.click
+    QApplication.process_events
+  end
+
   def rendered_scroll_area
     component.send(:scroll_area)
   end
@@ -239,6 +197,11 @@ RSpec.describe QTimetrap::Entries::ListComponent do
       .select { |button| button.object_name.start_with?('entry_node_') }
       .map(&:width)
       .max
+  end
+
+  def expect_branch_widths_within_viewport
+    expect(rendered_host.width).to be <= rendered_scroll_area.width
+    expect(widest_branch_width).to be <= rendered_scroll_area.width
   end
 
   def week_buttons
@@ -300,6 +263,18 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect(task_input).not_to be_nil
     expect(task_input.current_text.to_s).to eq('core')
     expect(task_combo_items(task_input)).to eq(%w[core ops deploy])
+  end
+
+  def commit_entry_task_input(task_name)
+    task_input = entry_task_input
+    component.send(:activate_entry_task_input, task_input)
+    task_input.set_current_text(task_name)
+    component.send(:handle_entry_task_key_press, task_input, 1, { a: Qt::Key_Return })
+  end
+
+  def expect_task_commit(task_name)
+    expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, task_name)
+    expect(component.send(:entry_task_line_edit, entry_task_input).is_read_only).to be(true)
   end
 
   def expect_time_inputs(start_input, end_input, start_text:, end_text:, read_only:)
@@ -398,6 +373,18 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect(note_input.is_read_only).to be(read_only)
   end
 
+  def deactivate_note_input_without_commit
+    note_input = entry_note_input
+    component.send(:activate_entry_note_input, note_input)
+    note_input.text = 'changed but not committed'
+    component.send(:handle_entry_note_focus_out, note_input)
+  end
+
+  def expect_note_not_committed
+    expect(entry_note_input.is_read_only).to be(true)
+    expect(callbacks.fetch(:on_entry_note_change)).not_to have_received(:call)
+  end
+
   def expect_inputs_present(start_input, end_input)
     expect(start_input).not_to be_nil
     expect(end_input).not_to be_nil
@@ -412,6 +399,23 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     descendants(parent).grep(QDateTimeEdit).find { |input| input.object_name == object_name }
   end
 
+  def expect_hash_event_to_match_enter_key
+    expect(component.send(:event_key_code, { 'a' => Qt::Key_Return })).to eq(Qt::Key_Return)
+    expect(component.send(:enter_key?, { 'a' => Qt::Key_Return })).to be(true)
+  end
+
+  def expect_object_event_to_match_enter_key
+    event = Struct.new(:key).new(Qt::Key_Enter)
+    expect(component.send(:event_key_code, event)).to eq(Qt::Key_Enter)
+    expect(component.send(:enter_key?, event)).to be(true)
+  end
+
+  def apply_time_filter_widget_values
+    from_toggle, to_toggle, from_input, to_input = time_filter_widgets
+    expect_time_filter_widgets(from_toggle, to_toggle, from_input, to_input)
+    apply_time_filter_values(from_toggle, to_toggle, from_input, to_input)
+  end
+
   def expect_nil_time_range_change
     expect_time_inputs_enabled
     component.send(:emit_time_range_filter_changed)
@@ -421,6 +425,25 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   def expect_time_inputs_enabled
     expect(find_datetime_input('entries_time_filter_from').is_enabled).to be(true)
     expect(find_datetime_input('entries_time_filter_to').is_enabled).to be(true)
+  end
+
+  def keep_chosen_datetime(object_name, chosen)
+    input = find_datetime_input(object_name)
+    input.set_date_time(chosen)
+    QApplication.process_events
+    component.update_time_range_inputs(from_at: nil, to_at: nil)
+    QApplication.process_events
+    expect(input.date_time.to_i).to eq(chosen.to_i)
+  end
+
+  def click_archive_button
+    archive_button = entry_archive_button
+    expect(archive_button).not_to be_nil
+    archive_button.click
+  end
+
+  def expect_entry_archived
+    expect(callbacks.fetch(:on_entry_archive)).to have_received(:call).with(1)
   end
 
   def normalized_text(button)

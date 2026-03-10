@@ -91,12 +91,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'selects project range with Shift from last anchor' do
-    click_project_with_modifiers(
-      first: 'acme',
-      second: 'ops',
-      modifier: Qt::ShiftModifier,
-      projects: ['* ALL', 'acme', 'internal', 'ops']
-    )
+    select_project_range('acme', 'ops')
     expect_button_check_states('acme' => true, 'internal' => true, 'ops' => true)
   end
 
@@ -229,6 +224,15 @@ RSpec.describe QTimetrap::Views::MainWindow do
     render_and_click(first)
     allow(QApplication).to receive(:keyboard_modifiers).and_return(modifier)
     button_with_text(second).click
+  end
+
+  def select_project_range(first, second)
+    click_project_with_modifiers(
+      first: first,
+      second: second,
+      modifier: Qt::ShiftModifier,
+      projects: ['* ALL', 'acme', 'internal', 'ops']
+    )
   end
 
   def click_task_with_modifiers(first:, second:, modifier:, tasks: %w[core ops qa])

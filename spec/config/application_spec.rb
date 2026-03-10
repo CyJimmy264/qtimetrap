@@ -17,15 +17,10 @@ RSpec.describe QTimetrap::Application do
   end
 
   it 'memoizes container instance' do
-    container = instance_double(QTimetrap::Container)
-    allow(QTimetrap::Container).to receive(:new).and_return(container)
-
-    first = described_class.container
-    second = described_class.container
-
-    expect(first).to equal(container)
-    expect(second).to equal(container)
-    expect(QTimetrap::Container).to have_received(:new).once
+    container = stub_container_instance
+    described_class.container
+    described_class.container
+    expect_container_to_be_memoized(container)
   end
 
   it 'keeps qt_app nil when QApplication boot raises' do
@@ -37,15 +32,33 @@ RSpec.describe QTimetrap::Application do
   end
 
   it 'configures QApplication identity for desktop integration' do
-    app = instance_double(QApplication)
-    allow(QApplication).to receive(:new).and_return(app)
+    stub_qt_application_identity
+    described_class.setup_qt
+    expect_qt_application_identity
+  end
+
+  private
+
+  def stub_container_instance
+    instance_double(QTimetrap::Container).tap do |container|
+      allow(QTimetrap::Container).to receive(:new).and_return(container)
+    end
+  end
+
+  def expect_container_to_be_memoized(container)
+    expect(described_class.container).to equal(container)
+    expect(QTimetrap::Container).to have_received(:new).once
+  end
+
+  def stub_qt_application_identity
+    allow(QApplication).to receive(:new).and_return(instance_double(QApplication))
     allow(QApplication).to receive(:set_application_name)
     allow(QApplication).to receive(:set_desktop_file_name)
     allow(QApplication).to receive(:set_application_display_name)
     allow(QApplication).to receive(:set_organization_name)
+  end
 
-    described_class.setup_qt
-
+  def expect_qt_application_identity
     expect(QApplication).to have_received(:set_application_name).with('qtimetrap')
     expect(QApplication).to have_received(:set_desktop_file_name).with('qtimetrap')
     expect(QApplication).to have_received(:set_application_display_name).with('QTimetrap')
