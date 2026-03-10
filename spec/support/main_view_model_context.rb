@@ -19,8 +19,10 @@ RSpec.shared_context :main_view_model_setup do
   end
 
   before do
-    allow(gateway).to receive(:active_started_at).and_return(nil)
-    allow(gateway).to receive(:entries).and_return([entry_today, entry_other_project])
+    allow(gateway).to receive_messages(
+      active_started_at: nil,
+      entries: [entry_today, entry_other_project]
+    )
     allow(gateway).to receive(:start)
     allow(gateway).to receive(:stop)
     allow(gateway).to receive(:update_note)

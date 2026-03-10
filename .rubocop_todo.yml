@@ -10,34 +10,6 @@
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods, IgnoreNotImplementedMethods, NotImplementedExceptions.
 # NotImplementedExceptions: NotImplementedError
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'app/components/entries_list_component.rb'
-    - 'app/components/entries_tree_helpers.rb'
-
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, BlockForwardingName.
-# SupportedStyles: anonymous, explicit
-Naming/BlockForwarding:
-  Exclude:
-    - 'app/components/entries_list_component.rb'
-    - 'app/components/entries_tree_helpers.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/UnfreezeString:
-  Exclude:
-    - 'spec/services/timetrap_gateway_encoding_spec.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/BeEq:
-  Exclude:
-    - 'spec/views/main_window_actions_spec.rb'
-
-# Offense count: 14
-# Configuration parameters: CountAsOne.
 RSpec/ExampleLength:
   Max: 19
 
@@ -54,20 +26,8 @@ RSpec/MultipleExpectations:
 
 # Offense count: 6
 # This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/ReceiveMessages:
-  Exclude:
-    - 'spec/lib/qtimetrap_cli_spec.rb'
-    - 'spec/support/main_view_model_context.rb'
-    - 'spec/view_models/main_view_model_current_sheet_spec.rb'
-
-# Offense count: 18
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: string, symbol
 RSpec/SharedExamples:
   Exclude:
-    - 'spec/support/main_view_model_context.rb'
-    - 'spec/support/main_window_context.rb'
     - 'spec/support/qt_helpers.rb'
     - 'spec/view_models/main_view_model_current_sheet_spec.rb'
     - 'spec/view_models/main_view_model_refresh_spec.rb'
@@ -95,3 +55,25 @@ RSpec/SubjectStub:
 RSpec/VerifiedDoubleReference:
   Exclude:
     - 'spec/services/timetrap_gateway_entries_api_spec.rb'
+
+# Offense count: 1
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Exclude:
+    - 'app/components/project_sidebar/component.rb'
+    - 'app/view_models/main_view_model.rb'
+
+# Offense count: 1
+Metrics/MethodLength:
+  Exclude:
+    - 'app/view_models/main_view_model.rb'
+
+# Offense count: 1
+Metrics/ParameterLists:
+  Exclude:
+    - 'app/components/project_sidebar/component.rb'
+
+# Offense count: 1
+Metrics/AbcSize:
+  Exclude:
+    - 'app/components/project_sidebar/project_selection_helpers.rb'

@@ -11,24 +11,28 @@ module QTimetrap
 
       attr_reader :widget
 
-      def initialize(parent:, on_project_selected:, on_task_selected: nil, on_archive_mode_toggled: nil)
+      def initialize(
+        parent:,
+        on_project_selected:,
+        on_task_selected: nil,
+        on_archive_mode_toggled: nil
+      )
         @parent = parent
         @on_project_selected = on_project_selected
         @on_task_selected = on_task_selected
         @on_archive_mode_toggled = on_archive_mode_toggled
-        @buttons = []
-        @selected_project_indices = []
-        @last_project_anchor_index = nil
-        @project_values = []
-        @task_buttons = []
-        @selected_task_indices = []
-        @last_task_anchor_index = nil
-        @task_values = []
-
+        initialize_selection_state
         build
       end
 
-      def render(projects:, selected_project:, selected_projects: nil, tasks: [], selected_task: nil, archive_mode: false)
+      def render(
+        projects:,
+        selected_project:,
+        selected_projects: nil,
+        tasks: [],
+        selected_task: nil,
+        archive_mode: false
+      )
         values = Array(projects)
         refresh_project_state(values, selected_projects, selected_project)
         sync_project_buttons(values.size)
@@ -85,6 +89,17 @@ module QTimetrap
         end
       end
 
+      def initialize_selection_state
+        @buttons = []
+        @selected_project_indices = []
+        @last_project_anchor_index = nil
+        @project_values = []
+        @task_buttons = []
+        @selected_task_indices = []
+        @last_task_anchor_index = nil
+        @task_values = []
+      end
+
       def add_static_sidebar_sections(layout)
         layout.add_widget(build_logo)
         layout.add_widget(build_logo_spacer)
@@ -117,15 +132,26 @@ module QTimetrap
       end
 
       def on_button_clicked(button)
-        index = buttons.index { |candidate| candidate[:view] == button }
-        return unless index
-
-        item = buttons.find { |candidate| candidate[:view] == button }
-        return unless item && item[:project]
+        index, item = selected_project_button(button)
+        return unless index && item
 
         apply_project_selection(index)
-        buttons.each_with_index { |slot, current_index| render_slot(slot, slot[:project], index: current_index) }
+        rerender_project_buttons
         on_project_selected.call(selected_project_values, item[:project])
+      end
+
+      def selected_project_button(button)
+        index = buttons.index { |candidate| candidate[:view] == button }
+        return [nil, nil] unless index
+
+        item = buttons.fetch(index)
+        return [nil, nil] unless item[:project]
+
+        [index, item]
+      end
+
+      def rerender_project_buttons
+        buttons.each_with_index { |slot, current_index| render_slot(slot, slot[:project], index: current_index) }
       end
     end
   end

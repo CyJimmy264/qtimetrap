@@ -10,7 +10,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   end
 
   it 'parses active_started_at from binary CLI output' do
-    output = "Active since 2026-02-28 10:11:12 +0000\n".dup.force_encoding(Encoding::ASCII_8BIT)
+    output = (+"Active since 2026-02-28 10:11:12 +0000\n").force_encoding(Encoding::ASCII_8BIT)
     allow(Open3).to receive(:capture2e).with('t', 'now').and_return(cmd_result(output: output, success: true))
 
     result = gateway.active_started_at
@@ -22,7 +22,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     json = <<~JSON
       [{"id":1,"note":"n1","sheet":"acme|core","start":"2026-02-28 10:00:00 +0000","end":"2026-02-28 11:00:00 +0000"}]
     JSON
-    output = json.dup.force_encoding(Encoding::ASCII_8BIT)
+    output = (+json).force_encoding(Encoding::ASCII_8BIT)
     allow(Open3).to receive(:capture2e)
       .with('t', 'display', '--format', 'json')
       .and_return(cmd_result(output: output, success: true))

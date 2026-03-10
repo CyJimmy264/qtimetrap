@@ -28,7 +28,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
   it 'requests shutdown on Ctrl+Q key event' do
     main_window.send(:on_key_press, { a: Qt::Key_Q, b: Qt::ControlModifier })
-    expect(main_window.instance_variable_get(:@shutdown_requested)).to eq(true)
+    expect(main_window.instance_variable_get(:@shutdown_requested)).to be(true)
   end
 
   it 'toggles start action on Space when no active line edit' do

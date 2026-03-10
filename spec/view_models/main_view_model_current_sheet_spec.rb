@@ -25,8 +25,7 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
       id: 9, note: 'n', sheet: 'focus|deep',
       start_time: started_at, end_time: nil
     )
-    allow(gateway).to receive(:active_started_at).and_return(started_at)
-    allow(gateway).to receive(:entries).and_return([running])
+    allow(gateway).to receive_messages(active_started_at: started_at, entries: [running])
 
     view_model.refresh!
 

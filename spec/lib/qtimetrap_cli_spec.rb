@@ -8,8 +8,7 @@ RSpec.describe QTimetrap::CLI do
     window = instance_double(QTimetrap::Views::MainWindow, show: nil, request_shutdown: nil)
     container = instance_double(QTimetrap::Container)
 
-    allow(QTimetrap::Application).to receive(:boot!).and_return(app)
-    allow(QTimetrap::Application).to receive(:container).and_return(container)
+    allow(QTimetrap::Application).to receive_messages(boot!: app, container: container)
     allow(container).to receive(:fetch).with(:main_window).and_return(window)
 
     handler = nil
