@@ -32,6 +32,16 @@ module QTimetrap
         nil
       end
 
+      def unarchive(entry_id)
+        id = Integer(entry_id)
+        ids = read_ids
+        return unless ids.delete(id)
+
+        write_ids(ids)
+      rescue ArgumentError, TypeError
+        nil
+      end
+
       private
 
       attr_reader :path

@@ -21,6 +21,15 @@ RSpec.describe QTimetrap::Services::ArchivedEntriesStore do
     expect(store.archived_ids).to eq([])
   end
 
+  it 'removes archived id on unarchive' do
+    store.archive(42)
+
+    store.unarchive(42)
+
+    expect(store.archived_ids).to eq([])
+    expect(store.archived?(42)).to be(false)
+  end
+
   private
 
   def expect_archived_state(ids:, archived:, missing:)

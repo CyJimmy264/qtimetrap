@@ -64,17 +64,29 @@ module QTimetrap
       def build_content(parent:)
         content, layout = build_content_widget(parent: parent)
         controls = build_controls(content)
-        entries = QTimetrap::Entries::ListComponent.new(
-          parent: content,
-          on_entry_note_change: callbacks.fetch(:on_entry_note_change),
-          on_entry_time_change: callbacks.fetch(:on_entry_time_change),
-          on_entry_archive: callbacks.fetch(:on_entry_archive),
-          on_time_range_change: callbacks.fetch(:on_time_range_change)
-        )
+        entries = build_entries_component(content)
         layout.add_widget(controls.widget)
         layout.add_widget(entries.widget)
         layout.set_stretch(1, 1)
         [content, controls, entries]
+      end
+
+      def build_entries_component(parent)
+        QTimetrap::Entries::ListComponent.new(
+          parent: parent,
+          callbacks: entries_callbacks,
+          task_suggestions_for_project: callbacks.fetch(:task_suggestions_for_project)
+        )
+      end
+
+      def entries_callbacks
+        {
+          on_entry_note_change: callbacks.fetch(:on_entry_note_change),
+          on_entry_task_change: callbacks.fetch(:on_entry_task_change),
+          on_entry_time_change: callbacks.fetch(:on_entry_time_change),
+          on_entry_archive: callbacks.fetch(:on_entry_archive),
+          on_time_range_change: callbacks.fetch(:on_time_range_change)
+        }
       end
 
       def build_content_widget(parent:)

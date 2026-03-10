@@ -5,7 +5,9 @@ module QTimetrap
     # Helper methods for entries tree rendering and expand/collapse controls.
     module TreeHelpers
       include BranchHierarchyHelpers
+      include LeafArchiveHelpers
       include LeafNoteHelpers
+      include LeafTaskHelpers
       include LeafTimeHelpers
       include NodePresentationHelpers
       include TreeToolbarHelpers

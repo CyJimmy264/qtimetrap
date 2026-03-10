@@ -190,6 +190,28 @@ QLineEdit#entry_node_entry_note:focus {
   padding-left: 6px;
 }
 
+QComboBox#entry_node_entry_task {
+  color: #94a3b8;
+  font-size: 12px;
+  background: transparent;
+  border: 0px;
+  padding-left: 2px;
+}
+
+QComboBox#entry_node_entry_task:focus {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 6px;
+}
+
+QComboBox#entry_node_entry_task QAbstractItemView {
+  background-color: #111827;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  selection-background-color: #1d4ed8;
+  selection-color: #f8fafc;
+}
+
 QPushButton#entry_node_entry_archive {
   background-color: #111827;
   border: 1px solid #334155;

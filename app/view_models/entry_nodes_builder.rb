@@ -77,6 +77,8 @@ module QTimetrap
           id: "entry:#{entry.id || index}",
           type: :entry,
           entry_id: entry.id || index,
+          project_name: entry.project,
+          task_name: entry.task.to_s,
           start_label: start_label,
           end_label: end_label,
           prefix: duration,

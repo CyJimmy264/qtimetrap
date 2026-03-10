@@ -24,6 +24,12 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     expect(archived_entries_store).to have_received(:archive).with(1)
   end
 
+  it 'unarchives entry id through archived store' do
+    view_model.unarchive_entry(1)
+
+    expect(archived_entries_store).to have_received(:unarchive).with(1)
+  end
+
   it 'hides archived entries from filtered collection' do
     allow(archived_entries_store).to receive(:archived?) { |id| id == 1 }
     view_model.refresh!

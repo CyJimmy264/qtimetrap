@@ -9,6 +9,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   let(:callbacks) do
     {
       on_entry_note_change: instance_double(Proc, call: nil),
+      on_entry_task_change: instance_double(Proc, call: nil),
+      task_suggestions_for_project: instance_double(Proc, call: %w[ops deploy core]),
       on_entry_time_change: instance_double(Proc, call: nil),
       on_entry_archive: instance_double(Proc, call: nil),
       on_time_range_change: instance_double(Proc, call: nil)
@@ -17,10 +19,14 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   let(:component) do
     described_class.new(
       parent: parent,
-      on_entry_note_change: callbacks.fetch(:on_entry_note_change),
-      on_entry_time_change: callbacks.fetch(:on_entry_time_change),
-      on_entry_archive: callbacks.fetch(:on_entry_archive),
-      on_time_range_change: callbacks.fetch(:on_time_range_change)
+      callbacks: {
+        on_entry_note_change: callbacks.fetch(:on_entry_note_change),
+        on_entry_task_change: callbacks.fetch(:on_entry_task_change),
+        on_entry_time_change: callbacks.fetch(:on_entry_time_change),
+        on_entry_archive: callbacks.fetch(:on_entry_archive),
+        on_time_range_change: callbacks.fetch(:on_time_range_change)
+      },
+      task_suggestions_for_project: callbacks.fetch(:task_suggestions_for_project)
     )
   end
 
@@ -76,6 +82,37 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     start_input = entry_start_input
     end_input = entry_end_input
     expect_time_inputs(start_input, end_input, start_text: '10:00', end_text: '11:00', read_only: true)
+  end
+
+  it 'renders editable task combo with recent task suggestions' do
+    render_component(entry_nodes)
+
+    task_input = entry_task_input
+    expect(task_input).not_to be_nil
+    expect(task_input.current_text.to_s).to eq('core')
+    expect(task_combo_items(task_input)).to eq(%w[core ops deploy])
+  end
+
+  it 'commits edited task value on Enter' do
+    render_component(entry_nodes)
+
+    task_input = entry_task_input
+    component.send(:activate_entry_task_input, task_input)
+    task_input.set_current_text('deploy')
+    component.send(:handle_entry_task_key_press, task_input, 1, { a: Qt::Key_Return })
+
+    expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, 'deploy')
+    expect(component.send(:entry_task_line_edit, task_input).is_read_only).to be(true)
+  end
+
+  it 'commits selected task from combo activation' do
+    render_component(entry_nodes)
+
+    task_input = entry_task_input
+    task_input.set_current_text('ops')
+    component.send(:handle_entry_task_commit, task_input, 1, force: true)
+
+    expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, 'ops')
   end
 
   it 'commits edited start/end values on Enter' do
@@ -274,6 +311,10 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     find_line_edit('entry_node_entry_start')
   end
 
+  def entry_task_input
+    descendants(parent).grep(QComboBox).find { |input| input.object_name == 'entry_node_entry_task' }
+  end
+
   def entry_end_input
     find_line_edit('entry_node_entry_end')
   end
@@ -337,6 +378,10 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     descendants(parent).grep(QLineEdit).find { |input| input.object_name == object_name }
   end
 
+  def task_combo_items(task_input)
+    (0...task_input.count).map { |index| task_input.item_text(index).to_s }
+  end
+
   def expect_inputs_present(start_input, end_input)
     expect(start_input).not_to be_nil
     expect(end_input).not_to be_nil
@@ -379,6 +424,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
                     id: 'entry:1',
                     type: :entry,
                     entry_id: 1,
+                    project_name: 'acme',
+                    task_name: 'core',
                     start_label: '10:00',
                     end_label: '11:00',
                     prefix: '01:00:00',
@@ -449,6 +496,8 @@ RSpec.describe QTimetrap::Entries::ListComponent do
                     id: 'entry:no-note',
                     type: :entry,
                     entry_id: 11,
+                    project_name: 'acme',
+                    task_name: 'task',
                     start_label: '10:00',
                     end_label: '10:05',
                     prefix: '00:05:00',

@@ -6,6 +6,7 @@ module QTimetrap
   module ViewModels
     # Coordinates tracker data and exposes presentation-ready state for UI.
     class MainViewModel
+      include MainViewModelEntryTaskHelpers
       include MainViewModelEntryNoteHelpers
       include MainViewModelEntryTimeHelpers
       include MainViewModelSheetHelpers
@@ -28,6 +29,7 @@ module QTimetrap
         @current_started_at = gateway.active_started_at
         @entries = gateway.entries
         @current_sheet = detect_current_sheet
+        reset_archive_mode_caches!
         normalize_selected_projects!
         seed_current_fields_from_sheet!
         normalize_selected_tasks!
@@ -91,10 +93,6 @@ module QTimetrap
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
-      def archive_entry(entry_id)
-        archived_entries_store.archive(entry_id)
-      end
-
       private
 
       attr_reader :gateway, :archived_entries_store
@@ -109,6 +107,7 @@ module QTimetrap
         @time_filter_from_at = nil
         @time_filter_to_at = nil
         @archive_mode = false
+        reset_archive_mode_caches!
       end
 
       def detect_current_sheet

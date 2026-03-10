@@ -10,13 +10,23 @@ module QTimetrap
         row = build_entry_row(parent_widget)
         row_layout = build_entry_row_layout(row)
         start_input, end_input = add_entry_time_widgets(row_layout, row, node)
-        row_layout.add_widget(build_entry_prefix_label(row, node, level))
-        row_layout.add_widget(build_entry_note_input(row, node))
-        row_layout.add_widget(build_entry_archive_button(row, node))
+        add_entry_row_widgets(row_layout, row, node, level)
         bind_entry_time_input_events(start_input, end_input, resolve_entry_id(node))
-        row_layout.set_stretch(2, 1)
+        apply_entry_row_stretch(row_layout)
         entry_rows << row
         layout.add_widget(row)
+      end
+
+      def add_entry_row_widgets(row_layout, row, node, level)
+        row_layout.add_widget(build_entry_prefix_label(row, node, level))
+        row_layout.add_widget(build_entry_task_input(row, node))
+        row_layout.add_widget(build_entry_note_input(row, node))
+        row_layout.add_widget(build_entry_archive_button(row, node))
+      end
+
+      def apply_entry_row_stretch(row_layout)
+        row_layout.set_stretch(2, 1)
+        row_layout.set_stretch(3, 2)
       end
 
       def build_entry_row(parent_widget)
@@ -48,18 +58,6 @@ module QTimetrap
           note_input.set_placeholder_text('(no note)')
           note_input.set_read_only(true)
           bind_entry_note_input_events(note_input, resolve_entry_id(node))
-        end
-      end
-
-      def build_entry_archive_button(row, node)
-        QPushButton.new(row).tap do |button|
-          button.set_object_name('entry_node_entry_archive')
-          button.set_text('🗑')
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_fixed_width(28)
-          button.set_fixed_height(24)
-          entry_id = resolve_entry_id(node)
-          button.connect('clicked') { |_| on_entry_archive&.call(entry_id) }
         end
       end
 

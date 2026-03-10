@@ -12,7 +12,7 @@ module QTimetrap
           button.set_checkable(true)
           button.set_focus_policy(Qt::NoFocus)
           button.set_fixed_height(30)
-          button.set_text("\u{1F5D1}")
+          button.set_text("\u{1F5C3}")
           button.set_tool_tip('Show archived entries only')
           button.connect('clicked') { |_| on_archive_mode_toggled&.call(button.is_checked) }
         end

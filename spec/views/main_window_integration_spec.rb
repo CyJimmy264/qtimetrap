@@ -73,6 +73,17 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(main_window).not_to have_received(:render!)
   end
 
+  it 'defers UI rerender after entry task update to heartbeat' do
+    allow(main_window).to receive(:render!)
+    main_window.instance_variable_set(:@pending_refresh, false)
+
+    main_window.send(:handle_entry_task_changed, 1, 'deploy')
+
+    expect(view_model).to have_received(:update_entry_task).with(1, 'deploy')
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+    expect(main_window).not_to have_received(:render!)
+  end
+
   it 'archives entry through view model and defers rerender to heartbeat' do
     allow(main_window).to receive(:render!)
     main_window.instance_variable_set(:@pending_refresh, false)
@@ -80,6 +91,18 @@ RSpec.describe QTimetrap::Views::MainWindow do
     main_window.send(:handle_entry_archived, 1)
 
     expect(view_model).to have_received(:archive_entry).with(1)
+    expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
+    expect(main_window).not_to have_received(:render!)
+  end
+
+  it 'restores archived entry through view model and defers rerender to heartbeat' do
+    allow(view_model).to receive(:archive_mode?).and_return(true)
+    allow(main_window).to receive(:render!)
+    main_window.instance_variable_set(:@pending_refresh, false)
+
+    main_window.send(:handle_entry_archived, 1)
+
+    expect(view_model).to have_received(:unarchive_entry).with(1)
     expect(main_window.instance_variable_get(:@pending_refresh)).to be(true)
     expect(main_window).not_to have_received(:render!)
   end
