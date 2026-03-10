@@ -21,15 +21,7 @@ module QTimetrap
       def initialize(gateway: Services::TimetrapGateway.new, archived_entries_store: Services::ArchivedEntriesStore.new)
         @gateway = gateway
         @archived_entries_store = archived_entries_store
-        @selected_project = '* ALL'
-        @selected_projects = ['* ALL']
-        @selected_tasks = []
-        @entries = []
-        @current_started_at = nil
-        @current_sheet = nil
-        @time_filter_from_at = nil
-        @time_filter_to_at = nil
-        @archive_mode = false
+        initialize_state
       end
 
       def refresh!
@@ -93,9 +85,7 @@ module QTimetrap
         Services::Formatters.seconds_to_hms(now.to_i - current_started_at.to_i)
       end
 
-      def running_current_sheet?
-        !current_started_at.nil?
-      end
+      def running_current_sheet? = !current_started_at.nil?
 
       def entry_nodes
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
@@ -109,17 +99,25 @@ module QTimetrap
 
       attr_reader :gateway, :archived_entries_store
 
+      def initialize_state
+        @selected_project = '* ALL'
+        @selected_projects = ['* ALL']
+        @selected_tasks = []
+        @entries = []
+        @current_started_at = nil
+        @current_sheet = nil
+        @time_filter_from_at = nil
+        @time_filter_to_at = nil
+        @archive_mode = false
+      end
+
       def detect_current_sheet
         running_sheet || latest_sheet
       end
 
-      def running_sheet
-        newest_entry(entries.select(&:running?))&.sheet
-      end
+      def running_sheet = newest_entry(entries.select(&:running?))&.sheet
 
-      def latest_sheet
-        newest_entry(entries)&.sheet
-      end
+      def latest_sheet = newest_entry(entries)&.sheet
 
       def newest_entry(collection)
         collection.max_by { |entry| entry.start_time || EPOCH_TIME }
@@ -132,9 +130,7 @@ module QTimetrap
         entry ? entry.task.to_s : ''
       end
 
-      def normalize_text(value)
-        value.to_s
-      end
+      def normalize_text(value) = value.to_s
     end
   end
 end

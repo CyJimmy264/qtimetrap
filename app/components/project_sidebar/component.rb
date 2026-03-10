@@ -6,6 +6,7 @@ module QTimetrap
     class Component
       include ArchiveToggleHelpers
       include LogoHelpers
+      include ProjectButtonHelpers
       include ProjectSelectionHelpers
       include TaskHelpers
 
@@ -25,19 +26,11 @@ module QTimetrap
         build
       end
 
-      def render(
-        projects:,
-        selected_project:,
-        selected_projects: nil,
-        tasks: [],
-        selected_task: nil,
-        archive_mode: false
-      )
+      def render(projects:, tasks: [], selection: {}, selected_task: nil, archive_mode: false)
         values = Array(projects)
-        refresh_project_state(values, selected_projects, selected_project)
-        sync_project_buttons(values.size)
-        buttons.each_with_index { |slot, index| render_slot(slot, values[index], index: index) }
-        render_tasks(tasks: tasks, selected_project: selected_project, selected_task: selected_task)
+        selection = selection_state(selection)
+        render_projects(projects: values, selection: selection)
+        render_tasks(tasks: tasks, selected_project: selection.fetch(:selected_project), selected_task: selected_task)
         archive_toggle_button.set_checked(archive_mode)
       end
 
@@ -114,44 +107,18 @@ module QTimetrap
         layout.add_layout(task_buttons_layout)
       end
 
+      def selection_state(selection)
+        {
+          selected_project: selection.fetch(:selected_project, '* ALL'),
+          selected_projects: selection.fetch(:selected_projects, ['* ALL'])
+        }
+      end
+
       def build_buttons_layout
         QVBoxLayout.new.tap do |layout|
           layout.set_contents_margins(0, 0, 0, 0)
           layout.set_spacing(8)
         end
-      end
-
-      def build_project_button
-        QPushButton.new(widget).tap do |button|
-          button.set_object_name('project_button')
-          button.set_checkable(true)
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_fixed_height(30)
-          button.connect('clicked') { |_| on_button_clicked(button) }
-        end
-      end
-
-      def on_button_clicked(button)
-        index, item = selected_project_button(button)
-        return unless index && item
-
-        apply_project_selection(index)
-        rerender_project_buttons
-        on_project_selected.call(selected_project_values, item[:project])
-      end
-
-      def selected_project_button(button)
-        index = buttons.index { |candidate| candidate[:view] == button }
-        return [nil, nil] unless index
-
-        item = buttons.fetch(index)
-        return [nil, nil] unless item[:project]
-
-        [index, item]
-      end
-
-      def rerender_project_buttons
-        buttons.each_with_index { |slot, current_index| render_slot(slot, slot[:project], index: current_index) }
       end
     end
   end

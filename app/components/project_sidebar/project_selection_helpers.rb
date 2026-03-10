@@ -19,11 +19,10 @@ module QTimetrap
       end
 
       def normalize_project_selection(selected_project)
-        max_index = project_values.length - 1
-        @selected_project_indices = selected_project_indices.select { |index| index <= max_index }
+        @selected_project_indices = in_range_project_indices
         normalized = normalize_selected_projects(project_values, selected_project_values, selected_project)
-        @selected_project_indices = normalized.filter_map { |project| project_values.index(project) }
-        @last_project_anchor_index = project_values.index(selected_project) || selected_project_indices.last
+        @selected_project_indices = indices_for_projects(normalized)
+        @last_project_anchor_index = anchor_index_for(selected_project)
       end
 
       def apply_project_selection(index)
@@ -74,6 +73,19 @@ module QTimetrap
 
       def selected_project_values
         selected_project_indices.filter_map { |index| project_values[index] }
+      end
+
+      def in_range_project_indices
+        max_index = project_values.length - 1
+        selected_project_indices.select { |index| index <= max_index }
+      end
+
+      def indices_for_projects(projects)
+        projects.filter_map { |project| project_values.index(project) }
+      end
+
+      def anchor_index_for(selected_project)
+        project_values.index(selected_project) || selected_project_indices.last
       end
 
       attr_reader :selected_project_indices, :last_project_anchor_index, :project_values

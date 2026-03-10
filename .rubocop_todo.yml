@@ -13,67 +13,12 @@
 RSpec/ExampleLength:
   Max: 19
 
-# Offense count: 3
-# Configuration parameters: AssignmentOnly.
-RSpec/InstanceVariable:
-  Exclude:
-    - 'spec/services/settings_store_spec.rb'
-    - 'spec/support/qt_helpers.rb'
-
 # Offense count: 20
 RSpec/MultipleExpectations:
   Max: 6
-
-# Offense count: 6
-# This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/SharedExamples:
-  Exclude:
-    - 'spec/support/qt_helpers.rb'
-    - 'spec/view_models/main_view_model_current_sheet_spec.rb'
-    - 'spec/view_models/main_view_model_refresh_spec.rb'
-    - 'spec/view_models/main_view_model_tracking_spec.rb'
-    - 'spec/views/main_window_actions_spec.rb'
-    - 'spec/views/main_window_build_spec.rb'
-    - 'spec/views/main_window_render_spec.rb'
 
 # Offense count: 22
 # Configuration parameters: CustomTransform, IgnoreMethods, IgnoreMetadata, InflectorPath, EnforcedInflector.
 # SupportedInflectors: default, active_support
 RSpec/SpecFilePathFormat:
   Enabled: false
-
-# Offense count: 4
-RSpec/SubjectStub:
-  Exclude:
-    - 'spec/services/timetrap_gateway_active_started_at_cli_spec.rb'
-    - 'spec/services/timetrap_gateway_encoding_spec.rb'
-    - 'spec/services/timetrap_gateway_entries_cli_spec.rb'
-    - 'spec/services/timetrap_gateway_start_stop_cli_spec.rb'
-
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/VerifiedDoubleReference:
-  Exclude:
-    - 'spec/services/timetrap_gateway_entries_api_spec.rb'
-
-# Offense count: 1
-# Configuration parameters: CountComments.
-Metrics/ClassLength:
-  Exclude:
-    - 'app/components/project_sidebar/component.rb'
-    - 'app/view_models/main_view_model.rb'
-
-# Offense count: 1
-Metrics/MethodLength:
-  Exclude:
-    - 'app/view_models/main_view_model.rb'
-
-# Offense count: 1
-Metrics/ParameterLists:
-  Exclude:
-    - 'app/components/project_sidebar/component.rb'
-
-# Offense count: 1
-Metrics/AbcSize:
-  Exclude:
-    - 'app/components/project_sidebar/project_selection_helpers.rb'

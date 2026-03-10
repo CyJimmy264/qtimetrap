@@ -3,10 +3,16 @@
 require 'spec_helper'
 
 RSpec.describe QTimetrap::Services::TimetrapGateway do
-  subject(:gateway) { described_class.new }
+  subject(:gateway) { gateway_class.new }
 
-  before do
-    allow(gateway).to receive(:api_available?).and_return(false)
+  let(:gateway_class) do
+    Class.new(described_class) do
+      private
+
+      def api_available?
+        false
+      end
+    end
   end
 
   it 'parses started_at from timetrap now output' do

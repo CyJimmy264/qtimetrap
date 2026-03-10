@@ -4,15 +4,13 @@ require 'spec_helper'
 require 'tmpdir'
 
 RSpec.describe QTimetrap::Services::SettingsStore do
-  around do |example|
-    Dir.mktmpdir do |dir|
-      @tmpdir = dir
-      example.run
-    end
-  end
-
-  let(:path) { File.join(@tmpdir, 'qtimetrap', 'config.yml') }
+  let(:tmpdir) { Dir.mktmpdir }
+  let(:path) { File.join(tmpdir, 'qtimetrap', 'config.yml') }
   let(:store) { described_class.new(path: path) }
+
+  after do
+    FileUtils.rm_rf(tmpdir)
+  end
 
   it 'returns nil when config is absent' do
     expect(store.read_theme_name).to be_nil
