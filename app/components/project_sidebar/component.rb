@@ -6,6 +6,7 @@ module QTimetrap
     class Component
       include ArchiveToggleHelpers
       include LogoHelpers
+      include ProjectSelectionHelpers
       include TaskHelpers
 
       attr_reader :widget
@@ -16,6 +17,9 @@ module QTimetrap
         @on_task_selected = on_task_selected
         @on_archive_mode_toggled = on_archive_mode_toggled
         @buttons = []
+        @selected_project_indices = []
+        @last_project_anchor_index = nil
+        @project_values = []
         @task_buttons = []
         @selected_task_indices = []
         @last_task_anchor_index = nil
@@ -24,10 +28,11 @@ module QTimetrap
         build
       end
 
-      def render(projects:, selected_project:, tasks: [], selected_task: nil, archive_mode: false)
+      def render(projects:, selected_project:, selected_projects: nil, tasks: [], selected_task: nil, archive_mode: false)
         values = Array(projects)
+        refresh_project_state(values, selected_projects, selected_project)
         sync_project_buttons(values.size)
-        buttons.each_with_index { |slot, index| render_slot(slot, values[index], selected_project) }
+        buttons.each_with_index { |slot, index| render_slot(slot, values[index], index: index) }
         render_tasks(tasks: tasks, selected_project: selected_project, selected_task: selected_task)
         archive_toggle_button.set_checked(archive_mode)
       end
@@ -50,13 +55,13 @@ module QTimetrap
         layout.add_widget(archive_toggle_button)
       end
 
-      def render_slot(slot, project, selected_project)
+      def render_slot(slot, project, index:)
         slot[:project] = project
         view = slot[:view]
 
         view.set_text(project[0, 24])
         view.set_disabled(false)
-        view.set_checked(project == selected_project)
+        view.set_checked(selected_project_indices.include?(index))
         view.show
       end
 
@@ -112,10 +117,15 @@ module QTimetrap
       end
 
       def on_button_clicked(button)
+        index = buttons.index { |candidate| candidate[:view] == button }
+        return unless index
+
         item = buttons.find { |candidate| candidate[:view] == button }
         return unless item && item[:project]
 
-        on_project_selected.call(item[:project])
+        apply_project_selection(index)
+        buttons.each_with_index { |slot, current_index| render_slot(slot, slot[:project], index: current_index) }
+        on_project_selected.call(selected_project_values, item[:project])
       end
     end
   end

@@ -6,7 +6,7 @@ module QTimetrap
     module MainViewModelTaskFilterHelpers
       def select_tasks(tasks)
         normalized = Array(tasks).map(&:to_s).reject(&:empty?).uniq
-        @selected_tasks = selected_project == '* ALL' ? [] : (normalized & task_names_for_selected_project)
+        @selected_tasks = task_filter_disabled? ? [] : (normalized & task_names_for_selected_project)
       end
 
       def filtered_entries
@@ -18,9 +18,9 @@ module QTimetrap
       private
 
       def entries_for_selected_project
-        return entries_for_mode if selected_project == '* ALL'
+        return entries_for_mode if selected_projects == ['* ALL']
 
-        entries_for_mode.select { |entry| entry.project == selected_project }
+        entries_for_mode.select { |entry| selected_projects.include?(entry.project) }
       end
 
       def apply_selected_tasks_filter(scoped)
@@ -45,9 +45,13 @@ module QTimetrap
       end
 
       def normalize_selected_tasks!
-        return @selected_tasks = [] if selected_project == '* ALL'
+        return @selected_tasks = [] if task_filter_disabled?
 
         @selected_tasks &= task_names_for_selected_project
+      end
+
+      def task_filter_disabled?
+        selected_projects != [selected_project] || selected_project == '* ALL'
       end
     end
   end

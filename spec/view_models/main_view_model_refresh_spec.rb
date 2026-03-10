@@ -9,6 +9,7 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     view_model.refresh!
     expect(view_model.entries.size).to eq(2)
     expect(view_model.selected_project).to eq('* ALL')
+    expect(view_model.selected_projects).to eq(['* ALL'])
   end
 
   it 'returns sorted project names with ALL first' do
@@ -20,6 +21,15 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     view_model.refresh!
     view_model.select_project('acme')
     expect(view_model.filtered_entries.map(&:project)).to eq(['acme'])
+  end
+
+  it 'filters by multiple selected projects' do
+    view_model.refresh!
+    view_model.select_projects(%w[acme internal], primary_project: 'internal')
+
+    expect(view_model.filtered_entries.map(&:project)).to contain_exactly('acme', 'internal')
+    expect(view_model.selected_projects).to eq(%w[acme internal])
+    expect(view_model.selected_project).to eq('internal')
   end
 
   it 'filters by selected tasks within selected project' do

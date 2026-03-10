@@ -33,4 +33,13 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
     expect(labels).to include('acme | ops')
     expect(labels).not_to include('acme | core')
   end
+
+  it 'disables task filtering when multiple projects are selected' do
+    view_model.refresh!
+    view_model.select_projects(%w[acme internal], primary_project: 'internal')
+    view_model.select_tasks(['ops'])
+
+    expect(view_model.selected_tasks).to eq([])
+    expect(view_model.task_names_for_selected_project).to eq([])
+  end
 end

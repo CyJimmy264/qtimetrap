@@ -16,6 +16,7 @@ module QTimetrap
         sidebar.render(
           projects: view_model.project_names,
           selected_project: view_model.selected_project,
+          selected_projects: view_model.selected_projects,
           tasks: view_model.task_names_for_selected_project,
           selected_task: view_model.selected_tasks.first,
           archive_mode: view_model.archive_mode?

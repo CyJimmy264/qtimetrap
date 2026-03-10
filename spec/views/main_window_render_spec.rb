@@ -19,7 +19,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   it 'updates selected project on sidebar project click' do
     main_window.send(:render!)
     button_with_text('acme').click
-    expect(view_model).to have_received(:select_project).with('acme', sync_current_fields: true)
+    expect(view_model).to have_received(:select_projects).with(['acme'], primary_project: 'acme', sync_current_fields: true)
     expect(view_model).to have_received(:current_project_name=).with('acme')
   end
 
@@ -125,6 +125,76 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(view_model).to have_received(:archive_mode=).with(true)
   end
 
+  it 'uses single-select for project buttons by default' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      selected_projects: ['* ALL'],
+      project_names: ['* ALL', 'acme', 'internal']
+    )
+    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
+      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
+    end
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+
+    main_window.send(:render!)
+    acme = button_with_text('acme')
+    internal = button_with_text('internal')
+
+    acme.click
+    internal.click
+
+    expect(acme.is_checked).to be(false)
+    expect(internal.is_checked).to be(true)
+  end
+
+  it 'allows multi-select with Ctrl for project buttons' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      selected_projects: ['* ALL'],
+      project_names: ['* ALL', 'acme', 'internal']
+    )
+    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
+      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
+    end
+
+    main_window.send(:render!)
+    acme = button_with_text('acme')
+    internal = button_with_text('internal')
+
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+    acme.click
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ControlModifier)
+    internal.click
+
+    expect(acme.is_checked).to be(true)
+    expect(internal.is_checked).to be(true)
+  end
+
+  it 'selects project range with Shift from last anchor' do
+    allow(view_model).to receive_messages(
+      selected_project: '* ALL',
+      selected_projects: ['* ALL'],
+      project_names: ['* ALL', 'acme', 'internal', 'ops']
+    )
+    allow(view_model).to receive(:select_projects) do |projects, primary_project:, **|
+      allow(view_model).to receive_messages(selected_projects: projects, selected_project: primary_project)
+    end
+
+    main_window.send(:render!)
+    acme = button_with_text('acme')
+    internal = button_with_text('internal')
+    ops = button_with_text('ops')
+
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(0)
+    acme.click
+    allow(QApplication).to receive(:keyboard_modifiers).and_return(Qt::ShiftModifier)
+    ops.click
+
+    expect(acme.is_checked).to be(true)
+    expect(internal.is_checked).to be(true)
+    expect(ops.is_checked).to be(true)
+  end
+
   it 'uses single-select for task buttons by default' do
     allow(view_model).to receive_messages(
       selected_project: 'acme',
@@ -217,7 +287,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
     project_input = find_widget(qt_window, 'project_input')
     expect(task_input.text.to_s).to eq(before_task)
     expect(project_input.text.to_s).to eq(before_project)
-    expect(view_model).to have_received(:select_project).with('internal', sync_current_fields: false)
+    expect(view_model).to have_received(:select_projects)
+      .with(['internal'], primary_project: 'internal', sync_current_fields: false)
     expect(view_model).not_to have_received(:current_project_name=).with('internal')
   end
 

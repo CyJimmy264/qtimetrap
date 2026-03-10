@@ -15,13 +15,14 @@ module QTimetrap
 
       EPOCH_TIME = Time.at(0)
 
-      attr_reader :selected_project, :selected_tasks, :entries, :current_started_at, :current_sheet,
+      attr_reader :selected_project, :selected_projects, :selected_tasks, :entries, :current_started_at, :current_sheet,
                   :time_filter_from_at, :time_filter_to_at
 
       def initialize(gateway: Services::TimetrapGateway.new, archived_entries_store: Services::ArchivedEntriesStore.new)
         @gateway = gateway
         @archived_entries_store = archived_entries_store
         @selected_project = '* ALL'
+        @selected_projects = ['* ALL']
         @selected_tasks = []
         @entries = []
         @current_started_at = nil
@@ -35,19 +36,26 @@ module QTimetrap
         @current_started_at = gateway.active_started_at
         @entries = gateway.entries
         @current_sheet = detect_current_sheet
-        @selected_project = '* ALL' unless project_names.include?(@selected_project)
+        normalize_selected_projects!
         seed_current_fields_from_sheet!
         normalize_selected_tasks!
         self
       end
 
       def select_project(project, sync_current_fields: true)
-        @selected_project = project
+        select_projects([project], primary_project: project, sync_current_fields: sync_current_fields)
+      end
+
+      def select_projects(projects, primary_project:, sync_current_fields: true)
+        normalized = Array(projects).map(&:to_s).reject(&:empty?).uniq
+        normalized = ['* ALL'] if normalized.empty? || normalized.include?('* ALL')
+        @selected_projects = normalized
+        @selected_project = normalized.include?(primary_project) ? primary_project : normalized.first
         @selected_tasks = []
         return unless sync_current_fields
 
         apply_selected_project_to_current_field!
-        self.current_task_input = latest_task_for_project(project)
+        self.current_task_input = latest_task_for_project(@selected_project)
       end
 
       def start_tracking(sheet)

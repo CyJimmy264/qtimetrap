@@ -9,6 +9,7 @@ module QTimetrap
       end
 
       def task_names_for_selected_project
+        return [] unless selected_projects == [selected_project]
         return [] if selected_project == '* ALL'
 
         entries_for_mode
@@ -25,7 +26,7 @@ module QTimetrap
 
       def archive_mode=(enabled)
         @archive_mode = [true, 1].include?(enabled)
-        @selected_project = '* ALL' unless project_names.include?(@selected_project)
+        normalize_selected_projects!
         normalize_selected_tasks!
       end
 
@@ -33,6 +34,14 @@ module QTimetrap
 
       def entries_for_mode
         entries.select { |entry| archived_entries_store.archived?(entry.id) == archive_mode? }
+      end
+
+      def normalize_selected_projects!
+        available = project_names
+        normalized = Array(@selected_projects).map(&:to_s).reject(&:empty?).uniq & available
+        normalized = ['* ALL'] if normalized.empty? || normalized.include?('* ALL')
+        @selected_projects = normalized
+        @selected_project = normalized.include?(@selected_project) ? @selected_project : normalized.first
       end
     end
   end

@@ -50,9 +50,9 @@ module QTimetrap
         warn("[qtimetrap] stop failed: #{e.class}: #{e.message}")
       end
 
-      def handle_project_selected(project)
+      def handle_project_selected(projects, project)
         update_current_fields = !view_model.running_current_sheet?
-        view_model.select_project(project, sync_current_fields: update_current_fields)
+        view_model.select_projects(projects, primary_project: project, sync_current_fields: update_current_fields)
         view_model.current_project_name = project if update_current_fields && project != '* ALL'
         render!
         return unless update_current_fields
