@@ -54,4 +54,5 @@ RSpec/SharedExamples:
   EnforcedStyle: symbol
 
 RSpec/SpecFilePathFormat:
-  Enabled: false
+  CustomTransform:
+    QTimetrap: qtimetrap
