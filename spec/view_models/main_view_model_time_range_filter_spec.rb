@@ -60,10 +60,10 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
   def filtered_project_labels
     view_model.entry_nodes
-      .flat_map { |week| week.fetch(:children) }
-      .flat_map { |day| day.fetch(:children) }
-      .map { |project| project.fetch(:label) }
-      .join(' ')
+              .flat_map { |week| week.fetch(:children) }
+              .flat_map { |day| day.fetch(:children) }
+              .map { |project| project.fetch(:label) }
+              .join(' ')
   end
 
   def expect_invalid_time_range_to_raise

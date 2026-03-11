@@ -22,14 +22,21 @@ RSpec.describe QTimetrap::Views::MainWindowSplitterToggleBootstrapHelpers do
   end
 
   it 'stops and deletes bootstrap timer after fourth attempt' do
-    attempts = { count: 3 }
-    timer = instance_double(QTimer)
-    context = { splitter: :splitter, sidebar_widget: :sidebar, button: :button, zone: :zone }
-    allow(timer).to receive(:stop)
-    allow(timer).to receive(:delete_later)
-
+    attempts, timer, context = bootstrap_tick_state
     host.send(:tick_initial_reposition, attempts: attempts, timer: timer, context: context)
+    expect_bootstrap_tick_result(attempts, timer, context)
+  end
 
+  private
+
+  def bootstrap_tick_state
+    attempts = { count: 3 }
+    timer = instance_double(QTimer, stop: nil, delete_later: nil)
+    context = { splitter: :splitter, sidebar_widget: :sidebar, button: :button, zone: :zone }
+    [attempts, timer, context]
+  end
+
+  def expect_bootstrap_tick_result(attempts, timer, context)
     expect(host.repositions).to eq([context])
     expect(attempts[:count]).to eq(4)
     expect(timer).to have_received(:stop)

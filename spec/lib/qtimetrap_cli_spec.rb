@@ -4,15 +4,11 @@ require 'spec_helper'
 
 RSpec.describe QTimetrap::CLI do
   it 'installs INT trap and requests shutdown on signal' do
-    app = build_app_double
-    window = build_window_double
-    handler_ref = install_cli_traps(app, window)
+    app, window, handler_ref = cli_runtime
 
-    described_class.start([])
+    start_cli_and_trigger_interrupt(handler_ref)
 
     expect_cli_startup(app, window)
-
-    handler_ref.fetch(:handler).call
     expect(window).to have_received(:request_shutdown)
   end
 
@@ -24,6 +20,12 @@ RSpec.describe QTimetrap::CLI do
 
   def build_window_double
     instance_double(QTimetrap::Views::MainWindow, show: nil, request_shutdown: nil)
+  end
+
+  def cli_runtime
+    app = build_app_double
+    window = build_window_double
+    [app, window, install_cli_traps(app, window)]
   end
 
   def install_cli_traps(app, window)
@@ -45,5 +47,10 @@ RSpec.describe QTimetrap::CLI do
     expect(app).to have_received(:dispose)
     expect(Signal).to have_received(:trap).with('INT')
     expect(Signal).to have_received(:trap).with('INT', 'old_handler')
+  end
+
+  def start_cli_and_trigger_interrupt(handler_ref)
+    described_class.start([])
+    handler_ref.fetch(:handler).call
   end
 end

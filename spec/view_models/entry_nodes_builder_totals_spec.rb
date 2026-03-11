@@ -5,10 +5,7 @@ require 'spec_helper'
 RSpec.describe QTimetrap::ViewModels::EntryNodesBuilder do
   it 'builds week and day nodes with totals' do
     nodes = described_class.new(entries: entries, selected_project: '* ALL').build
-
-    expect(nodes.size).to eq(1)
-    expect(nodes.first[:label]).to eq('Week Feb 23 - Mar 1  Total: 02:00:00')
-    expect(nodes.first[:children].first[:label]).to eq('Sat, Feb 28  Total: 01:00:00')
+    expect_totals_nodes(nodes)
   end
 
   private
@@ -30,5 +27,11 @@ RSpec.describe QTimetrap::ViewModels::EntryNodesBuilder do
       start_time: Time.parse(start_at),
       end_time: Time.parse(end_at)
     )
+  end
+
+  def expect_totals_nodes(nodes)
+    expect(nodes.size).to eq(1)
+    expect(nodes.first[:label]).to eq('Week Feb 23 - Mar 1  Total: 02:00:00')
+    expect(nodes.first[:children].first[:label]).to eq('Sat, Feb 28  Total: 01:00:00')
   end
 end

@@ -18,9 +18,7 @@ RSpec.describe QTimetrap::Services::SettingsStore do
 
   it 'writes and reads theme name' do
     store.write_theme_name('dark')
-
-    expect(store.read_theme_name).to eq('dark')
-    expect(File.read(path)).to include('theme: dark')
+    expect_theme_persisted('dark')
   end
 
   it 'returns nil for invalid yaml' do
@@ -32,9 +30,7 @@ RSpec.describe QTimetrap::Services::SettingsStore do
 
   it 'writes and reads window geometry' do
     store.write_window_geometry(left: 20, top: 30, width: 1400, height: 900)
-
-    expect(store.read_window_geometry).to eq(left: 20, top: 30, width: 1400, height: 900)
-    expect(File.read(path)).to include('window:')
+    expect_window_geometry_persisted(left: 20, top: 30, width: 1400, height: 900)
   end
 
   it 'returns nil for invalid window geometry values' do
@@ -56,5 +52,17 @@ RSpec.describe QTimetrap::Services::SettingsStore do
     File.write(path, { 'window' => {} }.to_yaml)
 
     expect(store.read_window_geometry).to be_nil
+  end
+
+  private
+
+  def expect_theme_persisted(theme_name)
+    expect(store.read_theme_name).to eq(theme_name)
+    expect(File.read(path)).to include("theme: #{theme_name}")
+  end
+
+  def expect_window_geometry_persisted(left:, top:, width:, height:)
+    expect(store.read_window_geometry).to eq(left: left, top: top, width: width, height: height)
+    expect(File.read(path)).to include('window:')
   end
 end

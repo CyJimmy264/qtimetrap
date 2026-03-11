@@ -19,12 +19,18 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     out = '2026-02-28 09:30:00 +0000 some text'
     allow(Open3).to receive(:capture2e).with('t', 'now').and_return(cmd_result(output: out, success: true))
     result = gateway.active_started_at
-    expect(result).to be_a(Time)
-    expect(result.strftime('%Y-%m-%d %H:%M:%S %z')).to eq('2026-02-28 09:30:00 +0000')
+    expect_started_at(result, '2026-02-28 09:30:00 +0000')
   end
 
   it 'returns nil on command failure' do
     allow(Open3).to receive(:capture2e).with('t', 'now').and_return(cmd_result(output: 'err', success: false))
     expect(gateway.active_started_at).to be_nil
+  end
+
+  private
+
+  def expect_started_at(value, formatted)
+    expect(value).to be_a(Time)
+    expect(value.strftime('%Y-%m-%d %H:%M:%S %z')).to eq(formatted)
   end
 end

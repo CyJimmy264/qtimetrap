@@ -15,15 +15,19 @@ RSpec.describe QTimetrap::Services::Formatters do
 
   describe '.time_range' do
     it 'renders running label when end is absent' do
-      entry = QTimetrap::Models::TimeEntry.new(
-        id: 1,
-        note: 'n',
-        sheet: 'p|t',
-        start_time: Time.new(2026, 2, 27, 9, 10, 0, '+00:00'),
-        end_time: nil
-      )
-
-      expect(described_class.time_range(entry)).to eq('09:10 - running')
+      expect(described_class.time_range(running_entry)).to eq('09:10 - running')
     end
+  end
+
+  private
+
+  def running_entry
+    QTimetrap::Models::TimeEntry.new(
+      id: 1,
+      note: 'n',
+      sheet: 'p|t',
+      start_time: Time.new(2026, 2, 27, 9, 10, 0, '+00:00'),
+      end_time: nil
+    )
   end
 end

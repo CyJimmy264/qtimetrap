@@ -3,9 +3,6 @@ plugins:
   - rubocop-rake
   - rubocop-rspec
 
-inherit_from:
-  - .rubocop_todo.yml
-
 AllCops:
   NewCops: enable
   SuggestExtensions: false
@@ -55,3 +52,6 @@ Naming/PredicateMethod:
 
 RSpec/SharedExamples:
   EnforcedStyle: symbol
+
+RSpec/SpecFilePathFormat:
+  Enabled: false

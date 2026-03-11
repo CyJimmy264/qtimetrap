@@ -17,17 +17,14 @@ RSpec.describe QTimetrap::Services::ArchivedEntriesStore do
   end
 
   it 'ignores invalid archive ids' do
-    expect { store.archive('bad') }.not_to raise_error
+    archive_invalid_id
     expect(store.archived_ids).to eq([])
   end
 
   it 'removes archived id on unarchive' do
     store.archive(42)
-
     store.unarchive(42)
-
-    expect(store.archived_ids).to eq([])
-    expect(store.archived?(42)).to be(false)
+    expect_archived_state(ids: [], archived: [], missing: [42])
   end
 
   private
@@ -44,5 +41,9 @@ RSpec.describe QTimetrap::Services::ArchivedEntriesStore do
 
   def expect_entries_missing(values)
     values.each { |value| expect(store.archived?(value)).to be(false) }
+  end
+
+  def archive_invalid_id
+    expect { store.archive('bad') }.not_to raise_error
   end
 end

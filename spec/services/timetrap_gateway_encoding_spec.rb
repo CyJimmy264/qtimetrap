@@ -25,6 +25,14 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   end
 
   it 'parses entries from binary JSON CLI output' do
+    stub_binary_json_entries
+    entries = gateway.entries
+    expect_binary_entries(entries)
+  end
+
+  private
+
+  def stub_binary_json_entries
     json = <<~JSON
       [{"id":1,"note":"n1","sheet":"acme|core","start":"2026-02-28 10:00:00 +0000","end":"2026-02-28 11:00:00 +0000"}]
     JSON
@@ -32,12 +40,21 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     allow(Open3).to receive(:capture2e)
       .with('t', 'display', '--format', 'json')
       .and_return(cmd_result(output: output, success: true))
+  end
 
-    entries = gateway.entries
+  def expect_binary_entries(entries)
+    entry = expect_single_binary_entry(entries)
+    expect_binary_entry_fields(entry)
+  end
 
+  def expect_single_binary_entry(entries)
     expect(entries.size).to eq(1)
-    expect(entries.first.sheet).to eq('acme|core')
-    expect(entries.first.project).to eq('acme')
-    expect(entries.first.task).to eq('core')
+    entries.first
+  end
+
+  def expect_binary_entry_fields(entry)
+    expect(entry.sheet).to eq('acme|core')
+    expect(entry.project).to eq('acme')
+    expect(entry.task).to eq('core')
   end
 end

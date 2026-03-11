@@ -26,7 +26,9 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
   it 'toggles start action on Space when no active line edit' do
     fill_current_inputs(task: 'space task', project: 'space project')
+
     main_window.send(:on_space_shortcut)
+
     expect(view_model).to have_received(:start_tracking).with('acme|space task')
   end
 
@@ -60,7 +62,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'binds space shortcut on startup and routes activated to on_space_shortcut' do
-    expect_bound_space_shortcut_to_route_to_handler
+    window = expect_startup_space_shortcut_binding
   ensure
     window&.send(:heartbeat)&.stop
     window&.send(:window)&.close
@@ -78,16 +80,6 @@ RSpec.describe QTimetrap::Views::MainWindow do
     [described_class.new(view_model: view_model, settings_store: settings_store), captured_handler]
   end
 
-  def expect_bound_space_shortcut_to_route_to_handler
-    @window, captured_handler = build_window_with_captured_shortcut
-    expect_shortcut_binding(captured_handler)
-    expect_space_shortcut_trigger(@window, captured_handler)
-  end
-
-  def window
-    @window
-  end
-
   def expect_shortcut_binding(captured_handler)
     expect(QShortcut).to have_received(:new).with(kind_of(QKeySequence), kind_of(QWidget))
     expect(captured_handler).not_to be_nil
@@ -101,6 +93,13 @@ RSpec.describe QTimetrap::Views::MainWindow do
   def expect_space_shortcut_trigger(window, captured_handler)
     trigger_space_shortcut(window, captured_handler)
     expect(window).to have_received(:on_space_shortcut)
+  end
+
+  def expect_startup_space_shortcut_binding
+    window, captured_handler = build_window_with_captured_shortcut
+    expect_shortcut_binding(captured_handler)
+    expect_space_shortcut_trigger(window, captured_handler)
+    window
   end
 
   def start_tracking_from_inputs(task:, project:)

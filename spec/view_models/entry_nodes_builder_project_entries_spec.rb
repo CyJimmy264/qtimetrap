@@ -5,17 +5,12 @@ require 'spec_helper'
 RSpec.describe QTimetrap::ViewModels::EntryNodesBuilder do
   it 'groups project entries, sorts by start time desc and fills empty note' do
     project = first_project_node(build_nodes(grouped_entries))
-
-    expect(project[:label]).to eq('acme | core (2) 02:30:00')
-    expect(project_entry_labels(project))
-      .to eq(['10:00 - 11:00  01:00:00  (no note)', '08:00 - 09:30  01:30:00  fix bug'])
+    expect_grouped_project_node(project)
   end
 
   it 'sorts project nodes inside day by latest entry time desc' do
     project_labels = day_project_labels(build_nodes(project_sort_entries))
-
-    expect(project_labels.first).to start_with('QTimetrap | task2')
-    expect(project_labels.last).to start_with('cvetidnya.ru | task1')
+    expect_project_labels_sorted(project_labels)
   end
 
   private
@@ -62,5 +57,16 @@ RSpec.describe QTimetrap::ViewModels::EntryNodesBuilder do
 
   def day_project_labels(nodes)
     nodes.first[:children].first[:children].map { |node| node[:label] }
+  end
+
+  def expect_grouped_project_node(project)
+    expect(project[:label]).to eq('acme | core (2) 02:30:00')
+    expect(project_entry_labels(project))
+      .to eq(['10:00 - 11:00  01:00:00  (no note)', '08:00 - 09:30  01:30:00  fix bug'])
+  end
+
+  def expect_project_labels_sorted(project_labels)
+    expect(project_labels.first).to start_with('QTimetrap | task2')
+    expect(project_labels.last).to start_with('cvetidnya.ru | task1')
   end
 end

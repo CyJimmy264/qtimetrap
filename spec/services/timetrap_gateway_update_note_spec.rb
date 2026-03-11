@@ -23,24 +23,16 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
 
   it 'updates note via CLI when API is unavailable' do
     stub_const('Timetrap', Module.new)
-    allow(Open3).to receive(:capture2e)
-      .with('t', 'edit', '--id', '42', 'updated note')
-      .and_return(cmd_result(output: '', success: true))
-
+    stub_cli_note_update('updated note')
     gateway.update_note(42, 'updated note')
-
-    expect(Open3).to have_received(:capture2e).with('t', 'edit', '--id', '42', 'updated note')
+    expect_cli_note_update('updated note')
   end
 
   it 'clears note via CLI with --clear when value is blank' do
     stub_const('Timetrap', Module.new)
-    allow(Open3).to receive(:capture2e)
-      .with('t', 'edit', '--id', '42', '--clear')
-      .and_return(cmd_result(output: '', success: true))
-
+    stub_cli_note_update('--clear')
     gateway.update_note(42, '')
-
-    expect(Open3).to have_received(:capture2e).with('t', 'edit', '--id', '42', '--clear')
+    expect_cli_note_update('--clear')
   end
 
   private
@@ -72,5 +64,15 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     expect(Timetrap::Entry).to have_received(:[]).with(42)
     expect(entry).to have_received(:note=).with(value)
     expect(entry).to have_received(:save)
+  end
+
+  def stub_cli_note_update(argument)
+    allow(Open3).to receive(:capture2e)
+      .with('t', 'edit', '--id', '42', argument)
+      .and_return(cmd_result(output: '', success: true))
+  end
+
+  def expect_cli_note_update(argument)
+    expect(Open3).to have_received(:capture2e).with('t', 'edit', '--id', '42', argument)
   end
 end

@@ -7,26 +7,32 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
   it 'updates entry task through gateway and refreshes data' do
     view_model.refresh!
-
     view_model.update_entry_task(entry_today.id, 'deploy')
-
-    expect(gateway).to have_received(:update_task).with(entry_today.id, 'acme|deploy')
-    expect(gateway).to have_received(:entries).at_least(:twice)
+    expect_entry_task_update('acme|deploy')
   end
 
   it 'updates current task input when moving running entry' do
-    running_entry = QTimetrap::Models::TimeEntry.new(
+    allow(gateway).to receive(:entries).and_return([running_entry])
+    view_model.refresh!
+    view_model.update_entry_task(running_entry.id, 'deploy')
+
+    expect(view_model.current_task_input).to eq('deploy')
+  end
+
+  private
+
+  def expect_entry_task_update(sheet)
+    expect(gateway).to have_received(:update_task).with(entry_today.id, sheet)
+    expect(gateway).to have_received(:entries).at_least(:twice)
+  end
+
+  def running_entry
+    QTimetrap::Models::TimeEntry.new(
       id: 7,
       note: 'ship it',
       sheet: 'acme|core',
       start_time: Time.now - 120,
       end_time: nil
     )
-    allow(gateway).to receive(:entries).and_return([running_entry])
-
-    view_model.refresh!
-    view_model.update_entry_task(running_entry.id, 'deploy')
-
-    expect(view_model.current_task_input).to eq('deploy')
   end
 end

@@ -13,8 +13,7 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     allow(Timetrap::Timer).to receive(:current_sheet=)
     allow(Timetrap::Timer).to receive(:start)
     gateway.start('focus')
-    expect(Timetrap::Timer).to have_received(:current_sheet=).with('focus')
-    expect(Timetrap::Timer).to have_received(:start).with('')
+    expect_timer_started('focus')
   end
 
   it 'delegates stop to timer API with active entry' do
@@ -23,5 +22,12 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     allow(Timetrap::Timer).to receive(:stop)
     gateway.stop
     expect(Timetrap::Timer).to have_received(:stop).with(active)
+  end
+
+  private
+
+  def expect_timer_started(sheet)
+    expect(Timetrap::Timer).to have_received(:current_sheet=).with(sheet)
+    expect(Timetrap::Timer).to have_received(:start).with('')
   end
 end

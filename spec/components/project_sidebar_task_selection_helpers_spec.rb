@@ -21,16 +21,12 @@ RSpec.describe QTimetrap::ProjectSidebar::TaskSelectionHelpers do
 
   it 'sets selection and anchor when selected_task exists in refreshed values' do
     host.send(:refresh_task_state, %w[core ops qa], 'ops')
-
-    expect(host.selected_task_indices).to eq([1])
-    expect(host.last_task_anchor_index).to eq(1)
+    expect_task_selection(indices: [1], anchor: 1)
   end
 
   it 'does not set selection when selected_task is missing in refreshed values' do
     host.send(:refresh_task_state, %w[core ops qa], 'missing')
-
-    expect(host.selected_task_indices).to eq([])
-    expect(host.last_task_anchor_index).to be_nil
+    expect_task_selection(indices: [], anchor: nil)
   end
 
   it 'removes an already selected index on toggle' do
@@ -39,5 +35,12 @@ RSpec.describe QTimetrap::ProjectSidebar::TaskSelectionHelpers do
     host.send(:toggle_task_index, 2)
 
     expect(host.selected_task_indices).to eq([0])
+  end
+
+  private
+
+  def expect_task_selection(indices:, anchor:)
+    expect(host.selected_task_indices).to eq(indices)
+    expect(host.last_task_anchor_index).to eq(anchor)
   end
 end

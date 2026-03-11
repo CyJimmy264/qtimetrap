@@ -39,16 +39,8 @@ RSpec.describe QTimetrap::Container do
   end
 
   it 'supports runtime registration and symbolized keys' do
-    container = described_class.new(config: config)
-    calls = 0
-    container.register('custom') do
-      calls += 1
-      :value
-    end
-
-    expect(container.fetch(:custom)).to eq(:value)
-    expect(container.fetch('custom')).to eq(:value)
-    expect(calls).to eq(1)
+    container, calls = container_with_registered_value
+    expect_registered_value(container, calls)
   end
 
   private
@@ -57,5 +49,21 @@ RSpec.describe QTimetrap::Container do
     expect(container.fetch(key)).to equal(value)
     expect(container.fetch(key.to_s)).to equal(value)
     expect(provider).to have_received(:new).once
+  end
+
+  def expect_registered_value(container, calls)
+    expect(container.fetch(:custom)).to eq(:value)
+    expect(container.fetch('custom')).to eq(:value)
+    expect(calls.call).to eq(1)
+  end
+
+  def container_with_registered_value
+    count = 0
+    container = described_class.new(config: config)
+    container.register('custom') do
+      count += 1
+      :value
+    end
+    [container, -> { count }]
   end
 end

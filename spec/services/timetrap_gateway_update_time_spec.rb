@@ -18,13 +18,9 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
 
   it 'updates start and end via CLI when API is unavailable' do
     stub_const('Timetrap', Module.new)
-    allow(Open3).to receive(:capture2e)
-      .with(*expected_cli_args)
-      .and_return(cmd_result(output: '', success: true))
-
+    stub_cli_time_update
     gateway.update_time(42, start_time: start_time, end_time: end_time)
-
-    expect(Open3).to have_received(:capture2e).with(*expected_cli_args)
+    expect_cli_time_update
   end
 
   def expected_cli_args
@@ -76,5 +72,15 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
     expect(entry).to have_received(:start=).with(start_time)
     expect(entry).to have_received(:end=).with(end_time)
     expect(entry).to have_received(:save)
+  end
+
+  def stub_cli_time_update
+    allow(Open3).to receive(:capture2e)
+      .with(*expected_cli_args)
+      .and_return(cmd_result(output: '', success: true))
+  end
+
+  def expect_cli_time_update
+    expect(Open3).to have_received(:capture2e).with(*expected_cli_args)
   end
 end

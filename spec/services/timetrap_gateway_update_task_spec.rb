@@ -24,17 +24,8 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   private
 
   def stub_api_task_update_entry
-    entry_class = Class.new do
-      def id; end
-
-      def update(**); end
-    end
-    instance_double(entry_class).tap do |entry|
-      allow(Timetrap::Entry).to receive(:[]).with(42).and_return(entry)
-      allow(Timetrap::Timer).to receive(:active_entry).and_return(entry)
-      allow(Timetrap::Timer).to receive(:current_sheet=)
-      allow(entry).to receive(:id).and_return(42)
-      allow(entry).to receive(:update)
+    build_task_update_entry.tap do |entry|
+      stub_task_update_api(entry)
     end
   end
 
@@ -51,5 +42,20 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
 
   def expect_cli_task_update
     expect(Open3).to have_received(:capture2e).with('t', 'edit', '--id', '42', '--move', sheet)
+  end
+
+  def build_task_update_entry
+    entry_class = Class.new do
+      def id; end
+
+      def update(**); end
+    end
+    instance_double(entry_class, id: 42, update: nil)
+  end
+
+  def stub_task_update_api(entry)
+    allow(Timetrap::Entry).to receive(:[]).with(42).and_return(entry)
+    allow(Timetrap::Timer).to receive(:active_entry).and_return(entry)
+    allow(Timetrap::Timer).to receive(:current_sheet=)
   end
 end

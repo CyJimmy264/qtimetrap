@@ -12,7 +12,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   it 'restores and persists window geometry through settings store' do
-    restore_and_persist_window_geometry
+    restored_window, restored_qt_window = restore_and_persist_window_geometry
+    expect(restored_qt_window).not_to be_nil
   ensure
     restored_window&.send(:heartbeat)&.stop
     restored_qt_window&.close
@@ -93,21 +94,18 @@ RSpec.describe QTimetrap::Views::MainWindow do
   end
 
   def restore_and_persist_window_geometry
+    restored_window, restored_qt_window = build_restored_window
+    expect_window_geometry(restored_qt_window, [70, 80, 1200, 760])
+    restored_window.close
+    expect_persisted_geometry
+    [restored_window, restored_qt_window]
+  end
+
+  def build_restored_window
     allow(settings_store).to receive(:read_window_geometry).and_return(left: 70, top: 80, width: 1200, height: 760)
     allow(settings_store).to receive(:write_window_geometry)
-    @restored_window = described_class.new(view_model: view_model, settings_store: settings_store)
-    @restored_qt_window = @restored_window.send(:window)
-    expect_window_geometry(@restored_qt_window, [70, 80, 1200, 760])
-    @restored_window.close
-    expect_persisted_geometry
-  end
-
-  def restored_window
-    @restored_window
-  end
-
-  def restored_qt_window
-    @restored_qt_window
+    restored_window = described_class.new(view_model: view_model, settings_store: settings_store)
+    [restored_window, restored_window.send(:window)]
   end
 
   def window_visibility_after_show_and_close

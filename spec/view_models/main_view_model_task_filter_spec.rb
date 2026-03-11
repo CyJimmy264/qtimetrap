@@ -46,10 +46,10 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
   def project_labels_for_entry_nodes
     view_model.entry_nodes
-      .flat_map { |week| week.fetch(:children) }
-      .flat_map { |day| day.fetch(:children) }
-      .map { |project| project.fetch(:label) }
-      .join(' ')
+              .flat_map { |week| week.fetch(:children) }
+              .flat_map { |day| day.fetch(:children) }
+              .map { |project| project.fetch(:label) }
+              .join(' ')
   end
 
   def expect_project_labels_to_include_only(included_label, excluding:)

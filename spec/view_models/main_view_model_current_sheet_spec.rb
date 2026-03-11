@@ -13,7 +13,7 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
   it 'keeps project label stable while running' do
     started_at = Time.new(2026, 2, 28, 10, 0, 0, '+00:00')
-    allow(gateway).to receive_messages(active_started_at: started_at, entries: [running_entry(id: 9, started_at: started_at)])
+    stub_running_started_at(started_at)
     view_model.refresh!
     expect(view_model.current_sheet_label(now: started_at + 65)).to eq('focus')
   end
@@ -64,6 +64,13 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
       sheet: 'focus|deep',
       start_time: started_at,
       end_time: nil
+    )
+  end
+
+  def stub_running_started_at(started_at)
+    allow(gateway).to receive_messages(
+      active_started_at: started_at,
+      entries: [running_entry(id: 9, started_at: started_at)]
     )
   end
 

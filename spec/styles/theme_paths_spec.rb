@@ -23,8 +23,7 @@ RSpec.describe QTimetrap::Styles::Theme do
     write_snippet('light', 'chip', 'QLabel#chip { color: #111; }')
 
     dark = described_class.new(name: 'dark', root: tmp_root)
-    expect(dark.snippet('badge')).to include('#badge')
-    expect(dark.snippet('chip')).to include('#chip')
+    expect_snippets(dark, badge: '#badge', chip: '#chip')
   end
 
   private
@@ -39,5 +38,10 @@ RSpec.describe QTimetrap::Styles::Theme do
     path = File.join(tmp_root, 'app', 'styles', 'themes', theme, 'snippets', "#{name}.qss")
     FileUtils.mkdir_p(File.dirname(path))
     File.write(path, content)
+  end
+
+  def expect_snippets(theme, badge:, chip:)
+    expect(theme.snippet('badge')).to include(badge)
+    expect(theme.snippet('chip')).to include(chip)
   end
 end

@@ -29,9 +29,9 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   private
 
   def stub_start_stop_commands
-    allow(Open3).to receive(:capture2e).with('t', 'sheet', 'focus').and_return(cmd_result(output: '', success: true))
-    allow(Open3).to receive(:capture2e).with('t', 'in').and_return(cmd_result(output: '', success: true))
-    allow(Open3).to receive(:capture2e).with('t', 'out').and_return(cmd_result(output: '', success: true))
+    stub_cli_success('t', 'sheet', 'focus')
+    stub_cli_success('t', 'in')
+    stub_cli_success('t', 'out')
   end
 
   def run_start_stop_commands
@@ -48,6 +48,10 @@ RSpec.describe QTimetrap::Services::TimetrapGateway do
   def binary_sheet_name
     allow(Open3).to receive(:capture2e).and_return(cmd_result(output: '', success: true))
     "focus-\xFF".b
+  end
+
+  def stub_cli_success(*args)
+    allow(Open3).to receive(:capture2e).with(*args).and_return(cmd_result(output: '', success: true))
   end
 
   def expect_normalized_sheet_command

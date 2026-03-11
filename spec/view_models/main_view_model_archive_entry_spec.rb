@@ -56,10 +56,10 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
   def rendered_entry_ids
     view_model.entry_nodes
-      .flat_map { |week| week.fetch(:children) }
-      .flat_map { |day| day.fetch(:children) }
-      .flat_map { |project| project.fetch(:children) }
-      .map { |entry| entry.fetch(:entry_id) }
+              .flat_map { |week| week.fetch(:children) }
+              .flat_map { |day| day.fetch(:children) }
+              .flat_map { |project| project.fetch(:children) }
+              .map { |entry| entry.fetch(:entry_id) }
   end
 
   def expect_archive_mode_render_state

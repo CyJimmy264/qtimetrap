@@ -20,14 +20,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
   it 'keeps week nodes interactive during top-down/bottom-up x10 toggles' do
     main_window.send(:render!)
-
-    10.times do
-      week_buttons_top_down.each { |button| click_button(button) }
-      expect(week_buttons_top_down).to all(satisfy { |button| collapsed_button?(button) })
-
-      week_buttons_bottom_up.each { |button| click_button(button) }
-      expect(week_buttons_top_down).to all(satisfy { |button| expanded_button?(button) })
-    end
+    repeat_week_toggle_cycles(10)
+    expect_week_buttons_expanded
   end
 
   private
@@ -75,6 +69,26 @@ RSpec.describe QTimetrap::Views::MainWindow do
   def click_button(button)
     button.click
     QApplication.process_events
+  end
+
+  def repeat_week_toggle_cycles(count)
+    count.times do
+      collapse_week_buttons
+      expand_week_buttons
+    end
+  end
+
+  def collapse_week_buttons
+    week_buttons_top_down.each { |button| click_button(button) }
+    expect(week_buttons_top_down).to all(satisfy { |button| collapsed_button?(button) })
+  end
+
+  def expand_week_buttons
+    week_buttons_bottom_up.each { |button| click_button(button) }
+  end
+
+  def expect_week_buttons_expanded
+    expect(week_buttons_top_down).to all(satisfy { |button| expanded_button?(button) })
   end
 
   def collapsed_button?(button)

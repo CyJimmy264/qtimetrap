@@ -10,8 +10,17 @@ RSpec.describe QTimetrap::ViewModels::MainViewModel do
 
     view_model.update_entry_note(entry_today.id, 'new note')
 
-    expect(gateway).to have_received(:update_note).with(entry_today.id, 'new note')
-    updated = view_model.entries.find { |entry| entry.id == entry_today.id }
-    expect(updated.note).to eq('new note')
+    expect_note_update('new note')
+  end
+
+  private
+
+  def updated_entry
+    view_model.entries.find { |entry| entry.id == entry_today.id }
+  end
+
+  def expect_note_update(note)
+    expect(gateway).to have_received(:update_note).with(entry_today.id, note)
+    expect(updated_entry.note).to eq(note)
   end
 end

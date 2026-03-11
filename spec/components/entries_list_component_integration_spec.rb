@@ -140,13 +140,13 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   it 'keeps chosen from datetime when checkbox is off' do
     render_component(entry_nodes)
     chosen = Time.new(2026, 3, 1, 10, 0, 0, '+00:00')
-    keep_chosen_datetime('entries_time_filter_from', chosen)
+    expect(keep_chosen_datetime('entries_time_filter_from', chosen)).to eq(chosen.to_i)
   end
 
   it 'keeps chosen to datetime when checkbox is off' do
     render_component(entry_nodes)
     chosen = Time.new(2026, 3, 1, 18, 0, 0, '+00:00')
-    keep_chosen_datetime('entries_time_filter_to', chosen)
+    expect(keep_chosen_datetime('entries_time_filter_to', chosen)).to eq(chosen.to_i)
   end
 
   it 'renders archive icon button and sends archive callback' do
@@ -433,7 +433,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     QApplication.process_events
     component.update_time_range_inputs(from_at: nil, to_at: nil)
     QApplication.process_events
-    expect(input.date_time.to_i).to eq(chosen.to_i)
+    input.date_time.to_i
   end
 
   def click_archive_button
