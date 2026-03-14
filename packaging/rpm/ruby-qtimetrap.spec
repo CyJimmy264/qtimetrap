@@ -1,5 +1,5 @@
 Name:           ruby-qtimetrap
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        Desktop Timetrap UI built with Ruby + Qt
 
@@ -83,5 +83,8 @@ find %{buildroot} -type f \( -name gem_make.out -o -name mkmf.log \) -delete
 %{gem_dir}/extensions
 
 %changelog
+* Sat Mar 14 2026 Maksim Veynberg <mv@cj264.ru> - 0.1.1-1
+- Update package to 0.1.1
+
 * Thu Mar 05 2026 Maksim Veynberg <mv@cj264.ru> - 0.1.0-1
 - Initial Fedora/COPR packaging for ruby-qtimetrap
