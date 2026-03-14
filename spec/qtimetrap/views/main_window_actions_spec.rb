@@ -53,6 +53,33 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect_space_shortcut_to_start_without_toggling_archive
   end
 
+  it 'clears editable line edit focus on click outside inputs' do
+    focus_task_input
+    allow(qt_window).to receive(:child_at).with(12, 18).and_return(button_with_text('START'))
+
+    main_window.send(:on_mouse_button_press, { a: 12, b: 18 }, source_widget: qt_window)
+
+    expect(task_input).to have_received(:clear_focus)
+  end
+
+  it 'keeps editable line edit focus on click inside another editable input' do
+    focus_task_input
+    allow(qt_window).to receive(:child_at).with(24, 30).and_return(project_input)
+
+    main_window.send(:on_mouse_button_press, { a: 24, b: 30 }, source_widget: qt_window)
+
+    expect(task_input).not_to have_received(:clear_focus)
+  end
+
+  it 'clears editable line edit focus on click in empty sidebar area' do
+    focus_task_input
+    allow(sidebar_panel).to receive(:child_at).with(30, 220).and_return(nil)
+
+    main_window.send(:on_mouse_button_press, { a: 30, b: 220 }, source_widget: sidebar_panel)
+
+    expect(task_input).to have_received(:clear_focus)
+  end
+
   it 'does not auto-focus task input on startup' do
     main_window.show
     QApplication.process_events
@@ -122,6 +149,7 @@ RSpec.describe QTimetrap::Views::MainWindow do
     main_window.show
     QApplication.process_events
     task_input = find_widget(qt_window, 'task_input')
+    allow(task_input).to receive(:clear_focus).and_call_original
     task_input.set_focus
     allow(qt_window).to receive(:focus_widget).and_return(task_input)
     QApplication.process_events
@@ -135,6 +163,18 @@ RSpec.describe QTimetrap::Views::MainWindow do
   def focus_archive_toggle
     archive_toggle = find_widget(qt_window, 'sidebar_archive_toggle')
     allow(qt_window).to receive(:focus_widget).and_return(archive_toggle)
+  end
+
+  def task_input
+    find_widget(qt_window, 'task_input')
+  end
+
+  def project_input
+    find_widget(qt_window, 'project_input')
+  end
+
+  def sidebar_panel
+    find_widget(qt_window, 'sidebar_panel')
   end
 
   def expect_space_shortcut_to_start_without_toggling_archive

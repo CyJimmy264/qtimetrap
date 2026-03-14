@@ -123,6 +123,11 @@ RSpec.describe QTimetrap::Views::MainWindow do
       .with(['internal'], primary_project: 'internal', sync_current_fields: false)
   end
 
+  it 'keeps current task/project inputs unchanged on sidebar task click while running' do
+    stub_running_sidebar_task_state
+    expect_task_click_while_running_to_preserve_inputs('ops')
+  end
+
   it 'locks task/project inputs when tracking is running' do
     allow(view_model).to receive(:running_current_sheet?).and_return(true)
     main_window.send(:render!)
@@ -257,6 +262,23 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(view_model).not_to have_received(:current_project_name=).with(project)
   end
 
+  def expect_task_click_while_running_to_preserve_inputs(task)
+    main_window.send(:render!)
+    previous_inputs = current_input_values
+    button_with_text(task).click
+    expect_task_click_to_keep_current_inputs(previous_inputs)
+    expect_task_selection_without_current_field_update(task)
+  end
+
+  def expect_task_click_to_keep_current_inputs(previous_inputs)
+    expect(current_input_values).to eq(previous_inputs)
+  end
+
+  def expect_task_selection_without_current_field_update(task)
+    expect(view_model).to have_received(:select_tasks).with([task])
+    expect(view_model).not_to have_received(:current_task_input=).with(task)
+  end
+
   def read_only_input_values
     [task_input.is_read_only, project_input.is_read_only]
   end
@@ -279,6 +301,18 @@ RSpec.describe QTimetrap::Views::MainWindow do
       project_names: ['* ALL', 'acme', 'internal'],
       current_sheet_input: 'running-task',
       current_project_name: 'running-project',
+      running_current_sheet?: true
+    )
+  end
+
+  def stub_running_sidebar_task_state
+    stub_sidebar_project_state(
+      selected_project: 'acme',
+      selected_projects: ['acme'],
+      project_names: ['* ALL', 'acme'],
+      current_sheet_input: 'running-task',
+      current_project_name: 'running-project',
+      task_names_for_selected_project: %w[core ops],
       running_current_sheet?: true
     )
   end

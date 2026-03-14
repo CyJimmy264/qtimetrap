@@ -65,8 +65,10 @@ module QTimetrap
 
       def handle_task_selected(tasks, task)
         view_model.select_tasks(tasks)
-        view_model.current_task_input = task.to_s
-        controls.update_task_input(view_model.current_sheet_input)
+        unless view_model.running_current_sheet?
+          view_model.current_task_input = task.to_s
+          controls.update_task_input(view_model.current_sheet_input)
+        end
         render_controls(sync_sheet: false)
         entries.render(view_model.entry_nodes)
       end

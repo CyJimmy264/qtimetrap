@@ -29,18 +29,14 @@ module QTimetrap
         connect_heartbeat
       end
 
-      def show
-        window.show
-      end
+      def show = window.show
 
       def close
         persist_window_geometry
         window.close
       end
 
-      def request_shutdown
-        @shutdown_requested = true
-      end
+      def request_shutdown = @shutdown_requested = true
 
       private
 
@@ -69,11 +65,19 @@ module QTimetrap
 
       def connect_key_events
         window.on(:key_press) { |event| on_key_press(event) }
+        register_blur_click_source(window)
+        register_blur_click_source(sidebar.widget)
+        register_blur_click_source(controls.widget)
+        register_blur_click_source(entries.widget)
       end
 
       def connect_shortcuts
         @space_shortcut = QShortcut.new(QKeySequence.new('Space'), window)
         @space_shortcut.connect('activated') { |_| on_space_shortcut }
+      end
+
+      def register_blur_click_source(widget)
+        widget.on(:mouse_button_press) { |event| on_mouse_button_press(event, source_widget: widget) }
       end
 
       def restore_window_geometry
