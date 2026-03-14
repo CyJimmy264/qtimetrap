@@ -19,7 +19,7 @@ QTimetrap follows an MVVM-style architecture with `Zeitwerk` autoloading and a R
 ## Requirements
 
 - Ruby `>= 3.2`
-- Qt bridge gem: `qt >= 0.1.0`
+- Qt bridge gem: `qt >= 0.1.4`
 - `timetrap` CLI available as `t` (or configured via env)
 
 ## Install
