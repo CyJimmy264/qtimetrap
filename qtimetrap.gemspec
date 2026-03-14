@@ -33,6 +33,6 @@ Gem::Specification.new do |spec|
   spec.metadata['bug_tracker_uri'] = "#{spec.homepage}/issues"
   spec.metadata['rubygems_mfa_required'] = 'true'
 
-  spec.add_dependency 'qt', '>= 0.1.4'
+  spec.add_dependency 'qt', '~> 0.1', '>= 0.1.4'
   spec.add_dependency 'zeitwerk', '~> 2.6'
 end
