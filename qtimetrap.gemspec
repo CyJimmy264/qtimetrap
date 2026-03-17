@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
     'config/**/*',
     'lib/**/*.rb',
     'README.md',
+    'CHANGELOG.md',
     'LICENSE',
     'Rakefile'
   ]
@@ -29,10 +30,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.metadata['source_code_uri'] = spec.homepage
-  spec.metadata['changelog_uri'] = "#{spec.homepage}/releases"
+  spec.metadata['changelog_uri'] = "#{spec.homepage}/blob/master/CHANGELOG.md"
   spec.metadata['bug_tracker_uri'] = "#{spec.homepage}/issues"
   spec.metadata['rubygems_mfa_required'] = 'true'
 
-  spec.add_dependency 'qt', '~> 0.1', '>= 0.1.4'
+  spec.add_dependency 'qt', '~> 0.1', '>= 0.1.7'
   spec.add_dependency 'zeitwerk', '~> 2.6'
 end

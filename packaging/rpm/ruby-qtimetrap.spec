@@ -1,5 +1,5 @@
 Name:           ruby-qtimetrap
-Version:        0.1.1
+Version:        0.1.2
 Release:        1%{?dist}
 Summary:        Desktop Timetrap UI built with Ruby + Qt
 
@@ -16,8 +16,8 @@ BuildRequires:  rubygem-ffi
 BuildRequires:  desktop-file-utils
 
 Requires:       ruby
-Requires:       ruby-qt >= 0.1.4
-Requires:       rubygem(qt) >= 0.1.4
+Requires:       ruby-qt >= 0.1.7
+Requires:       rubygem(qt) >= 0.1.7
 Requires:       rubygem(zeitwerk)
 
 %global gem_name qtimetrap
@@ -83,6 +83,9 @@ find %{buildroot} -type f \( -name gem_make.out -o -name mkmf.log \) -delete
 %{gem_dir}/extensions
 
 %changelog
+* Tue Mar 17 2026 Maksim Veynberg <mv@cj264.ru> - 0.1.2-1
+- Update package to 0.1.2
+
 * Sat Mar 14 2026 Maksim Veynberg <mv@cj264.ru> - 0.1.1-1
 - Update package to 0.1.1
 

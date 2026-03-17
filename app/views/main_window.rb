@@ -67,7 +67,6 @@ module QTimetrap
         window.on(:key_press) { |event| on_key_press(event) }
         register_blur_click_source(window)
         register_blur_click_source(sidebar.widget)
-        register_blur_click_source(controls.widget)
         register_blur_click_source(entries.widget)
       end
 

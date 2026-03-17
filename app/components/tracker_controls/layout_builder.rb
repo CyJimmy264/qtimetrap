@@ -61,6 +61,7 @@ module QTimetrap
           input.placeholder_text = 'What are you working on?'
           input.focus_policy = Qt::ClickFocus
           input.text = ''
+          bind_input_focus_on_click(input)
         end
       end
 
@@ -71,6 +72,7 @@ module QTimetrap
           input.focus_policy = Qt::ClickFocus
           input.text = ''
           input.fixed_width = 190
+          bind_input_focus_on_click(input)
         end
       end
 
@@ -94,6 +96,12 @@ module QTimetrap
 
       def connect_project_input
         @project_input.connect('textChanged(QString)') { |text| callbacks.fetch(:on_project_change).call(text.to_s) }
+      end
+
+      def bind_input_focus_on_click(input)
+        input.on(:mouse_button_press) do |_|
+          input.set_focus unless input.is_read_only
+        end
       end
     end
   end
