@@ -46,7 +46,7 @@ module QTimetrap
         @window = build_base_window
         restore_window_geometry
         set_window_icon
-        window.set_style_sheet(theme.application_stylesheet)
+        window.style_sheet = theme.application_stylesheet
         ui = MainWindowLayoutBuilder.new(
           window: window,
           callbacks: layout_callbacks
@@ -58,7 +58,7 @@ module QTimetrap
 
       def connect_heartbeat
         @heartbeat = QTimer.new(window)
-        heartbeat.set_interval(HEARTBEAT_MS)
+        heartbeat.interval = HEARTBEAT_MS
         heartbeat.connect('timeout') { |_| on_tick }
         heartbeat.start
       end

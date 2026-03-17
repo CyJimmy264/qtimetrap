@@ -190,7 +190,7 @@ QLineEdit#entry_node_entry_note:focus {
   padding-left: 6px;
 }
 
-QComboBox#entry_node_entry_task {
+QLineEdit#entry_node_entry_task {
   color: #94a3b8;
   font-size: 12px;
   background: transparent;
@@ -198,13 +198,33 @@ QComboBox#entry_node_entry_task {
   padding-left: 2px;
 }
 
-QComboBox#entry_node_entry_task:focus {
+QLineEdit#entry_node_entry_task:read-only {
+  background: transparent;
+  border: 0px;
+}
+
+QLineEdit#entry_node_entry_task:focus {
   background-color: #111827;
   border: 1px solid #334155;
   border-radius: 6px;
 }
 
-QComboBox#entry_node_entry_task QAbstractItemView {
+QComboBox#entry_node_entry_task_editor {
+  color: #94a3b8;
+  font-size: 12px;
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding-left: 2px;
+}
+
+QComboBox#entry_node_entry_task_editor:focus {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 6px;
+}
+
+QComboBox#entry_node_entry_task_editor QAbstractItemView {
   background-color: #111827;
   color: #e2e8f0;
   border: 1px solid #334155;

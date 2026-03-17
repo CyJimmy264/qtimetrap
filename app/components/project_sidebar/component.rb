@@ -31,7 +31,7 @@ module QTimetrap
         selection = selection_state(selection)
         render_projects(projects: values, selection: selection)
         render_tasks(tasks: tasks, selected_project: selection.fetch(:selected_project), selected_task: selected_task)
-        archive_toggle_button.set_checked(archive_mode)
+        archive_toggle_button.checked = archive_mode
       end
 
       private
@@ -41,7 +41,7 @@ module QTimetrap
 
       def build
         @widget = QWidget.new(parent)
-        widget.set_object_name('sidebar_panel')
+        widget.object_name = 'sidebar_panel'
         layout = build_root_layout
         add_static_sidebar_sections(layout)
         @buttons_layout = build_buttons_layout
@@ -56,9 +56,9 @@ module QTimetrap
         slot[:project] = project
         view = slot[:view]
 
-        view.set_text(project[0, 24])
-        view.set_disabled(false)
-        view.set_checked(selected_project_indices.include?(index))
+        view.text = project[0, 24]
+        view.disabled = false
+        view.checked = selected_project_indices.include?(index)
         view.show
       end
 
@@ -78,7 +78,7 @@ module QTimetrap
       def build_root_layout
         QVBoxLayout.new(widget).tap do |layout|
           layout.set_contents_margins(12, 12, 12, 12)
-          layout.set_spacing(8)
+          layout.spacing = 8
         end
       end
 
@@ -117,7 +117,7 @@ module QTimetrap
       def build_buttons_layout
         QVBoxLayout.new.tap do |layout|
           layout.set_contents_margins(0, 0, 0, 0)
-          layout.set_spacing(8)
+          layout.spacing = 8
         end
       end
     end

@@ -8,7 +8,7 @@ module QTimetrap
 
       def build_toolbar(parent_widget:)
         toolbar = QWidget.new(parent_widget)
-        toolbar.set_object_name('entries_toolbar')
+        toolbar.object_name = 'entries_toolbar'
         layout = build_toolbar_layout(toolbar)
         add_tree_toolbar_buttons(layout, toolbar)
         add_time_filter_controls(layout, toolbar)
@@ -20,7 +20,7 @@ module QTimetrap
       def build_toolbar_layout(toolbar)
         QHBoxLayout.new(toolbar).tap do |layout|
           layout.set_contents_margins(0, 0, 0, 0)
-          layout.set_spacing(8)
+          layout.spacing = 8
         end
       end
 
@@ -74,22 +74,22 @@ module QTimetrap
 
       def build_filter_toggle(parent_widget, name, text)
         QCheckBox.new(parent_widget).tap do |checkbox|
-          checkbox.set_object_name(name)
-          checkbox.set_text(text)
-          checkbox.set_focus_policy(Qt::NoFocus)
-          checkbox.set_fixed_height(28)
+          checkbox.object_name = name
+          checkbox.text = text
+          checkbox.focus_policy = Qt::NoFocus
+          checkbox.fixed_height = 28
           checkbox.connect('clicked') { |_| on_filter_toggle_changed }
         end
       end
 
       def build_filter_input(parent_widget, name)
         QDateTimeEdit.new(parent_widget).tap do |input|
-          input.set_object_name(name)
-          input.set_focus_policy(Qt::ClickFocus)
-          input.set_fixed_width(172)
-          input.set_calendar_popup(true)
-          input.set_display_format('yyyy-MM-dd HH:mm')
-          input.set_date_time(Time.now)
+          input.object_name = name
+          input.focus_policy = Qt::ClickFocus
+          input.fixed_width = 172
+          input.calendar_popup = true
+          input.display_format = 'yyyy-MM-dd HH:mm'
+          input.date_time = Time.now
           input.connect('dateTimeChanged(QDateTime)') { |_| schedule_time_range_filter_changed }
         end
       end

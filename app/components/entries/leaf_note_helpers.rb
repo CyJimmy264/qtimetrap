@@ -31,32 +31,32 @@ module QTimetrap
 
       def build_entry_row(parent_widget)
         QWidget.new(parent_widget).tap do |row|
-          row.set_object_name('entry_node_entry_row')
-          row.set_fixed_width(branch_button_width)
-          row.set_fixed_height(32)
+          row.object_name = 'entry_node_entry_row'
+          row.fixed_width = branch_button_width
+          row.fixed_height = 32
         end
       end
 
       def build_entry_row_layout(row)
         QHBoxLayout.new(row).tap do |layout|
           layout.set_contents_margins(8, 0, 8, 0)
-          layout.set_spacing(6)
+          layout.spacing = 6
         end
       end
 
       def build_entry_prefix_label(row, node, level)
         QLabel.new(row).tap do |prefix_label|
-          prefix_label.set_object_name('entry_node_entry_prefix')
-          prefix_label.set_text("#{indent(level)}#{node.fetch(:prefix, node.fetch(:label))}")
+          prefix_label.object_name = 'entry_node_entry_prefix'
+          prefix_label.text = "#{indent(level)}#{node.fetch(:prefix, node.fetch(:label))}"
         end
       end
 
       def build_entry_note_input(row, node)
         QLineEdit.new(row).tap do |note_input|
-          note_input.set_object_name('entry_node_entry_note')
+          note_input.object_name = 'entry_node_entry_note'
           note_input.text = node.fetch(:note, '')
-          note_input.set_placeholder_text('(no note)')
-          note_input.set_read_only(true)
+          note_input.placeholder_text = '(no note)'
+          note_input.read_only = true
           bind_entry_note_input_events(note_input, resolve_entry_id(node))
         end
       end
@@ -83,12 +83,12 @@ module QTimetrap
       end
 
       def activate_entry_note_input(note_input)
-        note_input.set_read_only(false)
+        note_input.read_only = false
         note_input.set_focus
       end
 
       def deactivate_entry_note_input(note_input)
-        note_input.set_read_only(true)
+        note_input.read_only = true
         note_input.clear_focus
       end
 

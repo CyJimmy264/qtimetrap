@@ -17,12 +17,12 @@ module QTimetrap
       end
 
       def update_summary(text)
-        summary_label.set_text(text)
+        summary_label.text = text
       end
 
       def update_project_input(project_name)
         value = project_name.to_s.strip
-        project_input.set_text(value)
+        project_input.text = value
       end
 
       def update_task_input(text)
@@ -30,14 +30,14 @@ module QTimetrap
       end
 
       def update_theme_label(theme_name)
-        theme_button.set_text("THEME: #{theme_name.upcase}")
+        theme_button.text = "THEME: #{theme_name.upcase}"
       end
 
       def update_action_button(running:)
-        start_button.set_visible(!running)
-        stop_button.set_visible(running)
-        task_input.set_read_only(running)
-        project_input.set_read_only(running)
+        start_button.visible = !running
+        stop_button.visible = running
+        task_input.read_only = running
+        project_input.read_only = running
       end
 
       private
@@ -49,7 +49,7 @@ module QTimetrap
         available = [timer_label.width - TIMER_HORIZONTAL_PADDING, 24].max
         estimated = (available / (chars * TIMER_CHAR_WIDTH_FACTOR)).floor
         font_size = estimated.clamp(TIMER_FONT_MIN_PT, TIMER_FONT_MAX_PT)
-        timer_label.set_style_sheet("font-size: #{font_size}pt;")
+        timer_label.style_sheet = "font-size: #{font_size}pt;"
       end
 
       def build_ui(parent:, callbacks:)

@@ -22,17 +22,16 @@ module QTimetrap
 
       def on_mouse_button_press(event, source_widget: window)
         focused = window.focus_widget
-        return unless editable_line_edit?(focused)
-
         target = click_target_widget(source_widget, event)
-        return if editable_line_edit?(target)
+        return if editable_input?(target) || entries.task_editor_widget?(target)
 
-        focused.clear_focus
+        blur_editable_input(focused) if editable_input?(focused)
+        entries.close_active_task_editor
       end
 
       def active_line_edit?
         focused = window.focus_widget
-        editable_line_edit?(focused)
+        editable_input?(focused)
       end
 
       def toggle_tracking_via_space
@@ -49,6 +48,26 @@ module QTimetrap
 
       def editable_line_edit?(widget)
         widget.is_a?(QLineEdit) && !widget.is_read_only
+      end
+
+      def editable_task_combo?(widget)
+        return false unless widget.is_a?(QComboBox)
+
+        widget.object_name == 'entry_node_entry_task_editor'
+      end
+
+      def editable_input?(widget)
+        editable_line_edit?(widget) || editable_task_combo?(widget)
+      end
+
+      def blur_editable_input(widget)
+        if editable_task_combo?(widget)
+          widget.line_edit.clear_focus
+          widget.clear_focus
+          return
+        end
+
+        widget.clear_focus
       end
     end
   end

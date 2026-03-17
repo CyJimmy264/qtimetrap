@@ -15,7 +15,7 @@ module QTimetrap
 
         icon = QIcon.new(candidates.first)
         add_fallbacks(icon, candidates.drop(1))
-        window.set_window_icon(icon)
+        window.window_icon = icon
       end
 
       private

@@ -7,6 +7,8 @@ module QTimetrap
       include BranchHierarchyHelpers
       include LeafArchiveHelpers
       include LeafNoteHelpers
+      include LeafTaskDisplayHelpers
+      include LeafTaskEditorStateHelpers
       include LeafTaskHelpers
       include LeafTimeHelpers
       include NodePresentationHelpers
@@ -19,8 +21,8 @@ module QTimetrap
       end
 
       def set_initial_filter_ui_state
-        time_filter_from_toggle.set_checked(false)
-        time_filter_to_toggle.set_checked(false)
+        time_filter_from_toggle.checked = false
+        time_filter_to_toggle.checked = false
       end
 
       def emit_time_range_filter_changed
@@ -103,10 +105,10 @@ module QTimetrap
 
       def render_default_leaf_node(node, level, parent_widget:, layout:)
         label = QLabel.new(parent_widget)
-        label.set_object_name(object_name_for(node))
-        label.set_text("#{indent(level)}#{node.fetch(:label)}")
-        label.set_fixed_width(branch_button_width)
-        label.set_fixed_height(32)
+        label.object_name = object_name_for(node)
+        label.text = "#{indent(level)}#{node.fetch(:label)}"
+        label.fixed_width = branch_button_width
+        label.fixed_height = 32
         leaf_labels << label
         layout.add_widget(label)
       end
@@ -123,7 +125,7 @@ module QTimetrap
       def build_branch_button(node, level, expanded_state, parent_widget:)
         text = branch_button_text(level, node.fetch(:label), expanded_state)
         button = build_button(parent_widget, object_name_for(node), text, 0, 32)
-        button.set_fixed_width(branch_button_width)
+        button.fixed_width = branch_button_width
         node_id = node.fetch(:id)
         button.connect('clicked') { |_| toggle_node(node_id) }
         button

@@ -28,7 +28,7 @@ module QTimetrap
 
       def build_topbar
         topbar = QWidget.new(widget)
-        topbar.set_object_name('topbar')
+        topbar.object_name = 'topbar'
         layout = QHBoxLayout.new(topbar)
         configure_topbar_layout(layout, topbar)
         topbar
@@ -36,10 +36,10 @@ module QTimetrap
 
       def build_tracker_row(root_layout)
         row = QWidget.new(widget)
-        row.set_object_name('tracker_row')
+        row.object_name = 'tracker_row'
         layout = QHBoxLayout.new(row)
         layout.set_contents_margins(14, 12, 14, 12)
-        layout.set_spacing(8)
+        layout.spacing = 8
         start_button, stop_button = add_tracker_row_widgets(layout, row)
         root_layout.add_widget(row)
         [start_button, stop_button]
@@ -49,7 +49,7 @@ module QTimetrap
         row = QWidget.new(widget)
         layout = QHBoxLayout.new(row)
         layout.set_contents_margins(0, 0, 0, 0)
-        layout.set_spacing(8)
+        layout.spacing = 8
         refresh_button = add_actions_row_widgets(layout, row)
         root_layout.add_widget(row)
         refresh_button
@@ -57,20 +57,20 @@ module QTimetrap
 
       def build_task_input(parent_widget)
         QLineEdit.new(parent_widget).tap do |input|
-          input.set_object_name('task_input')
-          input.set_placeholder_text('What are you working on?')
-          input.set_focus_policy(Qt::ClickFocus)
+          input.object_name = 'task_input'
+          input.placeholder_text = 'What are you working on?'
+          input.focus_policy = Qt::ClickFocus
           input.text = ''
         end
       end
 
       def build_project_input(parent_widget)
         QLineEdit.new(parent_widget).tap do |input|
-          input.set_object_name('project_input')
-          input.set_placeholder_text('your project')
-          input.set_focus_policy(Qt::ClickFocus)
+          input.object_name = 'project_input'
+          input.placeholder_text = 'your project'
+          input.focus_policy = Qt::ClickFocus
           input.text = ''
-          input.set_fixed_width(190)
+          input.fixed_width = 190
         end
       end
 

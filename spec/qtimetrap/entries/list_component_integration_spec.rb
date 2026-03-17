@@ -64,11 +64,16 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect_time_inputs(start_input, end_input, start_text: '10:00', end_text: '11:00', read_only: true)
   end
 
-  it 'renders editable task combo with recent task suggestions' do
+  it 'renders task display input and hidden combo editor' do
     render_component(entry_nodes)
 
-    task_input = entry_task_input
-    expect_task_input_state(task_input)
+    task_container = entry_task_input
+    expect_task_input_state(task_container)
+  end
+
+  it 'keeps full task name in tooltip for display and editor' do
+    render_component(entry_nodes)
+    expect_task_tooltips('core')
   end
 
   it 'commits edited task value on Enter' do
@@ -77,14 +82,29 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect_task_commit('deploy')
   end
 
-  it 'commits selected task from combo activation' do
+  it 'commits task value when forced' do
     render_component(entry_nodes)
-
-    task_input = entry_task_input
-    task_input.set_current_text('ops')
-    component.send(:handle_entry_task_commit, task_input, 1, force: true)
-
+    force_commit_entry_task_input('ops')
     expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, 'ops')
+  end
+
+  it 'returns from combo editor to display input on task editor blur' do
+    render_component(entry_nodes)
+    blur_entry_task_editor
+    expect_task_editor_deactivated
+  end
+
+  it 'keeps combo editor visible immediately after activation' do
+    render_component(entry_nodes)
+    activate_entry_task_editor
+    expect_task_editor_activated
+  end
+
+  it 'keeps only one active task combo editor at a time' do
+    render_component(two_entry_nodes)
+    activate_first_task_editor
+    activate_second_task_editor
+    expect_only_second_task_editor_active
   end
 
   it 'commits edited start/end values on Enter' do
@@ -217,7 +237,14 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   def entry_task_input
-    descendants(parent).grep(QComboBox).find { |input| input.object_name == 'entry_node_entry_task' }
+    find_line_edit('entry_node_entry_task').parent
+  end
+
+  def all_entry_task_inputs
+    descendants(parent)
+      .grep(QLineEdit)
+      .select { |input| input.object_name == 'entry_node_entry_task' }
+      .map(&:parent)
   end
 
   def entry_end_input
@@ -259,22 +286,53 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect(entry_note_input.is_read_only).to be(true)
   end
 
-  def expect_task_input_state(task_input)
-    expect(task_input).not_to be_nil
-    expect(task_input.current_text.to_s).to eq('core')
-    expect(task_combo_items(task_input)).to eq(%w[core ops deploy])
+  def expect_task_input_state(task_container)
+    expect(task_container).not_to be_nil
+    expect_task_display(task_container)
+    expect_task_editor_options(task_container)
+  end
+
+  def expect_task_tooltips(task_name)
+    task_container = entry_task_input
+    expect(task_display_input(task_container).tool_tip.to_s).to eq(task_name)
+    expect(task_editor(task_container).tool_tip.to_s).to eq(task_name)
   end
 
   def commit_entry_task_input(task_name)
-    task_input = entry_task_input
-    component.send(:activate_entry_task_input, task_input)
-    task_input.set_current_text(task_name)
-    component.send(:handle_entry_task_key_press, task_input, 1, { a: Qt::Key_Return })
+    task_container = entry_task_input
+    component.send(:activate_entry_task_input, task_container)
+    task_editor(task_container).set_current_text(task_name)
+    component.send(:handle_entry_task_key_press, task_container, 1, { a: Qt::Key_Return })
+  end
+
+  def force_commit_entry_task_input(task_name)
+    task_container = entry_task_input
+    component.send(:activate_entry_task_input, task_container)
+    task_editor(task_container).set_current_text(task_name)
+    component.send(:handle_entry_task_commit, task_container, 1, force: true)
+  end
+
+  def blur_entry_task_editor
+    activate_entry_task_editor
+    component.send(:handle_entry_task_focus_out, entry_task_input)
+  end
+
+  def activate_entry_task_editor
+    task_container = entry_task_input
+    component.send(:activate_entry_task_input, task_container)
+  end
+
+  def activate_first_task_editor
+    component.send(:activate_entry_task_input, all_entry_task_inputs.fetch(0))
+  end
+
+  def activate_second_task_editor
+    component.send(:activate_entry_task_input, all_entry_task_inputs.fetch(1))
   end
 
   def expect_task_commit(task_name)
     expect(callbacks.fetch(:on_entry_task_change)).to have_received(:call).with(1, task_name)
-    expect(component.send(:entry_task_line_edit, entry_task_input).is_read_only).to be(true)
+    expect_task_commit_state(task_name)
   end
 
   def expect_time_inputs(start_input, end_input, start_text:, end_text:, read_only:)
@@ -350,8 +408,54 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     descendants(parent).grep(QLineEdit).find { |input| input.object_name == object_name }
   end
 
-  def task_combo_items(task_input)
-    (0...task_input.count).map { |index| task_input.item_text(index).to_s }
+  def task_display_input(task_container)
+    component.send(:entry_task_display_input, task_container)
+  end
+
+  def task_editor(task_container)
+    component.send(:entry_task_editor, task_container)
+  end
+
+  def expect_task_display(task_container)
+    expect(task_display_input(task_container).text.to_s).to eq('core')
+    expect(task_display_input(task_container).is_read_only).to be(true)
+  end
+
+  def expect_task_editor_options(task_container)
+    expect(task_editor(task_container).count).to eq(3)
+    expect(task_editor(task_container).is_hidden).to be(true)
+  end
+
+  def expect_task_commit_state(task_name)
+    expect(task_display_input(entry_task_input).text.to_s).to eq(task_name)
+    expect(task_editor(entry_task_input).is_hidden).to be(true)
+  end
+
+  def expect_task_editor_deactivated
+    expect(task_display_input(entry_task_input).is_hidden).to be(false)
+    expect(task_editor(entry_task_input).is_hidden).to be(true)
+  end
+
+  def expect_task_editor_activated
+    expect(task_display_input(entry_task_input).is_hidden).to be(true)
+    expect(task_editor(entry_task_input).is_hidden).to be(false)
+  end
+
+  def expect_only_second_task_editor_active
+    first = all_entry_task_inputs.fetch(0)
+    second = all_entry_task_inputs.fetch(1)
+    expect_task_editor_closed(first)
+    expect_task_editor_open(second)
+  end
+
+  def expect_task_editor_closed(task_container)
+    expect(task_editor(task_container).is_hidden).to be(true)
+    expect(task_display_input(task_container).is_hidden).to be(false)
+  end
+
+  def expect_task_editor_open(task_container)
+    expect(task_editor(task_container).is_hidden).to be(false)
+    expect(task_display_input(task_container).is_hidden).to be(true)
   end
 
   def expect_empty_note_placeholder_on_activation
@@ -516,6 +620,58 @@ RSpec.describe QTimetrap::Entries::ListComponent do
                 label: "Project #{'Z' * 300}",
                 children: [
                   { id: 'entry:long', type: :entry, label: 'entry', children: [] }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  end
+
+  def two_entry_nodes
+    [
+      {
+        id: 'week:1',
+        type: :week,
+        label: 'Week Feb 23 - Mar 1  Total: 02:00:00',
+        children: [
+          {
+            id: 'day:1',
+            type: :day,
+            label: 'Sun, Mar 1  Total: 02:00:00',
+            children: [
+              {
+                id: 'project:1',
+                type: :project,
+                label: 'acme | core (2) 02:00:00',
+                children: [
+                  {
+                    id: 'entry:1',
+                    type: :entry,
+                    entry_id: 1,
+                    project_name: 'acme',
+                    task_name: 'core',
+                    start_label: '10:00',
+                    end_label: '11:00',
+                    prefix: '01:00:00',
+                    note: 'test',
+                    label: '10:00 - 11:00  01:00:00  test',
+                    children: []
+                  },
+                  {
+                    id: 'entry:2',
+                    type: :entry,
+                    entry_id: 2,
+                    project_name: 'acme',
+                    task_name: 'deploy',
+                    start_label: '11:00',
+                    end_label: '12:00',
+                    prefix: '01:00:00',
+                    note: 'ship',
+                    label: '11:00 - 12:00  01:00:00  ship',
+                    children: []
+                  }
                 ]
               }
             ]

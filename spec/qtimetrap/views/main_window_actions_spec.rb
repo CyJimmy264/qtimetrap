@@ -80,6 +80,20 @@ RSpec.describe QTimetrap::Views::MainWindow do
     expect(task_input).to have_received(:clear_focus)
   end
 
+  it 'clears editable task combo focus on click outside inputs' do
+    expect_task_combo_focus_to_clear
+  end
+
+  it 'closes active entries task editor on click outside inputs' do
+    allow(main_window.send(:entries)).to receive(:close_active_task_editor).and_call_original
+    allow(qt_window).to receive(:focus_widget).and_return(nil)
+    allow(qt_window).to receive(:child_at).with(12, 18).and_return(button_with_text('START'))
+
+    main_window.send(:on_mouse_button_press, { a: 12, b: 18 }, source_widget: qt_window)
+
+    expect(main_window.send(:entries)).to have_received(:close_active_task_editor)
+  end
+
   it 'does not auto-focus task input on startup' do
     main_window.show
     QApplication.process_events
@@ -163,6 +177,40 @@ RSpec.describe QTimetrap::Views::MainWindow do
   def focus_archive_toggle
     archive_toggle = find_widget(qt_window, 'sidebar_archive_toggle')
     allow(qt_window).to receive(:focus_widget).and_return(archive_toggle)
+  end
+
+  def expect_task_combo_focus_to_clear
+    task_editor, line_edit = build_focused_task_editor
+    click_outside_editor
+    expect(task_editor).to have_received(:clear_focus)
+    expect(line_edit).to have_received(:clear_focus)
+  end
+
+  def build_focused_task_editor
+    QComboBox.new(qt_window).tap do |task_editor|
+      task_editor.set_object_name('entry_node_entry_task_editor')
+      line_edit = attach_task_editor_line_edit(task_editor)
+      stub_task_editor_focus(task_editor)
+      return [task_editor, line_edit]
+    end
+  end
+
+  def attach_task_editor_line_edit(task_editor)
+    line_edit = QLineEdit.new(qt_window)
+    task_editor.set_line_edit(line_edit)
+    allow(task_editor).to receive(:line_edit).and_return(line_edit)
+    allow(line_edit).to receive(:clear_focus).and_call_original
+    line_edit
+  end
+
+  def stub_task_editor_focus(task_editor)
+    allow(task_editor).to receive(:clear_focus).and_call_original
+    allow(qt_window).to receive(:focus_widget).and_return(task_editor)
+  end
+
+  def click_outside_editor
+    allow(qt_window).to receive(:child_at).with(12, 18).and_return(button_with_text('START'))
+    main_window.send(:on_mouse_button_press, { a: 12, b: 18 }, source_widget: qt_window)
   end
 
   def task_input

@@ -10,7 +10,7 @@ module QTimetrap
         attempts = { count: 0 }
         context = { splitter: splitter, sidebar_widget: sidebar_widget, button: button, zone: zone }
         timer = QTimer.new(zone)
-        timer.set_interval(120)
+        timer.interval = 120
         timer.connect('timeout') do |_|
           tick_initial_reposition(
             attempts: attempts,

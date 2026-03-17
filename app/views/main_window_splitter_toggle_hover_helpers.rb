@@ -43,7 +43,7 @@ module QTimetrap
 
       def hide_toggle_button_unless_hovered(button:, state:)
         show = state[:button_hovered] || state[:zone_hovered]
-        button.set_visible(show)
+        button.visible = show
       end
 
       def schedule_toggle_hide(button:, state:)
@@ -59,7 +59,7 @@ module QTimetrap
 
       def build_toggle_hide_timer(button, state)
         QTimer.new(button).tap do |timer|
-          timer.set_interval(SIDEBAR_TOGGLE_HIDE_DELAY_MS)
+          timer.interval = SIDEBAR_TOGGLE_HIDE_DELAY_MS
           timer.connect('timeout') do |_|
             timer.stop
             hide_toggle_button_unless_hovered(button: button, state: state)

@@ -15,9 +15,18 @@ module QTimetrap
         @expanded = {}
         @current_nodes = []
         @branch_bindings = {}
+        initialize_task_editor_state!
+        @active_task_container_key = nil
         @leaf_labels = []
         @entry_rows = []
         @rendering = false
+      end
+
+      def initialize_task_editor_state!
+        @task_containers = {}
+        @task_display_inputs = {}
+        @task_editors = {}
+        @task_editor_line_edits = {}
       end
 
       def initialize_time_filter_state!
@@ -31,8 +40,8 @@ module QTimetrap
 
       def set_time_filter_state(toggle:, input:, value:)
         enabled = !value.nil?
-        toggle.set_checked(enabled)
-        input.set_date_time(value) if enabled
+        toggle.checked = enabled
+        input.date_time = value if enabled
       end
 
       def syncing_time_filters?
@@ -49,11 +58,58 @@ module QTimetrap
 
       def build_time_filter_debounce_timer
         QTimer.new(parent).tap do |timer|
-          timer.set_single_shot(true)
-          timer.set_interval(self.class::TIME_FILTER_DEBOUNCE_MS)
+          timer.single_shot = true
+          timer.interval = self.class::TIME_FILTER_DEBOUNCE_MS
           timer.connect('timeout') { |_| emit_time_range_filter_changed }
         end
       end
+
+      def register_task_widgets(task_container, display_input, editor, line_edit)
+        container_key = task_container_key(task_container)
+        task_containers[container_key] = task_container
+        task_display_inputs[container_key] = display_input
+        task_editors[container_key] = editor
+        task_editor_line_edits[task_editor_key(editor)] = line_edit
+      end
+
+      def task_container_key(task_container)
+        task_container.handle.address
+      end
+
+      def task_editor_key(editor)
+        editor.handle.address
+      end
+
+      def task_container_matches?(left, right)
+        task_container_key(left) == task_container_key(right)
+      end
+
+      def task_container_for_key(key)
+        task_containers[key]
+      end
+
+      def active_task_container
+        task_container_for_key(active_task_container_key)
+      end
+
+      def active_task_container=(task_container)
+        @active_task_container_key = task_container ? task_container_key(task_container) : nil
+      end
+
+      def task_display_input_for(task_container)
+        task_display_inputs[task_container_key(task_container)]
+      end
+
+      def task_editor_for(task_container)
+        task_editors[task_container_key(task_container)]
+      end
+
+      def task_editor_line_edit_for(editor)
+        task_editor_line_edits[task_editor_key(editor)]
+      end
+
+      attr_reader :task_containers, :task_display_inputs, :task_editors, :task_editor_line_edits,
+                  :active_task_container_key
     end
   end
 end

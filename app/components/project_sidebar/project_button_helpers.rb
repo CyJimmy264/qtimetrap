@@ -29,18 +29,18 @@ module QTimetrap
         slot[:project] = project
         view = slot[:view]
 
-        view.set_text(project[0, 24])
-        view.set_disabled(false)
-        view.set_checked(selected_project_indices.include?(index))
+        view.text = project[0, 24]
+        view.disabled = false
+        view.checked = selected_project_indices.include?(index)
         view.show
       end
 
       def build_project_button
         QPushButton.new(widget).tap do |button|
-          button.set_object_name('project_button')
-          button.set_checkable(true)
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_fixed_height(30)
+          button.object_name = 'project_button'
+          button.checkable = true
+          button.focus_policy = Qt::NoFocus
+          button.fixed_height = 30
           button.connect('clicked') { |_| on_button_clicked(button) }
         end
       end

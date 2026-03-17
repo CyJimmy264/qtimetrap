@@ -18,7 +18,7 @@ module QTimetrap
       def build
         root = QHBoxLayout.new(window)
         root.set_contents_margins(0, 0, 0, 0)
-        root.set_spacing(0)
+        root.spacing = 0
         splitter, sidebar, controls, entries = build_splitter_and_content
         root.add_widget(splitter)
         { sidebar: sidebar, controls: controls, entries: entries }
@@ -30,8 +30,8 @@ module QTimetrap
 
       def build_splitter_and_content
         splitter = QSplitter.new(window)
-        splitter.set_orientation(Qt::Horizontal)
-        splitter.set_mouse_tracking(true)
+        splitter.orientation = Qt::Horizontal
+        splitter.mouse_tracking = true
         sidebar = build_sidebar(parent: splitter)
         content, controls, entries = build_content(parent: splitter)
         splitter.add_widget(sidebar.widget)
@@ -56,8 +56,8 @@ module QTimetrap
           on_archive_mode_toggled: callbacks.fetch(:on_archive_mode_toggled)
         ).tap do |component|
           component.widget.set_base_size(SIDEBAR_WIDTH, 0)
-          component.widget.set_minimum_width(SIDEBAR_MIN_WIDTH)
-          component.widget.set_maximum_width(SIDEBAR_MAX_WIDTH)
+          component.widget.minimum_width = SIDEBAR_MIN_WIDTH
+          component.widget.maximum_width = SIDEBAR_MAX_WIDTH
         end
       end
 
@@ -93,7 +93,7 @@ module QTimetrap
         content = QWidget.new(parent)
         layout = QVBoxLayout.new(content)
         layout.set_contents_margins(14, 8, 14, 8)
-        layout.set_spacing(10)
+        layout.spacing = 10
         [content, layout]
       end
 

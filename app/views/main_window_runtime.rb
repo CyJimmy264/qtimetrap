@@ -22,8 +22,8 @@ module QTimetrap
       end
 
       def update_live_indicators(now)
-        controls.clock_label.set_text(now.strftime('%a %d %b %Y  %H:%M:%S'))
-        controls.timer_label.set_text(view_model.running_timer_line(now: now))
+        controls.clock_label.text = now.strftime('%a %d %b %Y  %H:%M:%S')
+        controls.timer_label.text = view_model.running_timer_line(now: now)
       end
 
       def refresh_if_needed

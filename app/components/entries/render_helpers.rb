@@ -7,10 +7,10 @@ module QTimetrap
       private
 
       def with_widget_updates_suspended
-        widget.set_updates_enabled(false)
+        widget.updates_enabled = false
         yield
       ensure
-        widget.set_updates_enabled(true)
+        widget.updates_enabled = true
         widget.update
       end
 

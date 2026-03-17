@@ -8,10 +8,10 @@ module QTimetrap
 
       def build_children_container(parent_widget)
         container = QWidget.new(parent_widget)
-        container.set_object_name('entry_node_children')
+        container.object_name = 'entry_node_children'
         layout = QVBoxLayout.new(container)
         layout.set_contents_margins(0, 0, 0, 0)
-        layout.set_spacing(2)
+        layout.spacing = 2
         [container, layout]
       end
 
@@ -32,9 +32,9 @@ module QTimetrap
         binding = branch_bindings[node_id]
         return unless binding
 
-        binding.fetch(:children_container).set_visible(visible)
+        binding.fetch(:children_container).visible = visible
         text = branch_button_text(binding.fetch(:level), binding.fetch(:label), visible)
-        binding.fetch(:button).set_text(text)
+        binding.fetch(:button).text = text
       end
     end
   end

@@ -8,12 +8,12 @@ module QTimetrap
 
       def build_entry_archive_button(row, node)
         QPushButton.new(row).tap do |button|
-          button.set_object_name('entry_node_entry_archive')
-          button.set_text('🗃')
-          button.set_tool_tip('Toggle archive state')
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_fixed_width(28)
-          button.set_fixed_height(24)
+          button.object_name = 'entry_node_entry_archive'
+          button.text = '🗃'
+          button.tool_tip = 'Toggle archive state'
+          button.focus_policy = Qt::NoFocus
+          button.fixed_width = 28
+          button.fixed_height = 24
           entry_id = resolve_entry_id(node)
           button.connect('clicked') { |_| on_entry_archive&.call(entry_id) }
         end

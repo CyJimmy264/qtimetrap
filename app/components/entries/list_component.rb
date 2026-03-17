@@ -6,6 +6,7 @@ module QTimetrap
     class ListComponent
       include ListHostHelpers
       include ListStateHelpers
+      include ListTaskEditorHelpers
       include QtUiHelpers
       include TreeHelpers
       include RenderHelpers
@@ -73,7 +74,7 @@ module QTimetrap
 
       def build
         @widget = QWidget.new(parent)
-        widget.set_object_name('entries_panel')
+        widget.object_name = 'entries_panel'
         panel_layout = build_panel_layout
         @time_filter_debounce = build_time_filter_debounce_timer
         panel_layout.add_widget(build_toolbar(parent_widget: widget))
@@ -91,22 +92,22 @@ module QTimetrap
 
       def adjust_node_widths
         width = branch_button_width
-        branch_bindings.each_value { |binding| binding.fetch(:button).set_fixed_width(width) }
-        leaf_labels.each { |label| label.set_fixed_width(width) }
-        entry_rows.each { |row| row.set_fixed_width(width) }
+        branch_bindings.each_value { |binding| binding.fetch(:button).fixed_width = width }
+        leaf_labels.each { |label| label.fixed_width = width }
+        entry_rows.each { |row| row.fixed_width = width }
       end
 
       def build_panel_layout
         QVBoxLayout.new(widget).tap do |layout|
           layout.set_contents_margins(0, 0, 0, 0)
-          layout.set_spacing(6)
+          layout.spacing = 6
         end
       end
 
       def build_scroll_area
         QScrollArea.new(widget).tap do |area|
-          area.set_object_name('entries_scroll')
-          area.set_widget_resizable(true)
+          area.object_name = 'entries_scroll'
+          area.widget_resizable = true
         end
       end
 

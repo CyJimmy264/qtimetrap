@@ -11,7 +11,7 @@ module QTimetrap
       def render_tasks(tasks:, selected_project:, selected_task:)
         values = Array(tasks)
         visible = tasks_visible?(selected_project, values)
-        tasks_heading.set_visible(visible)
+        tasks_heading.visible = visible
         sync_task_buttons(visible ? values.size : 0)
         return clear_task_state unless visible
 
@@ -34,18 +34,18 @@ module QTimetrap
 
       def build_tasks_heading
         QLabel.new(widget).tap do |label|
-          label.set_object_name('sidebar_tasks_heading')
-          label.set_alignment(Qt::AlignCenter)
-          label.set_text('TASKS')
+          label.object_name = 'sidebar_tasks_heading'
+          label.alignment = Qt::AlignCenter
+          label.text = 'TASKS'
         end
       end
 
       def build_task_button
         QPushButton.new(widget).tap do |button|
-          button.set_object_name('task_button')
-          button.set_checkable(true)
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_fixed_height(28)
+          button.object_name = 'task_button'
+          button.checkable = true
+          button.focus_policy = Qt::NoFocus
+          button.fixed_height = 28
           button.connect('clicked') { |_| on_task_button_clicked(button) }
         end
       end
@@ -78,9 +78,9 @@ module QTimetrap
         view = slot.fetch(:view)
         slot[:task] = task
         text = task.to_s
-        view.set_text(text)
-        view.set_tool_tip(text)
-        view.set_checked(selected_task_indices.include?(index))
+        view.text = text
+        view.tool_tip = text
+        view.checked = selected_task_indices.include?(index)
         view.show
       end
 

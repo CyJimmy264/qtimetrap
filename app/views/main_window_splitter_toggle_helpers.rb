@@ -39,10 +39,10 @@ module QTimetrap
 
       def build_sidebar_toggle_button(window)
         QPushButton.new(window).tap do |button|
-          button.set_object_name('sidebar_toggle_button')
-          button.set_text('◀')
-          button.set_focus_policy(Qt::NoFocus)
-          button.set_tool_tip('Collapse sidebar')
+          button.object_name = 'sidebar_toggle_button'
+          button.text = '◀'
+          button.focus_policy = Qt::NoFocus
+          button.tool_tip = 'Collapse sidebar'
           button.set_fixed_size(SIDEBAR_TOGGLE_W, SIDEBAR_TOGGLE_H)
           button.raise
           button.hide
@@ -57,9 +57,9 @@ module QTimetrap
 
       def build_sidebar_toggle_zone(window)
         QWidget.new(window).tap do |zone|
-          zone.set_object_name('sidebar_toggle_hotspot')
+          zone.object_name = 'sidebar_toggle_hotspot'
           zone.set_fixed_size(SIDEBAR_TOGGLE_ZONE_W, SIDEBAR_TOGGLE_ZONE_H)
-          zone.set_style_sheet('background: transparent;')
+          zone.style_sheet = 'background: transparent;'
           zone.raise
         end
       end
@@ -90,12 +90,12 @@ module QTimetrap
       def update_sidebar_visibility(sidebar_widget, button, collapsed:)
         if collapsed
           sidebar_widget.hide
-          button.set_text('▶')
-          button.set_tool_tip('Expand sidebar')
+          button.text = '▶'
+          button.tool_tip = 'Expand sidebar'
         else
           sidebar_widget.show
-          button.set_text('◀')
-          button.set_tool_tip('Collapse sidebar')
+          button.text = '◀'
+          button.tool_tip = 'Collapse sidebar'
         end
       end
     end
