@@ -19,7 +19,7 @@ QTimetrap follows an MVVM-style architecture with `Zeitwerk` autoloading and a R
 ## Requirements
 
 - Ruby `>= 3.2`
-- Qt bridge gem: `qt >= 0.1.4`
+- Qt bridge gem: `qt >= 0.1.7`
 - `timetrap` CLI available as `t` (or configured via env)
 
 ## Install
@@ -38,10 +38,8 @@ Install required system libraries first:
 ### Fedora COPR
 
 ```bash
-sudo dnf copr enable cyjimmy264/ruby-qt
-sudo dnf copr enable cyjimmy264/ruby-qtimetrap
-sudo dnf install ruby-qt ruby-qtimetrap
-gem install timetrap
+sudo dnf copr enable cyjimmy264/ruby-qt-stack
+sudo dnf install ruby-qtimetrap
 qtimetrap
 ```
 

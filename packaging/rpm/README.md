@@ -2,6 +2,11 @@
 
 This directory contains minimal RPM packaging for building Fedora packages in COPR.
 
+Related package recipes that live in this repository:
+
+- `packaging/rpm` - `ruby-qtimetrap`
+- `packaging/rpm/timetrap` - upstream `timetrap` CLI used by QTimetrap
+
 ## Files
 
 - `ruby-qtimetrap.spec` - RPM spec for `ruby-qtimetrap`
@@ -11,7 +16,7 @@ This directory contains minimal RPM packaging for building Fedora packages in CO
 ## Prerequisites (local)
 
 ```bash
-sudo dnf install -y rpm-build git
+sudo dnf install -y rpm-build git curl
 ```
 
 ## Build SRPM locally
@@ -50,13 +55,13 @@ copr-cli create ruby-qtimetrap --chroot fedora-41-x86_64
 3. Submit SRPM:
 
 ```bash
-copr-cli build ruby-qtimetrap packaging/rpm/.rpmbuild/SRPMS/*.src.rpm
+copr-cli build ruby-qt-stack packaging/rpm/.rpmbuild/SRPMS/*.src.rpm
 ```
 
 ## Notes
 
 - RPM package name is `ruby-qtimetrap` (gem name stays `qtimetrap`).
-- Runtime dependency on `timetrap` CLI is expected from user environment.
+- Runtime dependency on `timetrap` CLI is packaged separately as `ruby-timetrap`.
 - `ruby-qtimetrap` requires a working `ruby-qt` RPM with built native extension
   (`qt_ruby_bridge.so` + extension metadata for system Ruby ABI).
 - Desktop file and app icons are installed into standard system paths.
