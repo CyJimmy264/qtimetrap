@@ -17,7 +17,6 @@ BuildRequires:  desktop-file-utils
 
 Requires:       ruby
 Requires:       ruby-qt >= 0.1.7
-Requires:       ruby-timetrap
 Requires:       rubygem(qt) >= 0.1.7
 Requires:       rubygem(zeitwerk)
 

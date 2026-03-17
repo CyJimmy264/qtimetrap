@@ -40,6 +40,7 @@ Install required system libraries first:
 ```bash
 sudo dnf copr enable cyjimmy264/ruby-qt-stack
 sudo dnf install ruby-qtimetrap
+gem install timetrap
 qtimetrap
 ```
 
