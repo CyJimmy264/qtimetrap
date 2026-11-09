@@ -19,6 +19,7 @@ module QTimetrap
         @active_task_container_key = nil
         @leaf_labels = []
         @entry_rows = []
+        @theme_style_queue = []
         @rendering = false
       end
 

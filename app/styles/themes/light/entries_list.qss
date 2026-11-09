@@ -190,23 +190,11 @@ QLineEdit#entry_node_entry_note:focus {
   padding-left: 6px;
 }
 
-QLineEdit#entry_node_entry_task {
+QLabel#entry_node_entry_task {
   color: #334155;
   font-size: 12px;
   background: transparent;
-  border: 0px;
   padding-left: 2px;
-}
-
-QLineEdit#entry_node_entry_task:read-only {
-  background: transparent;
-  border: 0px;
-}
-
-QLineEdit#entry_node_entry_task:focus {
-  background-color: #ffffff;
-  border: 1px solid #d8e0ea;
-  border-radius: 6px;
 }
 
 QComboBox#entry_node_entry_task_editor {

@@ -93,6 +93,10 @@ module QTimetrap
         EntryNodesBuilder.new(entries: filtered_entries, selected_project: selected_project).build
       end
 
+      def all_entry_nodes
+        EntryNodesBuilder.new(entries: entries, selected_project: '* ALL').build
+      end
+
       private
 
       attr_reader :gateway, :archived_entries_store

@@ -18,7 +18,10 @@ module QTimetrap
       end
 
       def rebuild_host!
+        previous_host = scroll_area.take_widget
+        previous_host.delete_later if previous_host
         @host = build_host
+        apply_entry_widget_styles(host, %w[entries_host])
         @host_layout = build_host_layout
         scroll_area.widget = host
       end

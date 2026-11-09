@@ -56,7 +56,13 @@ module QTimetrap
         update_current_fields = !view_model.running_current_sheet?
         view_model.select_projects(projects, primary_project: project, sync_current_fields: update_current_fields)
         view_model.current_project_name = project if update_current_fields && project != '* ALL'
-        render!
+        sidebar.update_tasks(
+          tasks: view_model.task_names_for_selected_project,
+          selected_project: view_model.selected_project,
+          selected_task: view_model.selected_tasks.first
+        )
+        controls.update_summary(view_model.summary_line)
+        entries.filter_to(view_model.entry_nodes)
         return unless update_current_fields
 
         controls.update_task_input(view_model.current_sheet_input)
@@ -69,8 +75,8 @@ module QTimetrap
           view_model.current_task_input = task.to_s
           controls.update_task_input(view_model.current_sheet_input)
         end
-        render_controls(sync_sheet: false)
-        entries.render(view_model.entry_nodes)
+        controls.update_summary(view_model.summary_line)
+        entries.filter_to(view_model.entry_nodes)
       end
 
       def handle_project_input(project_name)
@@ -81,12 +87,12 @@ module QTimetrap
 
       def handle_time_range_changed(from_at, to_at)
         view_model.update_time_range_filter(from_at: from_at, to_at: to_at)
-        render_controls(sync_sheet: false)
+        controls.update_summary(view_model.summary_line)
         entries.update_time_range_inputs(
           from_at: view_model.time_filter_from_at,
           to_at: view_model.time_filter_to_at
         )
-        entries.render(view_model.entry_nodes)
+        entries.filter_to(view_model.entry_nodes)
       rescue StandardError => e
         warn("[qtimetrap] update time-range failed: #{e.class}: #{e.message}")
       end
@@ -114,7 +120,7 @@ module QTimetrap
       def switch_theme!
         @theme = theme.with_name(next_theme_name)
         apply_theme
-        render!
+        controls.update_theme_label(theme.name)
       rescue StandardError => e
         warn("[qtimetrap] save theme failed: #{e.class}: #{e.message}")
       end

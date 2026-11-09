@@ -40,6 +40,10 @@ module QTimetrap
         project_input.read_only = running
       end
 
+      def theme_style_targets(stylesheet)
+        theme_widgets.compact.map { |target| [target, stylesheet] }
+      end
+
       private
 
       attr_reader :summary_label, :theme_button, :start_button, :stop_button
@@ -69,8 +73,15 @@ module QTimetrap
         @theme_button = ui_map.fetch(:theme_button)
         @start_button = ui_map.fetch(:start_button)
         @stop_button = ui_map.fetch(:stop_button)
+        @theme_widgets = [
+          ui_map.fetch(:topbar), ui_map.fetch(:tracker_row), ui_map.fetch(:actions_row),
+          ui_map.fetch(:title_label), clock_label, timer_label, task_input, project_input,
+          summary_label, theme_button, start_button, stop_button, ui_map.fetch(:refresh_button)
+        ]
         configure_timer_font_fit!
       end
+
+      attr_reader :theme_widgets
 
       def configure_timer_font_fit!
         apply_timer_font_fit(TIMER_FIT_SAMPLE)

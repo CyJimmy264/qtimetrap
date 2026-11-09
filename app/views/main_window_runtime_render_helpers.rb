@@ -30,7 +30,8 @@ module QTimetrap
           from_at: view_model.time_filter_from_at,
           to_at: view_model.time_filter_to_at
         )
-        entries.render(view_model.entry_nodes)
+        entries.render(view_model.all_entry_nodes)
+        entries.filter_to(view_model.entry_nodes)
       end
 
       def render_controls(sync_sheet:)

@@ -46,7 +46,6 @@ module QTimetrap
         @window = build_base_window
         restore_window_geometry
         set_window_icon
-        window.style_sheet = theme.application_stylesheet
         ui = MainWindowLayoutBuilder.new(
           window: window,
           callbacks: layout_callbacks
@@ -54,6 +53,7 @@ module QTimetrap
         @sidebar = ui.fetch(:sidebar)
         @controls = ui.fetch(:controls)
         @entries = ui.fetch(:entries)
+        apply_theme_styles
       end
 
       def connect_heartbeat

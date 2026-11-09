@@ -149,7 +149,8 @@ RSpec.describe QTimetrap::Views::MainWindow do
 
   def expect_dark_theme_applied
     expect(theme_button.text.to_s).to eq('THEME: DARK')
-    expect(qt_window.style_sheet.to_s).to include('#0f172a')
+    expect(main_window.instance_variable_get(:@theme).name).to eq('dark')
+    expect(main_window.instance_variable_get(:@entries).send(:theme_style_queue)).not_to be_empty
     expect(settings_store).to have_received(:write_theme_name).with('dark')
   end
 

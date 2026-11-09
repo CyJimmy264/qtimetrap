@@ -15,11 +15,13 @@ module QTimetrap
       def build
         @widget = QWidget.new(parent)
         root = build_root_layout
-        root.add_widget(build_topbar)
+        @topbar = build_topbar
+        root.add_widget(@topbar)
         start_button, stop_button = build_tracker_row(root)
         refresh_button = build_actions_row(root)
+        @refresh_button = refresh_button
         connect_actions(start_button, stop_button, refresh_button)
-        ui_payload
+        ui_payload.merge(theme_ui_payload)
       end
 
       private
@@ -35,7 +37,7 @@ module QTimetrap
       end
 
       def build_tracker_row(root_layout)
-        row = QWidget.new(widget)
+        row = @tracker_row = QWidget.new(widget)
         row.object_name = 'tracker_row'
         layout = QHBoxLayout.new(row)
         layout.set_contents_margins(14, 12, 14, 12)
@@ -46,7 +48,7 @@ module QTimetrap
       end
 
       def build_actions_row(root_layout)
-        row = QWidget.new(widget)
+        row = @actions_row = QWidget.new(widget)
         layout = QHBoxLayout.new(row)
         layout.set_contents_margins(0, 0, 0, 0)
         layout.spacing = 8
@@ -80,6 +82,16 @@ module QTimetrap
         connect_start_stop(start_button, stop_button)
         connect_theme_refresh(refresh_button)
         connect_project_input
+      end
+
+      def theme_ui_payload
+        {
+          topbar: @topbar,
+          tracker_row: @tracker_row,
+          actions_row: @actions_row,
+          title_label: @title_label,
+          refresh_button: @refresh_button
+        }
       end
 
       def connect_start_stop(start_button, stop_button)

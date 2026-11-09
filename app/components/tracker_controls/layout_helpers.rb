@@ -26,7 +26,8 @@ module QTimetrap
       def configure_topbar_layout(layout, topbar)
         layout.set_contents_margins(16, 8, 16, 8)
         layout.spacing = 8
-        layout.add_widget(build_label(topbar, 'title_label', random_title_slogan))
+        @title_label = build_label(topbar, 'title_label', random_title_slogan)
+        layout.add_widget(@title_label)
         layout.add_stretch(1)
         @clock_label = build_label(topbar, 'clock_label', nil, width: 220)
         @clock_label.alignment = Qt::AlignCenter

@@ -31,25 +31,37 @@ module QTimetrap
       end
 
       def build_entry_task_display(task_container, task_name)
-        QLineEdit.new(task_container).tap do |task_input|
+        QLabel.new(task_container).tap do |task_input|
           task_input.object_name = 'entry_node_entry_task'
           task_input.text = task_name
           task_input.tool_tip = task_name
-          task_input.placeholder_text = 'task'
           task_input.minimum_width = 220
-          task_input.read_only = true
+          task_input.fixed_height = 24
           sync_task_display_field(task_input, task_name)
           task_container.layout.add_widget(task_input)
         end
       end
 
       def build_entry_task_editor(task_container, task_name, node)
-        QComboBox.new(task_container).tap do |editor|
-          line_edit = configure_entry_task_editor(editor, task_container, task_name, node)
-          task_container.layout.add_widget(editor)
-          editor.hide
-          return [editor, line_edit]
-        end
+        editor, line_edit = build_entry_task_editor_shell(task_container, task_name)
+        populate_entry_task_options(editor, task_name, node)
+        editor.current_text = task_name
+        [editor, line_edit]
+      end
+
+      def build_entry_task_editor_shell(task_container, task_name)
+        editor = QComboBox.new(task_container)
+        editor.object_name = 'entry_node_entry_task_editor'
+        editor.editable = true
+        editor.focus_policy = Qt::StrongFocus
+        editor.minimum_width = 220
+        editor.tool_tip = task_name
+        line_edit = build_entry_task_line_edit(task_container)
+        editor.instance_variable_set(:@qtimetrap_task_line_edit, line_edit)
+        editor.line_edit = line_edit
+        task_container.layout.add_widget(editor)
+        editor.hide
+        [editor, line_edit]
       end
 
       def configure_entry_task_editor(editor, task_container, task_name, node)

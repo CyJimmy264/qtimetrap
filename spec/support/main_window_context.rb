@@ -74,6 +74,7 @@ RSpec.shared_context :main_window_setup do
       archive_mode?: false,
       running_current_sheet?: false,
       entry_nodes: entry_nodes,
+      all_entry_nodes: entry_nodes,
       running_timer_line: '00:00:05',
       start_tracking: nil,
       stop_tracking: nil,

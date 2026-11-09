@@ -30,7 +30,7 @@ module QTimetrap
       end
 
       def build_logo_text(parent_widget)
-        QLabel.new(parent_widget).tap do |label|
+        @logo_text = QLabel.new(parent_widget).tap do |label|
           label.object_name = 'sidebar_logo_text'
           label.alignment = Qt::AlignCenter
           label.text = 'QTimetrap'
@@ -42,7 +42,7 @@ module QTimetrap
       end
 
       def build_heading
-        QLabel.new(widget).tap do |label|
+        @heading = QLabel.new(widget).tap do |label|
           label.object_name = 'sidebar_heading'
           label.alignment = Qt::AlignCenter
           label.text = 'PROJECTS'

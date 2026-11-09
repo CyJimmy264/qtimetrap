@@ -37,8 +37,36 @@ module QTimetrap
 
       def apply_theme
         Application.configuration.theme_name = theme.name
-        window.style_sheet = theme.application_stylesheet
+        apply_theme_styles(update_window_background: false, incremental: true)
         settings_store.write_theme_name(theme.name)
+      end
+
+      def apply_theme_styles(update_window_background: true, incremental: false)
+        window.style_sheet = theme.stylesheet('application') if update_window_background
+        sidebar_stylesheet = theme.stylesheet('project_sidebar')
+        controls_stylesheet = theme.stylesheet('tracker_controls')
+        entries_stylesheet = theme.stylesheet('entries_list')
+        if incremental
+          sidebar.widget.style_sheet = stylesheet_rule(sidebar_stylesheet, 'QWidget#sidebar_panel')
+          entries.apply_theme_stylesheet(
+            entries_stylesheet,
+            external_targets: sidebar.theme_style_targets(sidebar_stylesheet) +
+                              controls.theme_style_targets(controls_stylesheet),
+            defer: true
+          )
+        else
+          sidebar.widget.style_sheet = sidebar_stylesheet
+          controls.widget.style_sheet = controls_stylesheet
+          entries.apply_theme_stylesheet(entries_stylesheet)
+        end
+      end
+
+      def stylesheet_rule(stylesheet, selector)
+        stylesheet.scan(/([^{}]+)\{([^{}]*)\}/m).find do |selectors, _declarations|
+          selectors.split(',').map(&:strip).include?(selector)
+        end&.then do |selectors, declarations|
+          "#{selectors.strip} {#{declarations}}"
+        end.to_s
       end
     end
   end

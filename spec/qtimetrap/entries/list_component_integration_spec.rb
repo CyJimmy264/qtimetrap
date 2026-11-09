@@ -48,6 +48,18 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect_branch_widths_within_viewport
   end
 
+  it 'filters existing entry widgets without rebuilding the tree' do
+    render_component(two_entry_nodes)
+
+    component.filter_to(entry_nodes)
+    process_render_until_complete
+
+    expect(component.send(:entry_rows_by_id).fetch(1).is_hidden).to be(false)
+    expect(component.send(:entry_rows_by_id).fetch(2).is_hidden).to be(true)
+    expect(component.send(:branch_bindings).fetch('project:1').fetch(:button).text.to_s)
+      .to include('(1) 01:00:00')
+  end
+
   it 'activates note input on click and commits only on Enter' do
     render_component(entry_nodes)
 
@@ -192,7 +204,18 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   def render_component(nodes, show_parent: false)
     component.render(nodes)
     parent.show if show_parent
+    process_render_until_complete
+  end
+
+  def process_render_until_complete
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 5
+    while (component.send(:rendering) || component.send(:queues_pending?)) &&
+          Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+      QApplication.process_events
+      sleep(0.002)
+    end
     QApplication.process_events
+    expect(component.send(:rendering)).to be(false)
   end
 
   def collapse_all_nodes
@@ -237,12 +260,12 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   end
 
   def entry_task_input
-    find_line_edit('entry_node_entry_task').parent
+    find_widget(parent, 'entry_node_entry_task').parent
   end
 
   def all_entry_task_inputs
     descendants(parent)
-      .grep(QLineEdit)
+      .grep(QLabel)
       .select { |input| input.object_name == 'entry_node_entry_task' }
       .map(&:parent)
   end
@@ -418,7 +441,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   def expect_task_display(task_container)
     expect(task_display_input(task_container).text.to_s).to eq('core')
-    expect(task_display_input(task_container).is_read_only).to be(true)
+    expect(task_display_input(task_container)).to be_a(QLabel)
   end
 
   def expect_task_editor_options(task_container)

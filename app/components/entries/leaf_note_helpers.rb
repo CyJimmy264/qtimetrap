@@ -8,6 +8,7 @@ module QTimetrap
 
       def render_entry_leaf_node(node, level, layout:, parent_widget:)
         row = build_entry_row(parent_widget)
+        apply_entry_widget_styles(row, ListComponent::ENTRY_ROW_STYLE_IDS)
         row_layout = build_entry_row_layout(row)
         start_input, end_input = add_entry_time_widgets(row_layout, row, node)
         add_entry_row_widgets(row_layout, row, node, level)
@@ -52,12 +53,17 @@ module QTimetrap
       end
 
       def build_entry_note_input(row, node)
+        build_entry_note_input_widget(row, node).tap do |note_input|
+          bind_entry_note_input_events(note_input, resolve_entry_id(node))
+        end
+      end
+
+      def build_entry_note_input_widget(row, node)
         QLineEdit.new(row).tap do |note_input|
           note_input.object_name = 'entry_node_entry_note'
           note_input.text = node.fetch(:note, '')
           note_input.placeholder_text = '(no note)'
           note_input.read_only = true
-          bind_entry_note_input_events(note_input, resolve_entry_id(node))
         end
       end
 

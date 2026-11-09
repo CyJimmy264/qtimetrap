@@ -34,6 +34,17 @@ module QTimetrap
         archive_toggle_button.checked = archive_mode
       end
 
+      def update_tasks(tasks:, selected_project:, selected_task:)
+        render_tasks(tasks: tasks, selected_project: selected_project, selected_task: selected_task)
+      end
+
+      def theme_style_targets(stylesheet)
+        widgets = [@logo_text, @heading, tasks_heading, archive_toggle_button]
+        widgets.concat(buttons.map { |slot| slot.fetch(:view) })
+        widgets.concat(task_buttons)
+        widgets.compact.map { |target| [target, stylesheet] }
+      end
+
       private
 
       attr_reader :parent, :on_project_selected, :on_task_selected, :buttons, :buttons_layout, :task_buttons,
