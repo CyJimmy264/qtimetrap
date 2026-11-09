@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-11-10
+
+### Performance
+- Cache archived-entry IDs during refresh.
+- Render the entry list incrementally and filter existing widgets instead of rebuilding the tree.
+- Create task editors only when activated to reduce initial widget construction.
+- Add a startup and interaction profiling script.
+
 ## [0.1.2] - 2026-03-17
 
 ### Added

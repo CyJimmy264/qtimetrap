@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    qtimetrap (0.1.2)
+    qtimetrap (0.1.3)
       qt (~> 0.1, >= 0.1.7)
       zeitwerk (~> 2.6)
 
