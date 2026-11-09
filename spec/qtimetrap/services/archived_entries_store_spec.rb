@@ -16,6 +16,17 @@ RSpec.describe QTimetrap::Services::ArchivedEntriesStore do
     expect_archived_state(ids: [7, 42], archived: [42, '7'], missing: [99])
   end
 
+  it 'loads archived ids from disk only once per store instance' do
+    File.write(path, { 'archived_entry_ids' => [42] }.to_yaml)
+    allow(YAML).to receive(:safe_load_file).and_call_original
+
+    store.archived_ids
+    store.archived?(42)
+    store.archived?(99)
+
+    expect(YAML).to have_received(:safe_load_file).once
+  end
+
   it 'ignores invalid archive ids' do
     archive_invalid_id
     expect(store.archived_ids).to eq([])

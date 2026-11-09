@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'set'
 require 'yaml'
 
 module QTimetrap
@@ -12,7 +13,7 @@ module QTimetrap
       end
 
       def archived_ids
-        read_ids
+        read_ids.to_a.sort
       end
 
       def archived?(entry_id)
@@ -47,19 +48,23 @@ module QTimetrap
       attr_reader :path
 
       def read_ids
-        return [] unless File.exist?(path)
+        return @ids_cache if @ids_cache
+        return @ids_cache = Set.new unless File.exist?(path)
 
         payload = YAML.safe_load_file(path, permitted_classes: [], aliases: false)
-        return [] unless payload.is_a?(Hash)
+        return @ids_cache = Set.new unless payload.is_a?(Hash)
 
-        Array(payload['archived_entry_ids']).filter_map { |value| Integer(value) }.uniq.sort
+        values = Array(payload['archived_entry_ids']).filter_map { |value| Integer(value) }.uniq
+        @ids_cache = Set.new(values)
       rescue Psych::SyntaxError, ArgumentError, TypeError
-        []
+        @ids_cache = Set.new
       end
 
       def write_ids(ids)
         FileUtils.mkdir_p(File.dirname(path))
-        File.write(path, { 'archived_entry_ids' => ids.uniq.sort }.to_yaml)
+        normalized_ids = ids.uniq.sort
+        File.write(path, { 'archived_entry_ids' => normalized_ids }.to_yaml)
+        @ids_cache = Set.new(normalized_ids)
       end
 
       def default_path
