@@ -28,6 +28,7 @@ module QTimetrap
         @task_display_inputs = {}
         @task_editors = {}
         @task_editor_line_edits = {}
+        @task_editor_configs = {}
       end
 
       def initialize_time_filter_state!
@@ -69,8 +70,21 @@ module QTimetrap
         container_key = task_container_key(task_container)
         task_containers[container_key] = task_container
         task_display_inputs[container_key] = display_input
+        register_task_editor_widgets(task_container, editor, line_edit) if editor
+      end
+
+      def register_task_editor_config(task_container, node:, task_name:)
+        task_editor_configs[task_container_key(task_container)] = { node: node, task_name: task_name }
+      end
+
+      def register_task_editor_widgets(task_container, editor, line_edit)
+        container_key = task_container_key(task_container)
         task_editors[container_key] = editor
         task_editor_line_edits[task_editor_key(editor)] = line_edit
+      end
+
+      def task_editor_config_for(task_container)
+        task_editor_configs[task_container_key(task_container)]
       end
 
       def task_container_key(task_container)
@@ -106,11 +120,13 @@ module QTimetrap
       end
 
       def task_editor_line_edit_for(editor)
+        return unless editor
+
         task_editor_line_edits[task_editor_key(editor)]
       end
 
       attr_reader :task_containers, :task_display_inputs, :task_editors, :task_editor_line_edits,
-                  :active_task_container_key
+                  :active_task_container_key, :task_editor_configs
     end
   end
 end

@@ -77,6 +77,31 @@ module QTimetrap
         line_edit
       end
 
+      def ensure_entry_task_editor(task_container)
+        editor = entry_task_editor(task_container)
+        return [editor, entry_task_editor_line_edit(editor)] if editor
+
+        config = task_editor_config_for(task_container)
+        task_name = config.fetch(:task_name)
+        editor, line_edit = build_entry_task_editor_shell(task_container, task_name)
+        apply_entry_widget_styles(editor, %w[entry_node_entry_task_editor])
+        populate_entry_task_options(editor, task_name, config.fetch(:node))
+        editor.current_text = task_name
+        register_task_editor_widgets(task_container, editor, line_edit)
+        bind_entry_task_editor_events(task_container, config.fetch(:node))
+        [editor, line_edit]
+      end
+
+      def bind_entry_task_editor_events(task_container, node)
+        entry_id = resolve_entry_id(node)
+        editor = entry_task_editor(task_container)
+        line_edit = entry_task_editor_line_edit(editor)
+        line_edit.on(:key_press) { |event| handle_entry_task_key_press(task_container, entry_id, event) }
+        line_edit.connect('returnPressed') { |_| handle_entry_task_commit(task_container, entry_id) }
+        line_edit.on(:focus_out) { |_| handle_entry_task_focus_out(task_container) }
+        editor.connect('textActivated') { |_| handle_entry_task_commit(task_container, entry_id, force: true) }
+      end
+
       def build_entry_task_line_edit(task_container)
         QLineEdit.new(task_container).tap do |line_edit|
           line_edit.object_name = 'entry_node_entry_task_editor_input'
@@ -112,6 +137,8 @@ module QTimetrap
       end
 
       def entry_task_editor_line_edit(editor)
+        return unless editor
+
         task_editor_line_edit_for(editor) || editor.instance_variable_get(:@qtimetrap_task_line_edit)
       end
 

@@ -8,10 +8,9 @@ module QTimetrap
 
       def activate_entry_task_input(task_container)
         close_previous_task_editor(task_container)
+        editor, editor_input = ensure_entry_task_editor(task_container)
         show_entry_task_editor(task_container)
         self.active_task_container = task_container
-        editor = entry_task_editor(task_container)
-        editor_input = entry_task_editor_line_edit(editor)
         editor_input.read_only = false
         editor.set_focus
         editor_input.set_focus

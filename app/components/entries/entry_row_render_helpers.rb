@@ -47,14 +47,6 @@ module QTimetrap
         when :prefix then create_entry_prefix(context)
         when :task_container then create_task_container(context)
         when :task_display then create_task_display(context)
-        when :task_editor then create_task_editor(context)
-        when :task_options then add_task_option(context, index)
-        when :task_current_text then set_task_current_text(context)
-        when :task_bind_display then bind_task_display(context)
-        when :task_bind_key then bind_task_key(context)
-        when :task_bind_return then bind_task_return(context)
-        when :task_bind_focus then bind_task_focus(context)
-        when :task_bind_activated then bind_task_activated(context)
         when :note_input then create_entry_note(context)
         when :note_bind_mouse then bind_entry_note_mouse(context)
         when :note_bind_key then bind_entry_note_key(context)
@@ -150,77 +142,10 @@ module QTimetrap
         display = build_entry_task_display(context.fetch(:task_container), task_name)
         context[:task_name] = task_name
         context[:task_display] = display
-        enqueue_entry_row_stage(context, :task_editor)
-      end
-
-      def create_task_editor(context)
-        editor, line_edit = build_entry_task_editor_shell(context.fetch(:task_container), context.fetch(:task_name))
-        context[:task_editor] = editor
-        context[:task_editor_input] = line_edit
-        context[:task_options] = task_options_for(context)
-        register_task_widgets(context.fetch(:task_container), context.fetch(:task_display), editor, line_edit)
-        enqueue_entry_row_stage(context, :task_options, 0)
-      end
-
-      def add_task_option(context, index)
-        options = context.fetch(:task_options)
-        if index < options.length
-          context.fetch(:task_editor).add_item(options[index])
-          enqueue_entry_row_stage(context, :task_options, index + 1)
-        else
-          enqueue_entry_row_stage(context, :task_current_text)
-        end
-      end
-
-      def task_options_for(context)
-        node = context.fetch(:node)
-        project = node.fetch(:project_name, '').to_s
-        suggestions = task_suggestion_cache.fetch(project) do
-          task_suggestion_cache[project] = Array(task_suggestions_for_project&.call(project)).map(&:to_s)
-        end
-        ([context.fetch(:task_name)] + suggestions).reject(&:empty?).uniq
-      end
-
-      def set_task_current_text(context)
-        context.fetch(:task_editor).current_text = context.fetch(:task_name)
-        enqueue_entry_row_stage(context, :task_bind_display)
-      end
-
-      def bind_task_display(context)
         task_container = context.fetch(:task_container)
-        context.fetch(:task_display).on(:mouse_button_press) { |_| activate_entry_task_input(task_container) }
-        enqueue_entry_row_stage(context, :task_bind_key)
-      end
-
-      def bind_task_key(context)
-        task_container = context.fetch(:task_container)
-        entry_id = resolve_entry_id(context.fetch(:node))
-        context.fetch(:task_editor_input).on(:key_press) do |event|
-          handle_entry_task_key_press(task_container, entry_id, event)
-        end
-        enqueue_entry_row_stage(context, :task_bind_return)
-      end
-
-      def bind_task_return(context)
-        task_container = context.fetch(:task_container)
-        entry_id = resolve_entry_id(context.fetch(:node))
-        context.fetch(:task_editor_input).connect('returnPressed') do |_|
-          handle_entry_task_commit(task_container, entry_id)
-        end
-        enqueue_entry_row_stage(context, :task_bind_focus)
-      end
-
-      def bind_task_focus(context)
-        task_container = context.fetch(:task_container)
-        context.fetch(:task_editor_input).on(:focus_out) { |_| handle_entry_task_focus_out(task_container) }
-        enqueue_entry_row_stage(context, :task_bind_activated)
-      end
-
-      def bind_task_activated(context)
-        task_container = context.fetch(:task_container)
-        context.fetch(:task_editor).connect('textActivated') do |_|
-          handle_entry_task_commit(task_container, resolve_entry_id(context.fetch(:node)), force: true)
-        end
+        register_task_widgets(task_container, display, nil, nil)
+        register_task_editor_config(task_container, node: context.fetch(:node), task_name: task_name)
+        display.on(:mouse_button_press) { |_| activate_entry_task_input(task_container) }
         enqueue_entry_row_stage(context, :note_input)
       end
 

@@ -76,11 +76,13 @@ RSpec.describe QTimetrap::Entries::ListComponent do
     expect_time_inputs(start_input, end_input, start_text: '10:00', end_text: '11:00', read_only: true)
   end
 
-  it 'renders task display input and hidden combo editor' do
+  it 'creates the task combo editor only when activated' do
     render_component(entry_nodes)
 
     task_container = entry_task_input
     expect_task_input_state(task_container)
+    activate_entry_task_editor
+    expect_task_editor_options(task_container)
   end
 
   it 'keeps full task name in tooltip for display and editor' do
@@ -312,11 +314,12 @@ RSpec.describe QTimetrap::Entries::ListComponent do
   def expect_task_input_state(task_container)
     expect(task_container).not_to be_nil
     expect_task_display(task_container)
-    expect_task_editor_options(task_container)
+    expect(task_editor(task_container)).to be_nil
   end
 
   def expect_task_tooltips(task_name)
     task_container = entry_task_input
+    activate_entry_task_editor
     expect(task_display_input(task_container).tool_tip.to_s).to eq(task_name)
     expect(task_editor(task_container).tool_tip.to_s).to eq(task_name)
   end
@@ -446,7 +449,7 @@ RSpec.describe QTimetrap::Entries::ListComponent do
 
   def expect_task_editor_options(task_container)
     expect(task_editor(task_container).count).to eq(3)
-    expect(task_editor(task_container).is_hidden).to be(true)
+    expect(task_editor(task_container).is_hidden).to be(false)
   end
 
   def expect_task_commit_state(task_name)
